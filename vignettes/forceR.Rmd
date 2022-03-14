@@ -45,7 +45,7 @@ Rühr, PT & Blanke, A (**in rev.**): `forceX` and `forceR`: a mobile setup and R
 ## Installation
 # Official release
 You can install the official releas of `forceR` from [CRAN](xxx):
-```{r warning=FALSE, message=FALSE, eval=F}
+```{r warning=FALSE, message=FALSE}
 # install.packages('forceR') not yet
 ```
 
