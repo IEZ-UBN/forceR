@@ -5,6 +5,9 @@ knitr::opts_chunk$set(
 )
 
 ## ----warning=FALSE, message=FALSE, eval=F-------------------------------------
+#  # install.packages('forceR') not yet
+
+## ----warning=FALSE, message=FALSE, eval=F-------------------------------------
 #  require(devtools)
 #  devtools::install_github("https://github.com/Peter-T-Ruehr/forceR")
 

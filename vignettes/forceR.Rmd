@@ -43,12 +43,11 @@ Please cite the following publicaiton when using the `forceR` package:
 Rühr, PT & Blanke, A (**in rev.**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution* **XXX**: pp.XX-XX. doi: XXX
 
 ## Installation
-<!-- # Official release -->
-<!-- You can install the officially  -->
-<!-- You can install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR): -->
-<!-- ```{r warning=FALSE, message=FALSE, eval=F} -->
-<!--  install.packages('forceR') -->
-<!--  ``` -->
+# Official release
+You can install the official releas of `forceR` from [CRAN](xxx):
+```{r warning=FALSE, message=FALSE, eval=F}
+# install.packages('forceR') not yet
+```
 
 # Development version
 You can install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR):
