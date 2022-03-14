@@ -1,0 +1,31 @@
+Package: forceR
+Title: Force and other Time Series Preparations and Analyses
+Version: 1.0.0.9000
+Description: Originally written for bite force data preparation. Includes a full workflow to plot and crop data, correct charge amplifier and baseline drifts, identify individual bites, rescale (normalize) bite curves, and find best polynomial fits to describe bite curves.
+License: MIT + file LICENSE
+URL: https://github.com/Peter-T-Ruehr/forceR
+BugReports: https://github.com/Peter-T-Ruehr/forceR/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports: 
+    dplyr,
+	ggplot2,
+	graphics,
+	grDevices,
+	filesstrings,
+    knitr,
+	magrittr,
+	purrr,
+    readr,
+    rmarkdown,
+    roll,
+	stats,
+    stringr
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr
+Suggests: 
+Config/testthat/edition: 3
+Author: Peter T. Rühr <peter.ruehr@gmail.com>
+Maintainer: Peter T. Rühr <peter.ruehr@gmail.com>
