@@ -46,9 +46,9 @@ Rühr, PT & Blanke, A (**in rev.**): `forceX` and `forceR`: a mobile setup and R
 <!-- # Official release -->
 <!-- You can install the officially  -->
 <!-- You can install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR): -->
-# ```{r warning=FALSE, message=FALSE, eval=F}
-# install.packages('forceR')
-# ```
+<!-- ```{r warning=FALSE, message=FALSE, eval=F} -->
+<!--  install.packages('forceR') -->
+<!--  ``` -->
 
 # Development version
 You can install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR):
