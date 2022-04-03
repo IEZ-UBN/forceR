@@ -6,7 +6,7 @@
 #'
 #' @param data.folders Character vector containing full folder paths of folders to check. This list must be sorted
 #'   according to the chronology of previous file editing. If a measurement exists in the last folder,
-#'   this is copyied or moved into the `results.folder`, and files of the same measurement located in the
+#'   this is copied or moved into the `results.folder`, and files of the same measurement located in the
 #'   other folders will be ignored. Like this, the file of each measurement that underwent most correction steps
 #'   will be stored in the `results.folder`, while the rest of the files of the same measurement remain in place.
 #' @param results.folder Character string defining the full path to the folder where the desired files will be stored.

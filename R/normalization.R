@@ -20,66 +20,11 @@
 #'  rescaled time and force data now both ranging from 0 to 1.
 #'
 #' @examples
-#' # This example contains a self-sufficient data PREPARATION section
-#' # before the function is actually run.
-#' require(dplyr)
+#' # Using the forceR::df.all.200.tax and forceR::df.all.200.tax datasets:
 #'
-#' # PREPARATION ####
-#' # create a classifier to store specimen info (see package vignette for details)
-#' classifier <- tibble(species = c("A","A","A","A","B","B","B","B"),
-#'                      specimen = c("a","a","b","b","c","c","d","d"),
-#'                      measurement = paste0("m_0", 1:8),
-#'                      amp = c(rep(2,4), rep(0.5, 4)),
-#'                      lever.ratio = rep(0.5, 8))
-#'
-#' # create temporary tibble to store data for bite series simulation
-#' classifier.temp <- classifier %>%
-#'   mutate(type = c(rep("sin", 4), rep("plat", 4)),
-#'          max.y = c(1.9, 2.4, 2.2, 2.0, 6.8, 7.2, 7.5, 7.2),
-#'          length.of.bite = c(20, 20, 18, 22, 50, 40, 45, 40),
-#'          length.of.series = c(rep(200, 4), rep(600, 4)),
-#'          jit = c(rep(0.5, 4), rep(1, 4)))
-#'
-#' # create tibble with simulated time series with different
-#' # bite characteristics for each measurement, specimen and species
-#' df.all <- NULL
-#' for(i in 1:nrow(classifier.temp)){
-#'   df.curr <- simulate_bites(no.of.bites = 7,
-#'                             length.of.bite = classifier.temp$length.of.bite[i],
-#'                             length.of.series = classifier.temp$length.of.series[i],
-#'                             max.y = classifier.temp$max.y[i],
-#'                             max.y.jit = 15,
-#'                             jit = classifier.temp$jit[i],
-#'                             bite.type = classifier.temp$type[i],
-#'                             plot = FALSE)
-#'
-#'   # add measurement number to df.curr
-#'   df.curr <- df.curr %>%
-#'     mutate(measurement = classifier.temp$measurement[i])
-#'
-#'   # add current sumulated bite series to df.all
-#'   df.all <- rbind(df.all, df.curr)
-#' }
-#' # remove temporary tibble to avoid confusion
-#' rm(classifier.temp)
-#'
-#' # rename columns
-#' df.all <- df.all %>%
-#'   rename(force = y)
-#'
-#' # add classifier info to bite table (df.all)
-#' df.all <- left_join(df.all,
-#'                     classifier,
-#'                     by = "measurement")
-#'
-#' peaks.df <- find_strongest_peaks(df = df.all,
-#'                                  no.of.peaks = 5,
-#'                                  print.to.pdf = FALSE)
-#'
-#' # RUN THE FUNCTION ####
 #' # rescale bites
 #' peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-#'                                  df.data = df.all)
+#'                                  df.data = df.all.200.tax)
 #'
 #' # maximum values of time and force are both 1 in the whole data frame:
 #' max(peaks.df.norm$t.norm)
@@ -171,7 +116,12 @@ rescale_peaks <- function(df.peaks,
   rm(df.data.red.for.looping)
 
   # re-add all info stored in df.data
-  curves_df_norm <- left_join(curves_df_norm, df.data %>% group_by(measurement) %>% slice(1), by = "measurement")
+  curves_df_norm <- left_join(curves_df_norm,
+                              df.data %>%
+                                group_by(measurement) %>%
+                                slice(1),
+                              by = "measurement") %>%
+    select(-c(t, force))
 
   if(!is.null(path.data)){
     print(paste0("Saving curves_df_norm at ", path.data, "/", today(), "_curves_df_norm.csv..."))
@@ -190,8 +140,8 @@ rescale_peaks <- function(df.peaks,
 #' Reduces curves to 100 observations per peak.
 #'
 #' @param df The resulting tibble of the function `rescale_peaks()`. See `?rescale_peaks` for more details.
-#'   The colums `measurement` and `force.norm` must be present.
-#' @param path.plots A string character defining where to save the plots. Default: wokring directory.
+#'   The columns `measurement` and `force.norm` must be present.
+#' @param path.plots A string character defining where to save the plots. Default: working directory. Default: `getwd()`.
 #' @param print.to.pdf A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: `TRUE`
 #' @details
 #' # `df` needs to contain the following columns:
@@ -207,70 +157,10 @@ rescale_peaks <- function(df.peaks,
 #'   has been reduced to 100 observations, this tibble will always contain 100 rows per peak.
 #'
 #' @examples
-#' # This example contains a self-sufficient data PREPARATION section
-#' # before the function is actually run.
-#' require(dplyr)
-#'
-#' # PREPARATION ####
-#' # create a classifier to store specimen info (see package vignette for details)
-#' classifier <- tibble(species = c("A","A","A","A","B","B","B","B"),
-#'                      specimen = c("a","a","b","b","c","c","d","d"),
-#'                      measurement = paste0("m_0", 1:8),
-#'                      amp = c(rep(2,4), rep(0.5, 4)),
-#'                      lever.ratio = rep(0.5, 8))
-#'
-#' # create temporary tibble to store data for bite series simulation
-#' classifier.temp <- classifier %>%
-#'   mutate(type = c(rep("sin", 4), rep("plat", 4)),
-#'          max.y = c(1.9, 2.4, 2.2, 2.0, 6.8, 7.2, 7.5, 7.2),
-#'          length.of.bite = c(20, 20, 18, 22, 50, 40, 45, 40),
-#'          length.of.series = c(rep(200, 4), rep(600, 4)),
-#'          jit = c(rep(0.5, 4), rep(1, 4)))
-#'
-#' # create tibble with simulated time series with different
-#' # bite characteristics for each measurement, specimen and species
-#' df.all <- NULL
-#' for(i in 1:nrow(classifier.temp)){
-#'   df.curr <- simulate_bites(no.of.bites = 7,
-#'                             length.of.bite = classifier.temp$length.of.bite[i],
-#'                             length.of.series = classifier.temp$length.of.series[i],
-#'                             max.y = classifier.temp$max.y[i],
-#'                             max.y.jit = 15,
-#'                             jit = classifier.temp$jit[i],
-#'                             bite.type = classifier.temp$type[i],
-#'                             plot = FALSE)
-#'
-#'   # add measurement number to df.curr
-#'   df.curr <- df.curr %>%
-#'     mutate(measurement = classifier.temp$measurement[i])
-#'
-#'   # add current sumulated bite series to df.all
-#'   df.all <- rbind(df.all, df.curr)
-#' }
-#' # remove temporary tibble to avoid confusion
-#' rm(classifier.temp)
-#'
-#' # rename columns
-#' df.all <- df.all %>%
-#'   rename(force = y)
-#'
-#' # add classifier info to bite table (df.all)
-#' df.all <- left_join(df.all,
-#'                     classifier,
-#'                     by = "measurement")
-#'
-#' peaks.df <- find_strongest_peaks(df = df.all,
-#'                                  no.of.peaks = 5,
-#'                                  print.to.pdf = FALSE)
-#'
-#' # rescale bites
-#' peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-#'                                 df.data = df.all)
-#'
-#' # RUN THE FUNCTION ####
+#' # Using the forceR::df.all.200.tax dataset:
 #' peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#'                                    path.plots = path.plots,
 #'                                    print.to.pdf = FALSE)
+#'
 #' plot(peaks.df.norm.100$index,
 #'        peaks.df.norm.100$force.norm.100,
 #'        type="l")
@@ -354,84 +244,19 @@ red_peaks_100 <- function(df,
 #'   and `force.norm.100` containing the averaged and rescaled curve of each species.
 #' @export
 #' @examples
-#' # This example contains a self-sufficient data PREPARATION section
-#' # before the function is actually run.
-#' require(dplyr)
+#' # Using the forceR::df.all.200.tax dataset:
 #'
-#' # PREPARATION ####
-#' # create a classifier to store specimen info (see package vignette for details)
-#' classifier <- tibble(species = c("A","A","A","A","B","B","B","B"),
-#'                      specimen = c("a","a","b","b","c","c","d","d"),
-#'                      measurement = paste0("m_0", 1:8),
-#'                      amp = c(rep(2,4), rep(0.5, 4)),
-#'                      lever.ratio = rep(0.5, 8))
-#'
-#' # create temporary tibble to store data for bite series simulation
-#' classifier.temp <- classifier %>%
-#'   mutate(type = c(rep("sin", 4), rep("plat", 4)),
-#'          max.y = c(1.9, 2.4, 2.2, 2.0, 6.8, 7.2, 7.5, 7.2),
-#'          length.of.bite = c(20, 20, 18, 22, 50, 40, 45, 40),
-#'          length.of.series = c(rep(200, 4), rep(600, 4)),
-#'          jit = c(rep(0.5, 4), rep(1, 4)))
-#'
-#' # create tibble with simulated time series with different
-#' # bite characteristics for each measurement, specimen and species
-#' df.all <- NULL
-#' for(i in 1:nrow(classifier.temp)){
-#'   df.curr <- simulate_bites(no.of.bites = 7,
-#'                             length.of.bite = classifier.temp$length.of.bite[i],
-#'                             length.of.series = classifier.temp$length.of.series[i],
-#'                             max.y = classifier.temp$max.y[i],
-#'                             max.y.jit = 15,
-#'                             jit = classifier.temp$jit[i],
-#'                             bite.type = classifier.temp$type[i],
-#'                             plot = FALSE)
-#'
-#'   # add measurement number to df.curr
-#'   df.curr <- df.curr %>%
-#'     mutate(measurement = classifier.temp$measurement[i])
-#'
-#'   # add current sumulated bite series to df.all
-#'   df.all <- rbind(df.all, df.curr)
-#' }
-#' # remove temporary tibble to avoid confusion
-#' rm(classifier.temp)
-#'
-#' # rename columns
-#' df.all <- df.all %>%
-#'   rename(force = y)
-#'
-#' # add classifier info to bite table (df.all)
-#' df.all <- left_join(df.all,
-#'                     classifier,
-#'                     by = "measurement")
-#'
-#' peaks.df <- find_strongest_peaks(df = df.all,
-#'                                  no.of.peaks = 5,
-#'                                  print.to.pdf = FALSE)
-#'
-#' # rescale bites
-#' peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-#'                                 df.data = df.all)
-#'
-#' # reduce to 100 obesrvations per bite
-#' peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#'                                    path.plots = path.plots,
-#'                                    print.to.pdf = FALSE)
-#'
-#' # RUN THE FUNCTION ####
+#' # calculate mean curves per species
 #' peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
 #'
-#' # plot results
-#' par(mfrow = c(1,2))
-#' plot(peaks.df.norm$t.norm,
-#'      peaks.df.norm$force.norm,
-#'      type="l")
-#'
-#' plot(peaks.df.100.avg$index,
-#'      peaks.df.100.avg$force.norm.100,
-#'      type="l")
-#' par(mfrow = c(1,1))
+#' \dontrun{
+#' # plot averaged normalized curves per species
+#' require(ggplot2)
+#' ggplot(peaks.df.100.avg, aes(x = index ,
+#'                              y = force.norm.100.avg,
+#'                              colour=species)) +
+#'   geom_line()
+#' }
 
 avg_peaks <- function(df){
 
@@ -441,7 +266,8 @@ avg_peaks <- function(df){
                                arrange(species, index)) %>%
     # rescale y to range from 0-1 again (Not the case anymore due to ID-wise averaging)
     group_by(species) %>%
-    mutate(force.norm.100.avg = rescale_to_range(force.norm.100, from = 0, to = 1))
+    mutate(force.norm.100.avg = rescale_to_range(force.norm.100, from = 0, to = 1)) %>%
+    select(-force.norm.100)
 
   print("Done!")
   return(df.peaks.100.avg)

@@ -21,12 +21,11 @@
 #'# Using package example files from GitHub stored within
 #'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
 #'
-#'# store folder with files
-#'data.folder <- "./example_data"
-#'results.folder <- file.path(data.folder, "/corrected/")
+#'# store name of folder that contains file
+#'input.folder <- "./example_data/corrected/"
 #'
 #'# store file name of file to load (first file of file.list)
-#'file.name <- list.files(results.folder, pattern = "csv", full.names = TRUE)[1]
+#'file.name <- list.files(input.folder, pattern = "csv", full.names = TRUE)[1]
 #'
 #'# load a single file
 #'df.1 <- load_single(file.name)
@@ -80,7 +79,18 @@ load_single <- function (file,
 #' | `t.1` |  `y.1` |  `...`  |
 #' | `...` | `...` | `...`  |
 #' | `t.n` |  `y.n` |  `...`  |
+#' @examples
+#'\dontrun{
+#'# Using package example files from GitHub stored within
+#'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
 #'
+#'# store name of folder that contains files
+#'input.folder <- "./example_data/corrected/"
+#'
+#'# load a mutiple files
+#' df.all <- load_mult(folder = input.folder,
+#'                     columns = c(1:2))
+#'}
 #' @export
 load_mult <- function (folder,
                        columns = c(1:2)){ # was: load.multiple.measurements.prepared

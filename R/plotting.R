@@ -15,14 +15,14 @@
 #' All other columns will be ignored. Default: `c(1,2)`.
 #' @return Creates a plot in the current plot device.
 #' @examples
-#'\dontrun{
-#'# Using a package example file from GitHub stored within
-#'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+#' \dontrun{
+#' # Using a package example file from GitHub stored within
+#' # https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
 #'
-#'data.folder <- "./example_data"
-#'file = file.path(data.folder, "0982.csv")
-#'plot_measurement(file)
-#'}
+#' data.folder <- "./example_data"
+#' file = file.path(data.folder, "0982.csv")
+#' plot_measurement(file)
+#' }
 #' @export
 plot_measurement <- function (file,
                               columns = c(1:2)){
@@ -76,63 +76,11 @@ plot_measurement <- function (file,
 #' Plots one graph per peak curve and, if `print.to.pdf == TURE`, saves all peak curves as one PDF at `path.plots`.
 #'
 #' @examples
-#' require(dplyr)
+#' # Using the forceR::peaks.df and forceR::df.all.200.tax datasets:
 #'
-#' # PREPARATION ####
-#' # create a classifier to store specimen info (see package vignette for details)
-#' classifier <- tibble(species = c("A","A","A","A","B","B","B","B"),
-#'                      specimen = c("a","a","b","b","c","c","d","d"),
-#'                      measurement = paste0("m_0", 1:8),
-#'                      amp = c(rep(2,4), rep(0.5, 4)),
-#'                      lever.ratio = rep(0.5, 8))
-#'
-#' # create temporary tibble to store data for bite series simulation
-#' classifier.temp <- classifier %>%
-#'   mutate(type = c(rep("sin", 4), rep("plat", 4)),
-#'          max.y = c(1.9, 2.4, 2.2, 2.0, 6.8, 7.2, 7.5, 7.2),
-#'          length.of.bite = c(20, 20, 18, 22, 50, 40, 45, 40),
-#'          length.of.series = c(rep(200, 4), rep(600, 4)),
-#'          jit = c(rep(0.5, 4), rep(1, 4)))
-#'
-#' # create tibble with simulated time series with different
-#' # bite charactersitics for each measurement, specimen and species
-#' df.all <- NULL
-#' for(i in 1:nrow(classifier.temp)){
-#'   df.curr <- simulate_bites(no.of.bites = 7,
-#'                             length.of.bite = classifier.temp$length.of.bite[i],
-#'                             length.of.series = classifier.temp$length.of.series[i],
-#'                             max.y = classifier.temp$max.y[i],
-#'                             max.y.jit = 15,
-#'                             jit = classifier.temp$jit[i],
-#'                             bite.type = classifier.temp$type[i],
-#'                             plot = FALSE)
-#'
-#'   # add measurement number to df.curr
-#'   df.curr <- df.curr %>%
-#'     mutate(measurement = classifier.temp$measurement[i])
-#'
-#'   # add current sumulated bite series to df.all
-#'   df.all <- rbind(df.all, df.curr)
-#' }
-#' # remove temporary tibble to avoid confusion
-#' rm(classifier.temp)
-#'
-#' # rename columns
-#' df.all <- df.all %>%
-#'   rename(force = y)
-#'
-#' # add classifier info to bite table (df.all)
-#' df.all <- left_join(df.all,
-#'                     classifier,
-#'                     by = "measurement")
-#'
-#' peaks.df <- find_strongest_peaks(df = df.all,
-#'                                  no.of.peaks = 5,
-#'                                  print.to.pdf = FALSE)
-#'
-#' # RUN THE FUNCTION ####
+#' # plot peaks
 #' plot_peaks(df.peaks = peaks.df,
-#'            df.data = df.all,
+#'            df.data = df.all.200.tax,
 #'            additional.msecs = 20,
 #'            print.to.pdf = FALSE)
 #' @export

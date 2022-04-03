@@ -12,7 +12,11 @@
 #' | `t.1` |   | `y.1` |
 #' | `...` |   | `...` |
 #' | `t.n` |   | `y.n` |
-#'
+#' @examples
+#' \dontrun{
+#' convert_measurement (file = "LJStream_file_0.dat",
+#'   decimal = ".")
+#' }
 #' @export
 
 convert_measurement <- function (file, decimal = "."){

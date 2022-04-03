@@ -288,7 +288,7 @@ amp_drift_corr <- function(folder,
 #' The automatic approach invokes a sliding window, during which the 'minimum' within each sliding window
 #' is stored. A 'minimum' is defined by the `quantile.size`: if set to `0.05`, the value below which only 5% of
 #' the measurement data within the sliding window lies, is treated as the current window's minimum. This
-#' prevents the treatment of potential artefacts as minima. In a second iteration, another sliding window
+#' prevents the treatment of potential artifacts as minima. In a second iteration, another sliding window
 #' calculates the average of these 'minima'. The resulting values are subtracted from
 #' the original time series. This approach works well for time series with relatively short peaks.
 #' If the automatic approach does not yield acceptable results, an interactive manual approach to correct
@@ -301,7 +301,7 @@ amp_drift_corr <- function(folder,
 #' @param print.to.screen A logical value indicating if results should be plotted in the current R plot
 #'   device. Default: `TRUE`.
 #' @param print.to.pdf  A logical value indicating  if results should be saved as PDFs. This is considered
-#'   necessary to quality check and comunicate the results. Default: `TRUE`.
+#'   necessary to quality check and communicate the results. Default: `TRUE`.
 #' @param window.size.mins A numeric value for the size of the search window to find minima in. Should be
 #'   in the same time unit as the measurement. Longer peaks require higher values, shorter peaks require
 #'   smaller values. Default: `1000`.
@@ -783,7 +783,7 @@ baseline_corr <- function(file,
           width = 20, height = 10)
     }
     plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)],
-         main = paste0(curr.measurement), lwd = 4, , type="l", col = "grey60",
+         main = paste0(curr.measurement), lwd = 4, type="l", col = "grey60",
          xlim = c(0, max(data$t)),
          ylim = c(min(data$y, data$y, data$y.zerocor),
                   max(data$y, data$y, data$y.zerocor))) # y_raw

@@ -65,7 +65,7 @@ print_progress <- function(current, end) {
 
 #' Simulate bites
 #'
-#' Simulates either sinusoidal or plateu-like bites.
+#' Simulates either sinusoidal or plateau-like bites.
 #'
 #' @param no.of.bites Number of bites in time series. Default: `5`.
 #' @param length.of.bite Length of each bite. Default: `1000`.
@@ -76,10 +76,10 @@ print_progress <- function(current, end) {
 #' @param peak.pos Position (in percent) of peak within peak curve.
 #' Only applies to `bite.type = "sin` (sinusoidal bites.) Default: same as `50`.
 #' @param slope.perc.start Percentage of how much of the whole bite is defined by the ascending slope.
-#' Only applies to `bite.type = "plat` (plateu-like bites.) Default: `10`.
+#' Only applies to `bite.type = "plat` (plateau-like bites.) Default: `10`.
 #' @param slope.perc.end Percentage of how much of the whole bite is defined by the descending slope.
-#' Only applies to `bite.type = "plat` (plateu-like bites.) Default: same as `slope.perc.start`.
-#' @param bite.type String: either "sin" or "plat" for sinusoidal or plateu-like bites, respectively. Default: `"sin"`.
+#' Only applies to `bite.type = "plat` (plateau-like bites.) Default: same as `slope.perc.start`.
+#' @param bite.type String: either "sin" or "plat" for sinusoidal or plateau-like bites, respectively. Default: `"sin"`.
 #' @param plot Logical. If `TRUE`, the simulated time series will be plotted to the active plot device. Default: `TRUE`.
 #' @return Returns a tibble with the columns `t` and `y` containing simulated bites.
 #' @examples
@@ -107,7 +107,7 @@ print_progress <- function(current, end) {
 #'                 bite.type = "sin",
 #'                 plot = TRUE)
 #'
-#' # simulate a time series with plateu-like bites
+#' # simulate a time series with plateau-like bites
 #' simulate_bites(no.of.bites = 5,
 #'                 length.of.bite = 1000,
 #'                 length.of.series = 10000,
@@ -117,7 +117,7 @@ print_progress <- function(current, end) {
 #'                 bite.type = "plat",
 #'                 plot = TRUE)
 #'
-#' # simulate a time series with plateu-like bites
+#' # simulate a time series with plateau-like bites
 #' # with slowly ascending bite start and abprupt bite end.
 #' simulate_bites(no.of.bites = 5,
 #'                 length.of.bite = 1000,
