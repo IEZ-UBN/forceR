@@ -21,6 +21,9 @@
 
 convert_measurement <- function (file, decimal = "."){
 
+  if(!is.character(file)) stop ("'file' must be a character string.")
+  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
+
   Time <- y0 <- NULL
 
   if(!file.exists(file)) stop(paste0("File ", file, " does not exist!"))
@@ -90,8 +93,10 @@ convert_measurement <- function (file, decimal = "."){
 #'file <- file.path(data.folder, "0982.csv")
 #'
 #'# crop file
-#'crop_measurement(file)
+#'crop_measurement(file,
+#'   decimal = ".")
 #'
+#'# plot results
 #'# define folder where cropped file is stored
 #'cropped.folder <- file.path(data.folder, "cropped")
 #'
@@ -101,6 +106,9 @@ convert_measurement <- function (file, decimal = "."){
 #'}
 #' @export
 crop_measurement <- function (file, decimal = "."){
+
+  if(!is.character(file)) stop ("'file' must be a character string.")
+  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
 
   y <- NULL
 
@@ -176,7 +184,7 @@ crop_measurement <- function (file, decimal = "."){
   print("Done!")
 }
 
-#' Crops Time Series
+#' Crops LJStream Time Series
 #'
 #' Interactive function to crop a time series measured with LJStream (LabJack Corporation, Lakewood, Colorado, US), the standard software of the forceR setup.
 #' @param file File path to measurement.
@@ -195,6 +203,9 @@ crop_measurement <- function (file, decimal = "."){
 #'
 #' @export
 crop_measurement_LJStream <- function (file, decimal = "."){
+
+  if(!is.character(file)) stop ("'file' must be a character string.")
+  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
 
   y <- NULL
 

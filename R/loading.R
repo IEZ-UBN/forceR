@@ -97,7 +97,12 @@ load_single <- function (file,
 #'}
 #' @export
 load_mult <- function (folder,
-                       columns = c(1:2)){ # was: load.multiple.measurements.prepared
+                       columns = c(1:2)){
+
+  if(!is.character(folder)) stop ("'folder' must be a character string.")
+  if(!is.numeric(columns)) stop ("'columns' must be a numeric.")
+  if(length(columns) != 2) stop ("'columns' must be of length 2.")
+
   pb <- NULL
 
   if(!endsWith("/", folder)){

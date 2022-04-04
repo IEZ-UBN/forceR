@@ -30,6 +30,9 @@ find_best_fits <- function(df,
                            path.plots = getwd(),
                            print.to.pdf = TRUE){
 
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+
   species <- NULL
 
   if(print.to.pdf == TRUE){
@@ -176,6 +179,11 @@ find_best_fits <- function(df,
 peak_to_poly <- function(df,
                           coeff,
                           path.data = NULL){
+
+  if(sum(colnames(df) %in% c("species", "index", "force.norm.100.avg")) != 3){
+    stop ("column names of 'df' must contain 'species', 'index', 'force.norm.100.avg'")
+  }
+  if(!is.numeric(coeff)) stop ("'coeff' must be numeric.")
 
   species <- NULL
 

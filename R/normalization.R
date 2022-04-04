@@ -178,7 +178,7 @@ red_peaks_100 <- function(df,
                           print.to.pdf = TRUE){
 
   if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
-    stop ("column names of 'df.peaks' must contain 'measurement','force.norm'.")
+    stop ("column names of 'df' must contain 'measurement','force.norm'.")
   }
   if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
   if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
@@ -273,8 +273,8 @@ red_peaks_100 <- function(df,
 
 avg_peaks <- function(df){
 
-  if(sum(colnames(df) %in% c("species", "index", "force.norm.100")) != 2){
-    stop ("column names of 'df.peaks' must contain 'species','index', 'force.norm.100.")
+  if(sum(colnames(df) %in% c("species", "index", "force.norm.100")) != 3){
+    stop ("column names of 'df' must contain 'species', 'index', 'force.norm.100.")
   }
   if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
   if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")

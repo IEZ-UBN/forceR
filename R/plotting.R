@@ -26,13 +26,16 @@
 #' @export
 plot_measurement <- function (file,
                               columns = c(1:2)){
+
+  if(!is.character(file)) stop ("'file' must be a character string.")
+  if(!is.numeric(columns)) stop ("'columns' must be a numeric.")
+  if(length(columns) != 2) stop ("'columns' must be of length 2.")
+
   # tested for v1.19
   if(file.exists(file)){
     file.name <- basename(file)
     data = read_csv(file, show_col_types = FALSE)
 
-    # check if more than 2 columns were defined for plotting
-    if(length(columns)>2) stop('More than two columns were defined by user.')
     # check if data as at least as many columns as max. number in columns variable
     if(ncol(data) < max(columns)) stop('Data has fewer columns than defined by user.')
 
@@ -89,6 +92,16 @@ plot_peaks <- function(df.peaks,
                        additional.msecs = 2000,
                        path.plots,
                        print.to.pdf = TRUE){
+
+  if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
+    stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'.")
+  }
+  if(sum(colnames(df.data) %in% c("t", "force", "measurement")) != 3){
+    stop ("column names of 'df.data' must contain 't', 'force', 'measurement'.")
+  }
+  if(!is.numeric(additional.msecs)) stop ("'additional.msecs' must be a numeric.")
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
   measurement <- NULL
 

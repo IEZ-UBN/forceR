@@ -70,6 +70,12 @@ find_strongest_peaks <- function(df,
                                  path.plots = getwd(),
                                  print.to.pdf = TRUE){
 
+  if(sum(colnames(df) %in% c("t", "force", "measurement")) != 3){
+    stop ("column names of 'df.peaks' must contain 't', 'force', 'measurement'")
+  }
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+
   specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in funciton?
 
   print("Initial rough threshold search for peaks...")
@@ -402,6 +408,12 @@ correct_peak <- function(df.peaks,
                          peak,
                          additional.msecs,
                          path.data = NULL){
+
+  if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
+    stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'")
+  }
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
   par(mar=c(5,4,4,2)+0.1, mfrow=c(1,1))
 

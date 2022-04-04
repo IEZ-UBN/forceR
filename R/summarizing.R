@@ -16,8 +16,8 @@
 #'
 #' # sumarize by measurement and specimen
 #' df.summary.specimen <- summarize_measurements(df = df.all.200.tax,
-#'                        var1 = "measurement",
-#'                        var2 = "specimen")
+#'                                               var1 = "measurement",
+#'                                               var2 = "specimen")
 #'
 #'
 #'#  plot results
@@ -33,6 +33,20 @@
 #' }
 #' @export
 summarize_measurements <- function(df, var1, var2){
+
+  if(sum(colnames(df) %in% c("species", "specimen", "measurement", "t", "force")) != 5){
+    stop ("column names of 'df' must contain 'species', 'specimen', 'measurement', 't', 'force'.")
+  }
+  if(!is.numeric(coeff)) stop ("'coeff' must be numeric.")
+  if(!is.character(var1)) stop ("'var1' must be a character string.")
+  if(!is.character(var2)) stop ("'var2' must be a character string.")
+
+  if(sum(colnames(df) %in% var1) != 1){
+    stop (paste0("column names of 'df' must contain '", var1, "' as defined in 'var1'."))
+  }
+  if(sum(colnames(df) %in% var2) != 1){
+    stop (paste0("column names of 'df' must contain '", var2, "' as defined in 'var2'."))
+  }
 
   max.F.var1 <- t <- force <- NULL
 

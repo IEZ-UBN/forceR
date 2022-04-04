@@ -69,6 +69,17 @@ reduce_frq <- function (df,
                         Hz = 200,
                         measurement.col = NULL){
 
+  if(sum(colnames(df) %in% c("t", "y")) != 2){
+    stop ("column names of 'df' must contain 't', 'y'.")
+  }
+  if(!is.numeric(Hz)) stop ("'Hz' must be numeric.")
+  if(!is.character(measurement.col) & !is.null(measurement.col)){
+    stop ("'measurement.col' must be NULL or a character string.")
+  }
+  if(!is.null(measurement.col) & sum(colnames(df) %in% measurement.col) != 1){
+    stop (paste0("column names of 'df' must contain '", measurement.col, "' as defined in 'measurement.col'."))
+  }
+
   y <- t.frq <- y.frq <- measurement <- NULL
 
   # sample.rate <- diff(df$t[1:2])
@@ -116,11 +127,11 @@ reduce_frq <- function (df,
 #' @details
 #' The `classifier` should have the following format:
 #'
-#' | **`specimen`** | **`measurement`** | **`measurement`** | **`amp`** | **`lever.ratio`** |
+#' | **`species`** | **`specimen`** | **`measurement`** | **`amp`** | **`lever.ratio`** |
 #' | :----: | :----: | :----: |:----: | :----: |
-#' | `specimen.1` | `species.1` | `measurement.1` | `amp.1` | `lever.ratio.1` |
+#' | `species.1` | `specimen.1` | `measurement.1` | `amp.1` | `lever.ratio.1` |
 #' | `...` | `...` | `...` | `...` | `...`  |
-#' | `specimen.n` | `species.n` | `measurement.n` | `amp.n` | `lever.ratio.n` |
+#' | `species.n` | `specimen.n` | `measurement.n` | `amp.n` | `lever.ratio.n` |
 #'
 #' If one one or both of the columns `amp` or `lever.ratio` are missing, these variables will be treated as `1`,
 #'   i.e., the force data was not amplified and/or there was no lever in the measurement setup.
@@ -132,6 +143,14 @@ reduce_frq <- function (df,
 #'   where `y` is the measurement series, e.g. in `V`, \cr
 #'   `amp` is the amplification value, e.g. in `V/N`, \cr
 #'   and `lever.ratio` is the mechanical lever ratio of the measurement setup.
+#'
+#' `df` should have the following format:
+#'
+#' | **`t`** | **`y`** | **`measurement`** |
+#' | :----: | :----: | :----: |
+#' | `t.1` | `y.1` | `measurement.1` |
+#' | `...` | `...` | `...` |
+#' | `t.n` | `y.n` | `measurement.n` |
 #'
 #' @param df Data frame or tibble in the below mentioned format.
 #' @param classifier Classifier in the below mentioned format.
@@ -155,6 +174,19 @@ reduce_frq <- function (df,
 y_to_force <- function (df,
                         classifier,
                         measurement.col){
+
+  if(sum(colnames(df) %in% c("t", "y", "measurement")) != 3){
+    stop ("column names of 'df' must contain 't', 'y', 'measurement'.")
+  }
+  if(sum(colnames(classifier) %in% c("species", "specimen", "measurement", "amp", "lever.ratio")) != 5){
+    stop ("column names of 'classifier' must contain 'species', 'specimen', 'measurement', 'amp', 'lever.ratio'.")
+  }
+  if(!is.character(measurement.col) & !is.null(measurement.col)){
+    stop ("'measurement.col' must be NULL or a character string.")
+  }
+  if(!is.null(measurement.col) & sum(colnames(df) %in% measurement.col) != 1){
+    stop (paste0("column names of 'df' must contain '", measurement.col, "' as defined in 'measurement.col'."))
+  }
 
   amp <- lever.ratio <- y <- species <- specimen <- NULL
 
