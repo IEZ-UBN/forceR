@@ -37,7 +37,6 @@ summarize_measurements <- function(df, var1, var2){
   if(sum(colnames(df) %in% c("species", "specimen", "measurement", "t", "force")) != 5){
     stop ("column names of 'df' must contain 'species', 'specimen', 'measurement', 't', 'force'.")
   }
-  if(!is.numeric(coeff)) stop ("'coeff' must be numeric.")
   if(!is.character(var1)) stop ("'var1' must be a character string.")
   if(!is.character(var2)) stop ("'var2' must be a character string.")
 

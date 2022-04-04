@@ -412,8 +412,6 @@ correct_peak <- function(df.peaks,
   if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
     stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'")
   }
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
   par(mar=c(5,4,4,2)+0.1, mfrow=c(1,1))
 

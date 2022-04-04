@@ -8,7 +8,7 @@ plot_peaks(
   df.peaks,
   df.data,
   additional.msecs = 2000,
-  path.plots,
+  path.plots = getwd(),
   print.to.pdf = TRUE
 )
 }
@@ -20,7 +20,7 @@ plot_peaks(
 
 \item{additional.msecs}{A numeric value indicating how many m.secs before and after the actual peak curve should be plotted. Default: \code{2000}}
 
-\item{path.plots}{A string character defining where to save the plots.}
+\item{path.plots}{A string character defining where to save the plots. Default: \code{getwd()}}
 
 \item{print.to.pdf}{A logical value indicating if the peak curves should be saved as PDFs. Default: \code{TRUE}
 Default: \code{TRUE}}

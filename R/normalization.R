@@ -276,8 +276,6 @@ avg_peaks <- function(df){
   if(sum(colnames(df) %in% c("species", "index", "force.norm.100")) != 3){
     stop ("column names of 'df' must contain 'species', 'index', 'force.norm.100.")
   }
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
   species <- index <- force.norm.100 <- NULL
 

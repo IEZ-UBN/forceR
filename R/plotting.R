@@ -60,7 +60,7 @@ plot_measurement <- function (file,
 #' @param df.data A data frame or tibble in the below format. The columns `t` (time), `force` and `measurement`
 #'   (measurement ID) must be present. This will usually be the same table that was used before in `find_peaks()`.
 #' @param additional.msecs A numeric value indicating how many m.secs before and after the actual peak curve should be plotted. Default: `2000`
-#' @param path.plots A string character defining where to save the plots.
+#' @param path.plots A string character defining where to save the plots. Default: `getwd()`
 #' @param print.to.pdf A logical value indicating if the peak curves should be saved as PDFs. Default: `TRUE`
 #'   Default: `TRUE`
 #'
@@ -90,7 +90,7 @@ plot_measurement <- function (file,
 plot_peaks <- function(df.peaks,
                        df.data,
                        additional.msecs = 2000,
-                       path.plots,
+                       path.plots = getwd(),
                        print.to.pdf = TRUE){
 
   if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){

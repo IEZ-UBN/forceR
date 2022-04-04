@@ -57,7 +57,7 @@ convert_measurement <- function (file, decimal = "."){
     select(Time, y0) %>%
     rename(t = Time, y = y0)
 
-  write_csv(data, paste0(path.target, gsub("\\.dat$", "\\.csv", basename(file))), quote = FALSE)
+  write_csv(data, paste0(path.target, gsub("\\.dat$", "\\.csv", basename(file))), quote = "none")
 
   print("Done!")
 }
@@ -180,7 +180,7 @@ crop_measurement <- function (file, decimal = "."){
   data_cut <- data_cut %>%
     select(t, y)
 
-  write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = FALSE)
+  write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = "none")
   print("Done!")
 }
 
@@ -292,7 +292,7 @@ crop_measurement_LJStream <- function (file, decimal = "."){
 
     data_cut <- data_cut %>% select(t, y)
 
-    write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = FALSE)
+    write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = "none")
 
     print("Done!")
   } else {

@@ -1,10 +1,9 @@
-## R CMD check results
+## R CMD check results ---- forceR 1.0.3 ----
+Duration: 38.9s
 
-0 errors | 0 warnings | 1 note
+0 errors v | 0 warnings v | 0 notes v
 
-There was 1 NOTE:
-* checking for detritus in the temp directory ... NOTE
-  Found the following files/directories: 'lastMiKTeXException'
+R CMD check succeeded
 
 ## Misc
 * This is a new release.

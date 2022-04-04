@@ -29,10 +29,10 @@ These values should be stored in a \code{classifier} (s. below). At the same, it
 info from the respective columns of the \code{classifier}.
 
 The \code{classifier} should have the following format:\tabular{ccccc}{
-   \strong{\code{specimen}} \tab \strong{\code{measurement}} \tab \strong{\code{measurement}} \tab \strong{\code{amp}} \tab \strong{\code{lever.ratio}} \cr
-   \code{specimen.1} \tab \code{species.1} \tab \code{measurement.1} \tab \code{amp.1} \tab \code{lever.ratio.1} \cr
+   \strong{\code{species}} \tab \strong{\code{specimen}} \tab \strong{\code{measurement}} \tab \strong{\code{amp}} \tab \strong{\code{lever.ratio}} \cr
+   \code{species.1} \tab \code{specimen.1} \tab \code{measurement.1} \tab \code{amp.1} \tab \code{lever.ratio.1} \cr
    \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \cr
-   \code{specimen.n} \tab \code{species.n} \tab \code{measurement.n} \tab \code{amp.n} \tab \code{lever.ratio.n} \cr
+   \code{species.n} \tab \code{specimen.n} \tab \code{measurement.n} \tab \code{amp.n} \tab \code{lever.ratio.n} \cr
 }
 
 
@@ -46,6 +46,13 @@ The force (\code{F}) in Newton is calculated \emph{via} the following formula:
 where \code{y} is the measurement series, e.g. in \code{V}, \cr
 \code{amp} is the amplification value, e.g. in \code{V/N}, \cr
 and \code{lever.ratio} is the mechanical lever ratio of the measurement setup.
+
+\code{df} should have the following format:\tabular{ccc}{
+   \strong{\code{t}} \tab \strong{\code{y}} \tab \strong{\code{measurement}} \cr
+   \code{t.1} \tab \code{y.1} \tab \code{measurement.1} \cr
+   \code{...} \tab \code{...} \tab \code{...} \cr
+   \code{t.n} \tab \code{y.n} \tab \code{measurement.n} \cr
+}
 }
 \examples{
 #'

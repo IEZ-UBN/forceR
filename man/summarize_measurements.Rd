@@ -29,8 +29,8 @@ creates summary tibble.
 
 # sumarize by measurement and specimen
 df.summary.specimen <- summarize_measurements(df = df.all.200.tax,
-                       var1 = "measurement",
-                       var2 = "specimen")
+                                              var1 = "measurement",
+                                              var2 = "specimen")
 
 
 #  plot results
