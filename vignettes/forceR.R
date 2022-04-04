@@ -27,24 +27,24 @@ library(forceR)
 ## ----eval=TRUE, warning=FALSE, message=FALSE, include=F-----------------------
 data.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data"
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4-----
-file <- file.path(data.folder, "0982.csv")
-plot_measurement(file,
-                 columns = c(1:2))
+## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6----
+#  file <- file.path(data.folder, "0982.csv")
+#  plot_measurement(file,
+#                   columns = c(1:2))
 
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
 #  crop_measurement(file)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4-----
-cropped.folder <- file.path(data.folder, "cropped")
-
-file <- file.path(cropped.folder, "0982_cropped.csv")
-plot_measurement(file)
+## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6----
+#  cropped.folder <- file.path(data.folder, "cropped")
+#  
+#  file <- file.path(cropped.folder, "0982_cropped.csv")
+#  plot_measurement(file)
 
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
 #  amp_drift_corr(folder = cropped.folder)
 
-## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4----
+## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6----
 #  ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
 #  
 #  file = file.path(ampdriftcorr.folder, "1068_cropped_ampdriftcorr.csv")
@@ -62,7 +62,7 @@ plot_measurement(file)
 #                res.reduction = 10,
 #                Hz = 100)
 
-## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4----
+## ----eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6----
 #  file = file.path(ampdriftcorr.folder, "1174_cropped_ampdriftcorr.csv")
 #  
 #  plot_measurement(file)
@@ -72,54 +72,56 @@ plot_measurement(file)
 #                print.to.screen = TRUE,
 #                print.to.pdf = TRUE)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-data.folders <- c(data.folder,
-                  file.path(data.folder, "/cropped"),
-                  file.path(data.folder, "/cropped/ampdriftcorr"),
-                  file.path(data.folder, "/cropped/ampdriftcorr/baselinecorr"))
-results.folder <- file.path(data.folder, "/corrected/")
-
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
+#  data.folders <- c(data.folder,
+#                    file.path(data.folder, "/cropped"),
+#                    file.path(data.folder, "/cropped/ampdriftcorr"),
+#                    file.path(data.folder, "/cropped/ampdriftcorr/baselinecorr"))
+#  results.folder <- file.path(data.folder, "/corrected/")
 #  sort_files(data.folders = data.folders,
 #             results.folder = results.folder,
 #             move = F)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-file.list <- list.files(results.folder, pattern = "csv", full.names = TRUE)
-df.1 <- load_single(file = file.list[1],
-                    columns = c(1:2))
-df.1
-unique(df.1$filename)
+## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
+#  file.list <- list.files(results.folder, pattern = "csv", full.names = TRUE)
+#  df.1 <- load_single(file = file.list[1],
+#                      columns = c(1:2))
+
+## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
+#  df.all <- load_mult(folder = results.folder,
+#                      columns = c(1:2))
 
 ## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-df.all <- load_mult(folder = results.folder,
-                    columns = c(1:2))
-df.all
-unique(df.all$filename)
+df.all <- forceR::df.all
+head(df.all)
 
 ## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-df.all.200 <- reduce_frq(df = df.all,
-                         Hz = 200,
-                         measurement.col = "filename")
-df.all.200
+# reduce frequency to 200 Hz
+df.all.200 <- reduce_frq(df = df.all, 
+                         Hz = 200,  
+                         measurement.col = "measurement")
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-# create classifier with `amp` and `lever.ratio` columns:
-classifier <- tibble(measurement = c("0979", "0980", "0981", "0982", "1041", "1068", "1174", "1440"),
-                     specimen = c("a","a","b","c","d","e","f","g"),
-                     species = c("A","A","A","A","B","B","C","C"),
-                     amp = c(2, 2, 2, 2, 2, 2, 0.5, 0.5),
-                     lever.ratio = c(0.525, 0.525, 0.525, 0.525, 0.525, 0.525, 0.525, 0.525)) %>% 
-  # sort columns
-  select(species, specimen, measurement, amp, lever.ratio)
-classifier
-
-
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-# reduce filename to measurement number (number before first underscore):
-df.all.200 <- df.all.200 %>% 
-  mutate(measurement = gsub("(^[^_])*_.*", "\\1", filename))
 head(df.all.200)
+
+## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
+# create a classifier
+number_of_species <- 4
+number_of_specimens_per_species <- 3
+number_of_measurements_per_specimen <- 2
+number_of_rows <- number_of_species*number_of_specimens_per_species*number_of_measurements_per_specimen
+
+species <- sort(rep(paste0("species_", LETTERS[1:number_of_species]),
+                    length=number_of_rows))
+
+specimens <- sort(rep(paste0("speciemen_", letters[1:(number_of_species*number_of_specimens_per_species)]),
+                      length=number_of_rows))
+
+classifier <- tibble(species = species,
+                     specimen = specimens,
+                     measurement = paste0("m_",  str_pad(string= 1:number_of_rows, width = 2, pad = "0")),
+                     amp = c(rep(0.5, number_of_rows/2), rep(2, number_of_rows/2)),
+                     lever.ratio = rep(0.5, number_of_rows))
+head(classifier)
 
 ## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
 df.all.200.tax <- y_to_force(df = df.all.200, 
@@ -127,13 +129,13 @@ df.all.200.tax <- y_to_force(df = df.all.200,
                              measurement.col = "measurement")
 head(df.all.200.tax)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
+## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6-----
 var1 = "measurement"
 var2 = "specimen"
 df.summary.specimen <- summarize_measurements(df.all.200.tax, 
                                               var1, 
                                               var2)
-df.summary.specimen
+head(df.summary.specimen)
 
 # boxplot of maximum force in specimens
 ggplot(data = df.summary.specimen, mapping = aes(x=specimen,y=max.F.measurement)) +
@@ -141,11 +143,12 @@ ggplot(data = df.summary.specimen, mapping = aes(x=specimen,y=max.F.measurement)
   geom_boxplot(fill="bisque",color="black",alpha=0.3) +
   # scale_y_log10() +
   labs(y="max(F)/specimen") +
-  guides(color=FALSE) +
-  theme_minimal()
+  guides(color="none") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
 
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
+## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6-----
 df.summary.species <- df.summary.specimen %>%
   # find max Fs of species
   group_by(species) %>%
@@ -166,19 +169,19 @@ ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
   geom_boxplot(fill="bisque",color="black",alpha=0.3) +
   # scale_y_log10() +
   labs(x='species', y="max(F)/specimen") +
-  guides(color=FALSE) +
+  guides(color="none") +
   theme_minimal()
 
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-# create folders to save df and results (if they do not exist yet) ---------------------------------
-path.plots <- paste0(data.folder, "/plots/")
-ifelse(!dir.exists(path.plots), dir.create(path.plots), "./plots already exists")
-path.plots.initial_peak_finding <- paste0(data.folder, "/plots/initial_peak_finding/")
-ifelse(!dir.exists(path.plots.initial_peak_finding), dir.create(path.plots), "./plots/initial_peak_finding already exists")
-path.data <- paste0(data.folder, "/data/")
-ifelse(!dir.exists(path.data), dir.create(path.data), "./data already exists")
-
+## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
+#  # create folders to save df and results (if they do not exist yet) ---------------------------------
+#  path.plots <- paste0(data.folder, "/plots/")
+#  ifelse(!dir.exists(path.plots), dir.create(path.plots), "./plots already exists")
+#  path.plots.initial_peak_finding <- paste0(data.folder, "/plots/initial_peak_finding/")
+#  ifelse(!dir.exists(path.plots.initial_peak_finding), dir.create(path.plots), "./plots/initial_peak_finding already exists")
+#  path.data <- paste0(data.folder, "/data/")
+#  ifelse(!dir.exists(path.data), dir.create(path.data), "./data already exists")
+#  
 
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
 #  peaks.df <- find_strongest_peaks(df = df.all.200.tax,
@@ -201,97 +204,85 @@ ifelse(!dir.exists(path.data), dir.create(path.data), "./data already exists")
 #                           peak = 1,
 #                           additional.msecs = 500)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, include=F-----------------------
-peaks.df <- read.csv(file.path(path.data, "2021_12_06_taxa_starts_ends.csv"))
-
-## ---- eval=TRUE, warning=FALSE, message=FALSE, include=TRUE-------------------
+## ---- eval=TRUE, warning=FALSE, message=FALSE, include=FALSE------------------
+# this prints too long to let it stay
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
                                df.data = df.all.200.tax)
+head(peaks.df.norm)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-peaks.df.norm
+## ---- eval=FALSE, warning=FALSE, message=FALSE, include=TRUE------------------
+#  peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
+#                                 df.data = df.all.200.tax)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, include=TRUE--------------------
+## ---- eval=TRUE, warning=FALSE, message=FALSE, include=TRUE-------------------
+head(peaks.df.norm)
+
+## ----eval=FALSE, warning=FALSE, message=FALSE, include=TRUE-------------------
+#  peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
+#                                     path.plots = path.plots,
+#                                     print.to.pdf = TRUE)
+
+## ----eval=TRUE, warning=FALSE, message=FALSE, include=FALSE-------------------
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
-                                   path.plots = path.plots, 
                                    print.to.pdf = TRUE)
-peaks.df.norm.100
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4-----
+## ----eval=FALSE, warning=FALSE, message=FALSE, include=TRUE-------------------
+#  peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
+#                                     path.plots = path.plots,
+#                                     print.to.pdf = TRUE)
+
+## ----eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6----
+head(peaks.df.norm.100)
+
+# plot normalized peaks: 5 bites per measurement
+ggplot(peaks.df.norm.100 %>%
+         mutate(color.column = paste0(measurement, "-bite", peak)),
+       aes(x = index ,
+           y = force.norm.100,
+           colour=color.column)) +
+  geom_line()
+
+## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6-----
 peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
 head(peaks.df.100.avg)
 
-# plot averaged normalized curves per species ---------------------------------
+# plot averaged normalized curves per species
 ggplot(peaks.df.100.avg, aes(x = index , 
                              y = force.norm.100.avg, 
                              colour=species)) +
   geom_line()
 
-## ----eval=FALSE, warning=FALSE, message=FALSE, include=F----------------------
-#  # # here!
-#  # data.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data"
-#  # results.folder <- file.path(data.folder, "corrected/")
-#  # df.all <- load_mult(results.folder)
-#  # df.all.200 <- reduce_frq(df.all, Hz = 200, measurement.col = "filename")
-#  # df.all.200 <- df.all.200 %>% mutate(measurement = gsub("(^[^_])*_.*", "\\1", filename))
-#  # classifier <- tibble(measurement = c("0979", "0980", "0981", "0982", "1041", "1068", "1174", "1440"),
-#  #                      specimen = c("a","a","b","c","d","e","f","g"),
-#  #                      species = c("A","A","A","A","B","B","C","C"),
-#  #                      amp = c(2, 2, 2, 2, 2, 2, 0.5, 0.5),
-#  #                      lever.ratio = c(0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)) %>%
-#  #   # sort columns
-#  #   select(species, specimen, measurement, amp, lever.ratio)
-#  # df.all.200.tax <- y_to_force(df.all.200,
-#  #                          classifier,
-#  #                          measurement.col = "measurement")
-#  #
-#  #
-#  # path.plots <- paste0(data.folder, "/plots/")
-#  # path.data <- paste0(data.folder, "/data/")
-#  # path.data.manual.peak.start.end.logs <- paste0(path.data, "/manual.peak.start.end.logs/")
-#  # peaks.df <- read.csv(file.path(path.data, "2021_12_06_taxa_starts_ends.csv"))
-#  # peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-#  #                                df.data = df.all.200.tax)
-#  # peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#  #                                    path.plots = path.plots,
-#  #                                    print.to.pdf = TRUE)
-#  # peaks.df.100.avg <- avg_peaks(peaks.df.norm.100)
-#  #
-#  # best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
-#  #                                 print.to.pdf = TRUE,
-#  #                                 path.data,
-#  #                                 path.plots)
-
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
+## ----eval=TRUE, warning=FALSE, message=FALSE, include=FALSE-------------------
 best.fit.poly <- find_best_fits(df = peaks.df.100.avg, 
-                                print.to.pdf = TRUE, 
-                                path.data, 
-                                path.plots)
+                                print.to.pdf = TRUE)
 
-## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
-best.fit.poly
+## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
+#  best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
+#                                  print.to.pdf = TRUE,
+#                                  path.data,
+#                                  path.plots)
+#  best.fit.poly
 
-## ----eval=TRUE, warning=FALSE, message=FALSE, include=F-----------------------
+## ----eval=TRUE, warning=FALSE, message=FALSE, include=T-----------------------
 models <- peak_to_poly(peaks.df.100.avg, 
                        best.fit.poly)
 
-## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
-#  models <- peak_to_poly(peaks.df.100.avg,
-#                         best.fit.poly)
-
-## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 6, fig.height=4-----
-# plot all polynomial models
-plot(predict(models[[1]]), 
-     ylim = c(0,1), 
-     type = "n",
-     xlab="t", 
-     ylab="F")
-
+## ----eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6-----
+# create tibble with model data
+models.df <- NULL
 for(i in 1:length(models)){
-  lines(predict(models[[i]]), 
-        lwd=1, 
-        col=c("red", "green", "blue")[i]) # col=as.numeric(as.factor(names(models)))
+  model.df <- tibble(species = rep(names(models)[i], 100),
+                     index = 1:100,
+                     y = predict(models[[i]]))
+  models.df <- rbind(models.df, model.df)
 }
+
+# plot all polynomial models
+ggplot(models.df,
+       aes(x = index ,
+           y = y,
+           colour=species)) +
+  geom_line()
 
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
 #  require(gsheet)
@@ -299,6 +290,8 @@ for(i in 1:length(models)){
 #  require(grid)
 #  require(reshape)
 #  require(dplyr)
+#  
+#  require(forceR)
 #  
 #  # PREPARTIONS ####
 #  # set seed for randomization so results are reproducible
@@ -454,13 +447,13 @@ for(i in 1:length(models)){
 #  # this was set to 0 when checking if the package finds the correct max. force values
 #  # and to 15 to increase bite shape diversity when checking if the package can tell the different
 #  # bite shapes apart
-#  max.y.jit = 15 # 0 15
+#  max.y.jit = 0 # 0 15
 #  
 #  # jitter to make the bite curve more unstable
 #  # this was set to 0 when checking if the package finds the correct max. force values
 #  # and to 1 to increase bite shape diversity when checking if the package can tell the different
 #  # bite shapes apart
-#  jit = 1 # 0 1
+#  jit = 0 # 0 1
 #  
 #  # create tibble with simulated time series with different
 #  # bite characteristics for each measurement, specimen and species
@@ -527,16 +520,7 @@ for(i in 1:length(models)){
 #    geom_boxplot(fill="blue",color="black",alpha=0.1) +
 #    # scale_y_log10() +
 #    labs(x='specimen', y="max(F)/specimen") +
-#    guides(color=FALSE) +
-#    theme_minimal()
-#  
-#  # boxplot of maximum force in species
-#  ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
-#    geom_jitter(color='blue',alpha=0.5, width = 0.2) +
-#    geom_boxplot(fill="blue",color="black",alpha=0.1) +
-#    # scale_y_log10() +
-#    labs(x='species', y="max(F)/specimen") +
-#    guides(color=FALSE) +
+#    guides(color="none") +
 #    theme_minimal()
 #  
 #  # Summarize to species-wise info
@@ -561,6 +545,15 @@ for(i in 1:length(models)){
 #    group_by(species) %>%
 #    mutate(body_mass.species = mean(body_mass)) %>%
 #    ungroup()
+#  
+#  # boxplot of maximum force in species
+#  ggplot(data = df.summary.species, mapping = aes(x=species,y=mean.F.species)) +
+#    geom_jitter(color='blue',alpha=0.5, width = 0.2) +
+#    geom_boxplot(fill="blue",color="black",alpha=0.1) +
+#    # scale_y_log10() +
+#    labs(x='species', y="mean(F)/species") +
+#    guides(color="none") +
+#    theme_minimal()
 #  
 #  # calculate and plot the regressions of known (simulation inputs) and extracted forces over body length
 #  # pdf(file = paste0(path.plots, today(), "_regressions.pdf"),
@@ -682,12 +675,14 @@ for(i in 1:length(models)){
 #  
 #  # plot PC1 against PC2
 #  ggplot(data = PCA.res, aes(x = PC1, y = PC2, col = bite.type)) +
-#    geom_point()
+#    geom_point() +
+#    theme_minimal()
 #  
 #  # pdf(file = paste0(path.plots, today(), "_PCA_bite_shape.pdf"),
 #  #     paper = "a4r", width = 29, height = 21) # , height = 14
 #  ggplot(data = PCA.res, aes(x = PC1, y = PC2, col = peak.position)) +
-#    geom_point()
+#    geom_point() +
+#    theme_minimal()
 #  # dev.off()
 #  
 #  # plot PC1 against PC1 with bite shapes as insets
@@ -702,7 +697,8 @@ for(i in 1:length(models)){
 #          axis.title.y=element_blank(),
 #          axis.text.y=element_blank(),
 #          axis.ticks.y=element_blank(),
-#          legend.position = "none")
+#          legend.position = "none") +
+#    theme_minimal()
 #  print(main_plot)
 #  
 #  # create an and plot an inlet with the bite shape
@@ -716,7 +712,7 @@ for(i in 1:length(models)){
 #    curr.bite.data <- peaks.df.100.avg %>%
 #      filter(species == curr.species)
 #  
-#    inset_plot <- ggplot(curr.bite.data, aes(index, force.norm.100)) +
+#    inset_plot <- ggplot(curr.bite.data, aes(index, force.norm.100.avg)) +
 #      geom_line() +
 #      theme(axis.title.x=element_blank(),
 #            axis.text.x=element_blank(),
@@ -736,7 +732,4 @@ for(i in 1:length(models)){
 #    print(inset_plot, vp = vp)
 #  }
 #  # dev.off()
-#  
-#  
-#  }
 

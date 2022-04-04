@@ -1,6 +1,6 @@
 Package: forceR
 Title: Force Measurement Analyses
-Version: 1.0.1
+Version: 1.0.2
 Description: Originally written for bite force data preparation and analysis but can be used for any time series measurements. Includes a full workflow to load, plot and crop data, correct charge amplifier and baseline drifts, identify individual peak shapes, rescale (normalize) bite curves, and find best polynomial fits to describe and analyze force curve shapes.
 License: MIT + file LICENSE
 URL: https://github.com/Peter-T-Ruehr/forceR
@@ -23,7 +23,7 @@ Imports:
 	stats,
     stringr
 Depends: 
-    R (>= 4.1)
+    R (>= 4.0)
 VignetteBuilder: knitr
 Suggests: 
     testthat (>= 3.0.0)

@@ -9,7 +9,7 @@ sort_files(data.folders, results.folder, move = FALSE)
 \arguments{
 \item{data.folders}{Character vector containing full folder paths of folders to check. This list must be sorted
 according to the chronology of previous file editing. If a measurement exists in the last folder,
-this is copyied or moved into the \code{results.folder}, and files of the same measurement located in the
+this is copied or moved into the \code{results.folder}, and files of the same measurement located in the
 other folders will be ignored. Like this, the file of each measurement that underwent most correction steps
 will be stored in the \code{results.folder}, while the rest of the files of the same measurement remain in place.}
 

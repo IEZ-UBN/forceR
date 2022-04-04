@@ -28,7 +28,7 @@ or \code{"manual"}. Default: \code{"auto"}}
 device. Default: \code{TRUE}.}
 
 \item{print.to.pdf}{A logical value indicating  if results should be saved as PDFs. This is considered
-necessary to quality check and comunicate the results. Default: \code{TRUE}.}
+necessary to quality check and communicate the results. Default: \code{TRUE}.}
 
 \item{window.size.mins}{A numeric value for the size of the search window to find minima in. Should be
 in the same time unit as the measurement. Longer peaks require higher values, shorter peaks require
@@ -71,7 +71,7 @@ automatic adjustment of the baseline.
 The automatic approach invokes a sliding window, during which the 'minimum' within each sliding window
 is stored. A 'minimum' is defined by the \code{quantile.size}: if set to \code{0.05}, the value below which only 5\% of
 the measurement data within the sliding window lies, is treated as the current window's minimum. This
-prevents the treatment of potential artefacts as minima. In a second iteration, another sliding window
+prevents the treatment of potential artifacts as minima. In a second iteration, another sliding window
 calculates the average of these 'minima'. The resulting values are subtracted from
 the original time series. This approach works well for time series with relatively short peaks.
 If the automatic approach does not yield acceptable results, an interactive manual approach to correct

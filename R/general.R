@@ -39,12 +39,12 @@ today <- function(){
 #'                   to = 100)
 #' @export
 rescale_to_range <- function(data, from, to) {
-  if(!is.numeric(data)) stop ("data must be numeric!")
-  if(length(data) < 2) stop ("data is not a vector of numbers!")
-  if(!is.numeric(from)) stop ("from must be numeric!")
-  if(length(from) != 1) stop ("from must be a single number!")
-  if(!is.numeric(to)) stop ("to must be numeric!")
-  if(length(to) != 1) stop ("to must be a single number!")
+  if(!is.numeric(data)) stop ("'data' must be numeric.")
+  if(length(data) < 2) stop ("'data' is not a vector of numbers.")
+  if(!is.numeric(from)) stop ("'from' must be numeric.")
+  if(length(from) != 1) stop ("'from' must be a single number.")
+  if(!is.numeric(to)) stop ("'to' must be numeric.")
+  if(length(to) != 1) stop ("'to' must be a single number.")
   data <- data - min(data)
   data <- data / max(data)
   data <- data * (to - from)
@@ -142,50 +142,50 @@ simulate_bites <- function(no.of.bites = 5,
                            bite.type = "sin",
                            plot = TRUE){
 
-  if(!is.numeric(no.of.bites)) stop ("no.of.bites must be numeric!")
-  if(length(no.of.bites) != 1) stop ("no.of.bites must be a single number!")
+  if(!is.numeric(no.of.bites)) stop ("'no.of.bites' must be numeric.")
+  if(length(no.of.bites) != 1) stop ("'no.of.bites' must be a single number.")
 
-  if(!is.numeric(length.of.bite)) stop ("length.of.bite must be numeric!")
-  if(length(length.of.bite) != 1) stop ("length.of.bite must be a single number!")
+  if(!is.numeric(length.of.bite)) stop ("'length.of.bite' must be numeric.")
+  if(length(length.of.bite) != 1) stop ("'length.of.bite' must be a single number.")
 
-  if(!is.numeric(length.of.series)) stop ("length.of.series must be numeric!")
-  if(length(length.of.series) != 1) stop ("length.of.series must be a single number!")
+  if(!is.numeric(length.of.series)) stop ("'length.of.series' must be numeric.")
+  if(length(length.of.series) != 1) stop ("'length.of.series' must be a single number.")
 
-  if(!is.numeric(max.y)) stop ("max.y must be numeric!")
-  if(length(max.y) != 1) stop ("max.y must be a single number!")
+  if(!is.numeric(max.y)) stop ("'max.y' must be numeric.")
+  if(length(max.y) != 1) stop ("'max.y' must be a single number.")
 
-  if(!is.numeric(max.y.jit) & !is.null(max.y.jit)) stop ("max.y.jit must be numeric or NULL!")
-  if(length(max.y.jit) != 1 & !is.null(max.y.jit)) stop ("max.y.jit must be a single number!")
+  if(!is.numeric(max.y.jit) & !is.null(max.y.jit)) stop ("'max.y.jit' must be numeric or NULL.")
+  if(length(max.y.jit) != 1 & !is.null(max.y.jit)) stop ("'max.y.jit' must be a single number.")
 
-  if(!is.numeric(jit) & !is.null(jit)) stop ("jit must be numeric or NULL!")
-  if(length(jit) != 1 & !is.null(jit)) stop ("jit must be a single number!")
+  if(!is.numeric(jit) & !is.null(jit)) stop ("'jit' must be numeric or NULL.")
+  if(length(jit) != 1 & !is.null(jit)) stop ("'jit' must be a single number.")
 
-  if(!is.character(bite.type)) stop ("bite.type must be a character string!")
-  if(length(bite.type) != 1) stop ("bite.type must only contain one character string!")
-  if(!(bite.type == "sin") & !(bite.type == "plat")) stop ("bite.type can only be 'sin' or 'plat'!")
+  if(!is.character(bite.type)) stop ("'bite.type' must be a character string.")
+  if(length(bite.type) != 1) stop ("'bite.type' must only contain one character string.")
+  if(!(bite.type == "sin") & !(bite.type == "plat")) stop ("'bite.type' can only be 'sin' or 'plat'.")
 
-  if(!is.logical(plot)) stop ("plot must be logical!")
+  if(!is.logical(plot)) stop ("'plot' must be logical.")
 
   if(bite.type == "plat"){
-    if((100-slope.perc.start-slope.perc.end) < 0) stop('The percentages of slope.perc.start and slope.perc.end add up to more than 100%.
-  Please reduce at least one of these values.')
+    if((100-slope.perc.start-slope.perc.end) < 0) stop("The percentages of 'slope.perc.start' and 'slope.perc.end' add up to more than 100%.
+  Please reduce at least one of these values.")
 
-    if(!is.numeric(slope.perc.start)) stop ("slope.perc.start must be numeric!")
-    if(length(slope.perc.start) != 1) stop ("slope.perc.start must be a single number!")
+    if(!is.numeric(slope.perc.start)) stop ("'slope.perc.start' must be numeric.")
+    if(length(slope.perc.start) != 1) stop ("'slope.perc.start' must be a single number.")
 
-    if(!is.numeric(slope.perc.end)) stop ("slope.perc.end must be numeric!")
-    if(length(slope.perc.end) != 1) stop ("slope.perc.end must be a single number!")
+    if(!is.numeric(slope.perc.end)) stop ("'slope.perc.end' must be numeric.")
+    if(length(slope.perc.end) != 1) stop ("'slope.perc.end' must be a single number.")
 
-    if(slope.perc.start < 1) warning ("slope.perc.start is smaller than 1%. Please check if this is correct.")
-    if(slope.perc.end < 1) warning ("slope.perc.end is smaller than 1%. Please check if this is correct.")
+    if(slope.perc.start < 1) warning ("'slope.perc.start' is smaller than 1%. Please check if this is correct.")
+    if(slope.perc.end < 1) warning ("'slope.perc.end' is smaller than 1%. Please check if this is correct.")
 
     slope.perc.start <- slope.perc.start/100
     slope.perc.end <- slope.perc.end/100
   } else{
-    if(bite.type == "sin") if(peak.pos < 1) warning ("peak.pos is smaller than 1%. Please check if this is correct.")
+    if(bite.type == "sin") if(peak.pos < 1) warning ("'peak.pos' is smaller than 1%. Please check if this is correct.")
 
-    if(!is.numeric(peak.pos)) stop ("peak.pos must be numeric!")
-    if(length(peak.pos) != 1) stop ("peak.pos must be a single number!")
+    if(!is.numeric(peak.pos)) stop ("'peak.pos' must be numeric.")
+    if(length(peak.pos) != 1) stop ("'peak.pos' must be a single number.")
 
     peak.pos <- peak.pos/100
   }

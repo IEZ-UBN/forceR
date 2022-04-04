@@ -32,9 +32,16 @@
 #'
 #' @export
 rescale_peaks <- function(df.peaks,
-                           df.data,
-                           path.data = NULL){
+                          df.data,
+                          path.data = NULL){
 
+  if(sum(colnames(df.peaks) %in% c("species","measurements","starts","ends")) != 4){
+    stop ("column names of 'df.peaks' must contain 'species','measurements','starts','ends'.")
+  }
+
+  if(sum(colnames(df.data) %in% c("t","force","measurement")) != 3){
+    stop ("column names of 'df.data' must contain 't','force','measurement'.")
+  }
 
   species <- measurement <- peak <- specimen <- start <- end <- t.norm <- force.norm <- NULL
 
@@ -170,6 +177,12 @@ red_peaks_100 <- function(df,
                           path.plots = getwd(),
                           print.to.pdf = TRUE){
 
+  if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
+    stop ("column names of 'df.peaks' must contain 'measurement','force.norm'.")
+  }
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+
   peak <- force.norm <- measurement <- specimen <- NULL
 
   # reduce all peaks to 100 observations and plot
@@ -259,6 +272,12 @@ red_peaks_100 <- function(df,
 #' }
 
 avg_peaks <- function(df){
+
+  if(sum(colnames(df) %in% c("species", "index", "force.norm.100")) != 2){
+    stop ("column names of 'df.peaks' must contain 'species','index', 'force.norm.100.")
+  }
+  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
   species <- index <- force.norm.100 <- NULL
 

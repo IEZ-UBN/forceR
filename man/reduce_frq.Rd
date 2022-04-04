@@ -9,10 +9,10 @@ reduce_frq(df, Hz = 200, measurement.col = NULL)
 \arguments{
 \item{df}{Data frame or tibble in the below mentioned format.}
 
-\item{Hz}{Numeric value of desired frequency. Fedault \code{200}}
+\item{Hz}{Numeric value of desired frequency. Default \code{200}}
 
 \item{measurement.col}{Character string. If \code{measurement.col} is not defined, the whole input data frames will be
-treated as if it was just one single time series. This is okay for data frames like that indeed only conatin one
+treated as if it was just one single time series. This is okay for data frames like that indeed only contain one
 time series, but for data frames
 with multiple time series, a grouping column needs to be defined. Default: \code{NULL}}
 }
@@ -60,31 +60,8 @@ All columns except the first two are removed. Values in \code{t} are expected to
 }
 \examples{
 require(dplyr)
-
-# simulate a short time series with sinusoidal bites
-df.1 <- simulate_bites(no.of.bites = 7,
-                       length.of.bite = 100,
-                       length.of.series = 1000,
-                       max.y = 3,
-                       max.y.jit = 15,
-                       jit = 0.5,
-                       bite.type = "sin",
-                       plot = TRUE)
-df.1$measurement <- "m_01"
-
-# simulate a short time series with plateu-like bites
-df.2 <- simulate_bites(no.of.bites = 7,
-                       length.of.bite = 150,
-                       length.of.series = 1500,
-                       max.y = 5,
-                       max.y.jit = 15,
-                       jit = 2,
-                       bite.type = "plat",
-                       plot = TRUE)
-df.2$measurement <- "m_02"
-
-# combine tibbles
-df.all <- rbind(df.1, df.2)
+# Using the forceR::df.all dataset that was
+# simulated with forceR::simulate_bites()
 
 # reduce sampling frequency to 200 Hz
 df.all.200 <- reduce_frq(df = df.all,

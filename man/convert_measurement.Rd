@@ -24,3 +24,9 @@ The output file has the following format:\tabular{ccc}{
 \description{
 Converts LJStream *.dat file to standard time series.
 }
+\examples{
+\dontrun{
+convert_measurement (file = "LJStream_file_0.dat",
+  decimal = ".")
+}
+}

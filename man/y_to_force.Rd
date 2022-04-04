@@ -12,7 +12,7 @@ y_to_force(df, classifier, measurement.col)
 \item{classifier}{Classifier in the below mentioned format.}
 
 \item{measurement.col}{Character string. If \code{measurement.col} is not defined, the whole input data frames will be
-treated as if it was just one single time series. This is okay for data frames like that indeed only conatin one
+treated as if it was just one single time series. This is okay for data frames like that indeed only contain one
 time series, but for data frames
 with multiple time series, a grouping column needs to be defined. Default: \code{NULL}}
 }
@@ -25,7 +25,7 @@ according to an amplification value and, depending on the measurement setup, the
 rocker forwarding the force from the point the force acts on to the sensor.
 }
 \details{
-These values should be stored in a \code{classifier} (s. below). At the same, it addas \code{specimen} and \code{species}
+These values should be stored in a \code{classifier} (s. below). At the same, it adds \code{specimen} and \code{species}
 info from the respective columns of the \code{classifier}.
 
 The \code{classifier} should have the following format:\tabular{ccccc}{
@@ -48,57 +48,15 @@ where \code{y} is the measurement series, e.g. in \code{V}, \cr
 and \code{lever.ratio} is the mechanical lever ratio of the measurement setup.
 }
 \examples{
-# This example contains a self-sufficient data PREPARATION section
-# before the function is actually run.
+#'
+# Using the forceR::df.all.200 dataset and the forceR::classifier:
 
-require(dplyr)
-
-# simulate a short time series with sinusoidal bites
-df.1 <- simulate_bites(no.of.bites = 7,
-                       length.of.bite = 20,
-                       length.of.series = 200,
-                       max.y = 3,
-                       max.y.jit = 15,
-                       jit = 0.5,
-                       bite.type = "sin",
-                       plot = TRUE)
-df.1$measurement <- "m_01"
-
-# simulate a short time series with plateu-like bites
-df.2 <- simulate_bites(no.of.bites = 7,
-                       length.of.bite = 30,
-                       length.of.series = 300,
-                       max.y = 30,
-                       max.y.jit = 15,
-                       jit = 2,
-                      bite.type = "plat",
-                      plot = TRUE)
-df.2$measurement <- "m_02"
-
-# combine tibbles
-df.all <- rbind(df.1, df.2)
-
-# create a classifier (see package vignette for details)
-classifier <- tibble(measurement = c("m_01", "m_02"),
-                     species = c("A", "B"),
-                     specimen = c("a", "b"),
-                     amp = c(2, 20),
-                     lever.ratio = c(0.5, 0.5))
-
-# convert y column of df.all to force column using info from classifier
-df.all <- y_to_force(df = df.all,
+# convert y column of df.all to force column and add taxonomic data
+# using info from classifier
+df.all.tax <- y_to_force(df = df.all.200,
                       classifier = classifier,
                       measurement.col = "measurement")
-df.all
 
-# plot the result. We see that the 10 x lower y values of m_01
-# actually represent similar force values due the 10 x higher amplification used in m_02.
-plot(df.all \%>\%
-      filter(measurement == "m_01") \%>\%
-      select(t, force),
-    type = "l", col = "black")
-lines(df.all \%>\%
-       filter(measurement == "m_02") \%>\%
-       select(t, force),
-     type = "l", col = "blue")
+df.all.tax
+
 }

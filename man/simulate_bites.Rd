@@ -33,14 +33,14 @@ simulate_bites(
 Only applies to \verb{bite.type = "sin} (sinusoidal bites.) Default: same as \code{50}.}
 
 \item{slope.perc.start}{Percentage of how much of the whole bite is defined by the ascending slope.
-Only applies to \verb{bite.type = "plat} (plateu-like bites.) Default: \code{10}.}
+Only applies to \verb{bite.type = "plat} (plateau-like bites.) Default: \code{10}.}
 
 \item{slope.perc.end}{Percentage of how much of the whole bite is defined by the descending slope.
-Only applies to \verb{bite.type = "plat} (plateu-like bites.) Default: same as \code{slope.perc.start}.}
+Only applies to \verb{bite.type = "plat} (plateau-like bites.) Default: same as \code{slope.perc.start}.}
 
 \item{jit}{Jitter along the whole time series. Default: \code{NULL}.}
 
-\item{bite.type}{String: either "sin" or "plat" for sinusoidal or plateu-like bites, respectively. Default: \code{"sin"}.}
+\item{bite.type}{String: either "sin" or "plat" for sinusoidal or plateau-like bites, respectively. Default: \code{"sin"}.}
 
 \item{plot}{Logical. If \code{TRUE}, the simulated time series will be plotted to the active plot device. Default: \code{TRUE}.}
 }
@@ -48,7 +48,7 @@ Only applies to \verb{bite.type = "plat} (plateu-like bites.) Default: same as \
 Returns a tibble with the columns \code{t} and \code{y} containing simulated bites.
 }
 \description{
-Simulates either sinusoidal or plateu-like bites.
+Simulates either sinusoidal or plateau-like bites.
 }
 \examples{
 # simulate a time series with sinusoidal bites
@@ -75,7 +75,7 @@ simulate_bites(no.of.bites = 5,
                 bite.type = "sin",
                 plot = TRUE)
 
-# simulate a time series with plateu-like bites
+# simulate a time series with plateau-like bites
 simulate_bites(no.of.bites = 5,
                 length.of.bite = 1000,
                 length.of.series = 10000,
@@ -85,7 +85,7 @@ simulate_bites(no.of.bites = 5,
                 bite.type = "plat",
                 plot = TRUE)
 
-# simulate a time series with plateu-like bites
+# simulate a time series with plateau-like bites
 # with slowly ascending bite start and abprupt bite end.
 simulate_bites(no.of.bites = 5,
                 length.of.bite = 1000,

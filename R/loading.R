@@ -33,21 +33,25 @@
 #' @export
 load_single <- function (file,
                          columns = c(1:2)){
-  # file <- "C:/Users/pruehr/Documents/forceR/vignettes/example_data/corrected/0980_cropped_ampdriftcorr.csv"
-  # do a test read
+  if(!is.character(file)) stop ("'file' must be a character string.")
+  if(!is.numeric(columns)) stop ("'columns' must be a numeric.")
+  if(length(columns) != 2) stop ("'columns' must be of length 2.")
+
+  # read data
   data_read <- read_csv(file, progress = FALSE, col_types = cols())
 
-  # check if more than 2 columns were defined for plotting
-  if(length(columns)>2) stop('More than two columns were defined by user.')
   # check if data as at least as many columns as max. number in columns variable
   if(ncol(data_read) < max(columns)) stop('Data has fewer columns than defined by user.')
 
   print(paste0("Removing all columns but ", colnames(data_read)[columns[1]], " and ", colnames(data_read)[columns[2]],
                ", renaming them to t and y and adding filename column based on the file name."))
+
   data_read <- data_read[,c(columns[1],columns[2])]
+
   # only keep first two columns (Time and final corrected Voltage) and measurement
   colnames(data_read) <- c("t", "y")
   data_read$filename <- sub("\\.[[:alnum:]]+$", "", basename(file))
+
   return(data_read)
 }
 

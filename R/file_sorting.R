@@ -36,11 +36,13 @@ sort_files <- function(data.folders,
                        results.folder,
                        move = FALSE){
 
-  if(!is.character(data.folders)) stop ("data.folders must contain character strings only!")
-  if(length(data.folders) <= 1) stop ("data.folders only contains one string - sorting is not necessary!")
+  if(!is.character(data.folders)) stop ("'data.folders' must contain character strings only.")
+  if(length(data.folders) <= 1) stop ("'data.folders' only contains one string - sorting is not necessary.")
 
-  if(!is.character(results.folder)) stop ("results.folder must contain character string only!")
-  if(length(results.folder) > 1) stop ("results.folder must only contain one character string!")
+  if(!is.character(results.folder)) stop ("'results.folder' must contain character string only.")
+  if(length(results.folder) > 1) stop ("'results.folder' must only contain one character string.")
+
+  if(!is.logical(move)) stop ("'move' must be logical.")
 
   if(!dir.exists(results.folder)){
     dir.create(results.folder, showWarnings = FALSE)

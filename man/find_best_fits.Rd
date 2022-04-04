@@ -19,10 +19,10 @@ data is not stored in a file.}
 \value{
 Returns the a numerical value representing the number of coefficient that was most often under the first 4 models that were followed by an
 AIC-change \verb{<= 5\%} by the next model. Additionally, plots showing the model fits and a histogram of the coefficients that met the 5\%-criterion are either plotted to
-the plot devive (\code{print.to.pdf = FALSE}) or saved as PDFs in \code{path.plots} (\code{print.to.pdf = TRUE}).
+the plot device (\code{print.to.pdf = FALSE}) or saved as PDFs in \code{path.plots} (\code{print.to.pdf = TRUE}).
 }
 \description{
-Calculates best model fits for all curves based on AIC criterion. The funciton fits polynomial functions with 1 to 20 coefficients and uses the Akaike Information
+Calculates best model fits for all curves based on AIC criterion. The function fits polynomial functions with 1 to 20 coefficients and uses the Akaike Information
 Criterion (AIC) to evaluate the goodness of the fits. A model is considered a good fit, when the percentage of change from one model to the next (e.g. a model with
 6 coefficients to a model with 7 coefficients) is \verb{< 5\%}. The first for models meeting this criterion are plotted as colored graphs and the AICs of these models
 are visualized in a second plot for each curve. All first four coefficients per curve that fulfill the criterion are stored and in the end, a histogram of how
@@ -30,81 +30,9 @@ often which coefficients were good fits is plotted as well. The function returns
 in most curves. If \code{print.to.pdf == TRUE}, then the plots are saved as PDFs in \code{path.plots}. Resulting data is saved in \code{path.data}.
 }
 \examples{
-# This example contains a self-sufficient data PREPARATION section
-# before the function is actually run.
-require(dplyr)
+# Using the forceR::peaks.df.100.avg dataset:
 
-# PREPARATION ####
-# create a classifier to store specimen info (see package vignette for details)
-species <- paste0("species_", LETTERS[1:17])
-classifier <- tibble(species = species,
-                     specimen = paste0("speciemen_", letters[1:17]),
-                     measurement = paste0("m_", 1:length(species)),
-                     amp = rep(2,length(species)),
-                     lever.ratio = rep(0.5, length(species)))
-
-# create temporary tibble to store data for bite series simulation
-classifier.temp <- classifier \%>\%
-  mutate(type = c(rep("sin", 1), rep("plat", length(species)-1)),
-         max.y = rep(5, length(species)),
-         length.of.bite = c(rep(20, 1), rep(70, length(species)-1)),
-         length.of.series = c(rep(200, 1), rep(850, length(species)-1)),
-         jit = c(rep(0.5, 1), rep(2, length(species)-1)),
-         slope.perc.starts = c(0, 10, 20, 30, 40, 50, 10, 10, 10, 20, 30, 40, 50, 60, 70, 80, 90),
-         slope.perc.ends =   c(0, 10, 20, 30, 40, 50, 90, 80, 70, 60, 50, 40, 30, 20, 10, 10, 10))
-
-
-# create tibble with simulated time series with different
-# bite characteristics for each measurement, specimen and species
-df.all <- NULL
-for(i in 1:nrow(classifier.temp)){
-  df.curr <- simulate_bites(no.of.bites = 5,
-                            length.of.bite = classifier.temp$length.of.bite[i],
-                            length.of.series = classifier.temp$length.of.series[i],
-                            max.y = classifier.temp$max.y[i],
-                            max.y.jit = 15,
-                            jit = classifier.temp$jit[i],
-                            bite.type = classifier.temp$type[i],
-                            slope.perc.start = classifier.temp$slope.perc.starts[i],
-                            slope.perc.end = classifier.temp$slope.perc.ends[i],
-                            plot = TRUE)
-
-  # add measurement number to df.curr
-  df.curr <- df.curr \%>\%
-    mutate(measurement = classifier.temp$measurement[i])
-
-  # add current sumulated bite series to df.all
-  df.all <- rbind(df.all, df.curr)
-}
-# remove temporary tibble to avoid confusion
-rm(classifier.temp)
-
-# rename columns
-df.all <- df.all \%>\%
-  rename(force = y)
-
-# add classifier info to bite table (df.all)
-df.all <- left_join(df.all,
-                    classifier,
-                    by = "measurement")
-
-peaks.df <- find_strongest_peaks(df = df.all,
-                                 no.of.peaks = 5,
-                                 print.to.pdf = FALSE)
-
-# rescale bites
-peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-                                df.data = df.all)
-
-# reduce to 100 observations per bite
-peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-                                   path.plots = path.plots,
-                                   print.to.pdf = FALSE)
-
-# average curves per species
-peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
-
-# RUN THE FUNCTION ####
+# find smallest polynomial degree that best describes all curves
 best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
                                 print.to.pdf = FALSE)
 

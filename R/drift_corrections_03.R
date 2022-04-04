@@ -62,22 +62,22 @@ amp_drift_corr <- function(folder,
                            res.reduction = 10,
                            start.file.number = 1){
 
-  if(!is.character(folder)) stop ("folder must contain character string only!")
-  if(length(folder) > 1) stop ("folder must only contain one character string!")
-  if(!dir.exists(folder)) stop (paste0("folder ", folder, " cannot be found!"))
+  if(!is.character(folder)) stop ("'folder' must contain character string only.")
+  if(length(folder) > 1) stop ("'folder' must only contain one character string.")
+  if(!dir.exists(folder)) stop (paste0("folder ", folder, " cannot be found."))
 
-  if(!is.numeric(tau)) stop ("tau must be numeric!")
-  if(length(tau) > 1) stop ("tau must be a single number!")
+  if(!is.numeric(tau)) stop ("'tau' must be numeric.")
+  if(length(tau) > 1) stop ("'tau' must be a single number.")
 
-  if(!is.logical(print.to.screen)) stop ("print.to.screen must be logical!")
+  if(!is.logical(print.to.screen)) stop ("'print.to.screen' must be logical.")
 
-  if(!is.logical(print.to.pdf)) stop ("print.to.pdf must be logical!")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
-  if(!is.numeric(res.reduction)) stop ("res.reduction must be numeric!")
-  if(length(res.reduction) > 1) stop ("res.reduction must be a single number!")
+  if(!is.numeric(res.reduction)) stop ("'res.reduction' must be numeric.")
+  if(length(res.reduction) > 1) stop ("'res.reduction' must be a single number.")
 
-  if(!is.numeric(start.file.number)) stop ("start.file.number must be numeric!")
-  if(length(start.file.number) > 1) stop ("start.file.number must be a single number!")
+  if(!is.numeric(start.file.number)) stop ("'start.file.number' must be numeric.")
+  if(length(start.file.number) > 1) stop ("'start.file.number' must be a single number.")
 
   x <- NULL
 
@@ -417,35 +417,35 @@ baseline_corr <- function(file,
                           res.reduction = 10,
                           Hz = 100){
 
-  if(!is.character(file)) stop ("file must contain character string only!")
-  if(length(file) > 1) stop ("file must only contain one character string!")
-  if(!dir.exists(file)) stop (paste0("file ", file, " cannot be found!"))
+  if(!is.character(file)) stop ("'file' must contain character string only.")
+  if(length(file) > 1) stop ("'file' must only contain one character string.")
+  if(!dir.exists(file)) stop (paste0("file ", file, " cannot be found."))
 
-  if(!is.character(corr.type)) stop ("corr.type must be a character string!")
-  if(length(corr.type) != 1) stop ("corr.type must only contain one character string!")
-  if(!(corr.type == "auto") & !(corr.type == "man")) stop ("corr.type can only be 'auto' or 'man'!")
+  if(!is.character(corr.type)) stop ("'corr.type' must be a character string.")
+  if(length(corr.type) != 1) stop ("'corr.type' must only contain one character string.")
+  if(!(corr.type == "auto") & !(corr.type == "man")) stop ("'corr.type' can only be one of the following strings: 'auto' or 'man'.")
 
-  if(!is.logical(print.to.screen)) stop ("print.to.screen must be logical!")
+  if(!is.logical(print.to.screen)) stop ("'print.to.screen' must be logical.")
 
-  if(!is.logical(print.to.pdf)) stop ("print.to.pdf must be logical!")
+  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
 
-  if(!is.numeric(window.size.mins)) stop ("window.size.mins must be numeric!")
-  if(length(window.size.mins) > 1) stop ("window.size.mins must be a single number!")
+  if(!is.numeric(window.size.mins)) stop ("'window.size.mins' must be numeric.")
+  if(length(window.size.mins) > 1) stop ("'window.size.mins' must be a single number.")
 
-  if(!is.numeric(window.size.means) & !is.null(window.size.means)) stop ("window.size.means must be numeric or NULL!")
-  if(length(window.size.means) != 1 & !is.null(window.size.means)) stop ("window.size.means must be a single number!")
+  if(!is.numeric(window.size.means) & !is.null(window.size.means)) stop ("'window.size.means' must be numeric or NULL.")
+  if(length(window.size.means) != 1 & !is.null(window.size.means)) stop ("'window.size.means' must be a single number.")
 
-  if(!is.numeric(quantile.size)) stop ("quantile.size must be numeric!")
-  if(length(quantile.size) > 1) stop ("quantile.size must be a single number!")
+  if(!is.numeric(quantile.size)) stop ("'quantile.size' must be numeric.")
+  if(length(quantile.size) > 1) stop ("'quantile.size' must be a single number.")
 
-  if(!is.numeric(y.scale)) stop ("y.scale must be numeric!")
-  if(length(y.scale) > 1) stop ("y.scale must be a single number!")
+  if(!is.numeric(y.scale)) stop ("'y.scale' must be numeric.")
+  if(length(y.scale) > 1) stop ("'y.scale' must be a single number.")
 
-  if(!is.numeric(res.reduction)) stop ("res.reduction must be numeric!")
-  if(length(res.reduction) > 1) stop ("res.reduction must be a single number!")
+  if(!is.numeric(res.reduction)) stop ("'res.reduction' must be numeric.")
+  if(length(res.reduction) > 1) stop ("'res.reduction' must be a single number.")
 
-  if(!is.numeric(Hz)) stop ("Hz must be numeric!")
-  if(length(Hz) > 1) stop ("Hz must be a single number!")
+  if(!is.numeric(Hz)) stop ("'Hz' must be numeric.")
+  if(length(Hz) > 1) stop ("'Hz' must be a single number.")
 
   x <- y <- y.zerocor <- t.10 <- V.10 <- NULL
 

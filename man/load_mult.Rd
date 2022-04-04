@@ -35,3 +35,16 @@ The input files need to be in the following format (even though column names do 
 
 All columns except the first two are removed.
 }
+\examples{
+\dontrun{
+# Using package example files from GitHub stored within
+# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+
+# store name of folder that contains files
+input.folder <- "./example_data/corrected/"
+
+# load a mutiple files
+df.all <- load_mult(folder = input.folder,
+                    columns = c(1:2))
+}
+}
