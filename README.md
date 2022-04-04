@@ -14,8 +14,6 @@ The package `forceR` has originally been written for insect bite force data prep
 * reduction of curves to 100 time steps each
 * finding of best polynomial fits to describe all curves
 
-
-
 ### Installation
 
 #### This is the development version of `forceR`
@@ -30,7 +28,7 @@ devtools::install_github("https://github.com/Peter-T-Ruehr/forceR")
 ```
 
 #### Official release
-To install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR) use the following command:
+To install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR) use the following command (not yet valid):
 ```
 install.packages('forceR')
 ```
@@ -38,4 +36,4 @@ install.packages('forceR')
 ### Citation
 If you use this package, please cite the original publication (currently under review):
 
-Rühr, PT & Blanke, A (**2021**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *XXX* **XXX**: pp.XX-XX. doi: XXX
+Rühr, PT & Blanke, A (**2022**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *XXX* **XXX**: pp.XX-XX. doi: XXX

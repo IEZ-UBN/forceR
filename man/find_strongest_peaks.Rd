@@ -72,10 +72,15 @@ The input data frame or tibble needs to contain the following columns:\tabular{c
 }
 }
 \examples{
+require(dplyr)
 # Using the forceR::df.all.200.tax dataset:
 
+# reduce dataset
+df.all.200.tax_filtered <- df.all.200.tax \%>\%
+  filter(species == "species_A")
+
 # find strongest peaks
-peaks.df <- find_strongest_peaks(df = df.all.200.tax,
+peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
                                  no.of.peaks = 5,
                                  print.to.pdf = FALSE)
 
