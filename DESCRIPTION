@@ -1,6 +1,6 @@
 Package: forceR
 Title: Force Measurement Analyses
-Version: 1.0.5
+Version: 1.0.6
 Description: An R package for time series cleaning and analysis. forceR can be used for any time series measurements, but was initially written and optimize to deal with bite force measurements of insects. forceR includes a full workflow to load, plot and crop data, correct amplifier and baseline drifts, identify individual peak shapes, rescale (normalize) peak curves, and find best polynomial fits to describe and analyze force curve shapes.
 License: MIT + file LICENSE
 URL: https://github.com/Peter-T-Ruehr/forceR
