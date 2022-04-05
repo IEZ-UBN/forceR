@@ -1,5 +1,5 @@
-## R CMD check results ---- forceR 1.0.3 ----
-Duration: 38.9s
+## R CMD check results ---- forceR 1.0.7 ----
+Duration: 38.6s
 
 0 errors v | 0 warnings v | 0 notes v
 
