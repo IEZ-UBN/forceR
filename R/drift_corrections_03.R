@@ -297,7 +297,7 @@ amp_drift_corr <- function(folder,
 #' @param file A character string containing the full path to the measurement file that needs correction.
 #' See Details for info on what the file should look like.
 #' @param corr.type Character string defining the desired mode of baseline correction. One of `"auto"`
-#'   or `"manual"`. Default: `"auto"`
+#'   or `"man"`. Default: `"auto"`
 #' @param print.to.screen A logical value indicating if results should be plotted in the current R plot
 #'   device. Default: `TRUE`.
 #' @param print.to.pdf  A logical value indicating  if results should be saved as PDFs. This is considered
@@ -394,7 +394,7 @@ amp_drift_corr <- function(folder,
 #'# the results will be saved in new subfolders of the ampdriftcorr.folder
 #'
 #'baseline_corr(file,
-#'              corr.type = "manual",
+#'              corr.type = "man",
 #'              print.to.screen = TRUE,
 #'              print.to.pdf = TRUE)
 #'              plot_measurement(file)
@@ -406,6 +406,7 @@ amp_drift_corr <- function(folder,
 #'[1] "Done!"
 #'}
 #' @export
+#' @importFrom roll roll_mean
 baseline_corr <- function(file,
                           corr.type = "auto",
                           print.to.screen = TRUE,
@@ -419,7 +420,7 @@ baseline_corr <- function(file,
 
   if(!is.character(file)) stop ("'file' must contain character string only.")
   if(length(file) > 1) stop ("'file' must only contain one character string.")
-  if(!dir.exists(file)) stop (paste0("file ", file, " cannot be found."))
+  if(!file.exists(file)) stop (paste0("file ", file, " cannot be found."))
 
   if(!is.character(corr.type)) stop ("'corr.type' must be a character string.")
   if(length(corr.type) != 1) stop ("'corr.type' must only contain one character string.")

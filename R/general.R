@@ -20,6 +20,7 @@
 #' @importFrom purrr map_df
 #' @importFrom roll roll_mean
 #' @importFrom filesstrings file.move
+#' @export
 today <- function(){
   date.string <- gsub("-", "_", substring(as.character(as.POSIXct(Sys.time())), 1, 10))
   return(date.string)
@@ -59,6 +60,7 @@ rescale_to_range <- function(data, from, to) {
 #' @param current Numeric value of current loop iteration.
 #' @param end Numeric value number last loop iteration.
 #' @return Prints percentage of loop progress to console.
+#' @export
 print_progress <- function(current, end) {
   cat("\r", paste0(round(current/end*100,2), "%.."))
 }
