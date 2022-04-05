@@ -95,6 +95,14 @@ data.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignet
 df.all <- forceR::df.all
 head(df.all)
 
+## ----eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6----
+# plot simulated measurements
+ggplot(df.all,
+       aes(x = t ,
+           y = y,
+           colour=measurement)) +
+  geom_line()
+
 ## ----eval=TRUE, warning=FALSE, message=FALSE----------------------------------
 # reduce frequency to 200 Hz
 df.all.200 <- reduce_frq(df = df.all, 
@@ -200,9 +208,9 @@ ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
 ## ----eval=FALSE, warning=FALSE, message=FALSE---------------------------------
 #  peaks.df <- correct_peak(df.peaks = peaks.df,
 #                           df.data = df.all.200.tax,
-#                           measurement = "0981",
+#                           measurement = "m_01",
 #                           peak = 1,
-#                           additional.msecs = 500)
+#                           additional.msecs = 100)
 
 ## ---- eval=TRUE, warning=FALSE, message=FALSE, include=FALSE------------------
 # this prints too long to let it stay
@@ -217,19 +225,18 @@ head(peaks.df.norm)
 ## ---- eval=TRUE, warning=FALSE, message=FALSE, include=TRUE-------------------
 head(peaks.df.norm)
 
-## ----eval=FALSE, warning=FALSE, message=FALSE, include=TRUE-------------------
-#  peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#                                     path.plots = path.plots,
-#                                     print.to.pdf = TRUE)
+## ----eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6----
+# plot all normalized peaks
+ggplot(peaks.df.norm %>%
+         mutate(color.column = paste0(measurement, "-bite", peak)),
+       aes(x = t.norm , 
+           y = force.norm, 
+           colour=color.column)) +
+  geom_line()
 
 ## ----eval=TRUE, warning=FALSE, message=FALSE, include=FALSE-------------------
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
                                    print.to.pdf = TRUE)
-
-## ----eval=FALSE, warning=FALSE, message=FALSE, include=TRUE-------------------
-#  peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#                                     path.plots = path.plots,
-#                                     print.to.pdf = TRUE)
 
 ## ----eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6----
 head(peaks.df.norm.100)

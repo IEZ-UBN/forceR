@@ -47,7 +47,7 @@ sort_files <- function(data.folders,
   if(!dir.exists(results.folder)){
     dir.create(results.folder, showWarnings = FALSE)
   } else {
-    message(results.folder, " already exists!")
+    print(results.folder, " already exists!")
   }
   if(!str_sub(results.folder, -1) == '/'){
     results.folder <- paste0(results.folder, "/")

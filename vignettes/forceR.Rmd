@@ -246,7 +246,7 @@ df.1 <- load_single(file = file.list[1],
                     columns = c(1:2))
 ```
 ```
-unique(df.1$filename)
+df.1
 #> # A tibble: 129,001 x 3
 #>        t       y filename                              
 #>    <dbl>   <dbl> <chr>                                 
@@ -264,7 +264,7 @@ unique(df.1$filename)
 ```
 
 ```
-df.1
+unique(df.1$filename)
 #> [1] "0979_cropped_ampdriftcorr_baselinecorr"
 ```
 
@@ -304,12 +304,25 @@ unique(df.all$filename)
 
 The new tibble contains the measurement of all files in the selected folder.
 
-For the sake of reproducibility to keep the package size to a minimum, we have simulated our own data using the `forceR` function `simulate_bites()`. The resulting data comes with the installation of `forceR`:
+For the sake of reproducibility to keep the package size to a minimum, we have simulated our own data using the `forceR` function `simulate_bites()`. The resulting data comes with the installation of `forceR`. **We will replace our previous `df.all` tibble with the internal `forceR` tibble**:
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE}
 df.all <- forceR::df.all
 head(df.all)
 ```
+
+Now let us plot the simulated measurements ot get a feeling for them:
+
+```{r eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6}
+# plot simulated measurements
+ggplot(df.all,
+       aes(x = t ,
+           y = y,
+           colour=measurement)) +
+  geom_line()
+```
+
+We can see that some bites have more (reddish colors) or less (blueish colors) plateau-like peaks, whereas others have more sinusoidal peaks with early (orange) or late peaks (green).
 
 ### Sampling Frequency Reduction
 `df.all` has a sampling frequency of 1000 Hz. This is more than is often needed to analyse a time series. To reduce the sampling frequency of all measurements that are above a desired frequency of e.g. `200 Hz`, we can use the function `reduce.frq()`:
@@ -456,9 +469,10 @@ plot_peaks(df.peaks = peaks.df,
            print.to.pdf = TRUE)
 ```
 
-The first page of the resulting PDF looks like this, showing the five strongest peaks of measurement 0981, and the strongest peak of measurement 1041. Plots of further peaks of 1041 and the peaks of the other measurements follow on the next page(s).
+The first page of the resulting PDF looks like this, showing the five strongest peaks of `species_A`, which was measured in measurements `m_01 - m_06`, and the strongest peak of `species_A` which occured in measurement `m_11`. Plots of further peaks of `species_A` and the peaks of the other species follow on the next pages.
 
 ![](./imgs/all_bite_curves.png){width=6in}
+
 We strongly recommend saving `df.peaks` as a csv file on your computer and keep a copy of it save. The following procedures overwrite values in this table, so the peak-finding step needs to be repeated to restore original values.
 
 ### Manual peak corrections
@@ -467,9 +481,12 @@ For some measurements, the automatic finding identification of peak starts and e
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 peaks.df <- correct_peak(df.peaks = peaks.df,
                          df.data = df.all.200.tax,
-                         measurement = "0981", 
+                         measurement = "m_01", 
                          peak = 1, 
-                         additional.msecs = 500)
+                         additional.msecs = 100)
+```
+```
+[1] "Select new peak start and end. If more than two points are selected, the operation is automatically terminated."
 ```
 
 This functions prompts the user to define a new start and end of the peak. Define the `measurement` ID (as a character string) in which the peak to correct is located, and the `peak` number (as a numerical value). Both can be found in the respective title of the peak curve plot created by `plot_peaks()`. If the desired start and/or end lies outside of the plot window, increase `additional.msecs`.
@@ -478,15 +495,8 @@ This functions prompts the user to define a new start and end of the peak. Defin
 
 The function overwrites the start and end values of the selected peak in the selected measurement and plots the corrected peak curve. Again, note that this example is taken from real measurements and not the simulated data we use in the other analysis steps. 
 
-```
-[1] "Select new peak start and end. If more than two points are selected, the operation is automatically terminated."
-species                 measurements                            starts                              ends
-1       A 0981; 0981; 0981; 0981; 0981  13720; 33610; 17900; 3050; 31035  15142; 34685; 19425; 4240; 32395
-2       B 1041; 1041; 1041; 1041; 1041  19440; 58485; 24345; 62235; 8100  23325; 59230; 25730; 63070; 9310
-3       C 1440; 1440; 1440; 1440; 1440 11290; 14165; 13280; 22655; 21615 12590; 14835; 13925; 23175; 22080
-```
-
 ![](./imgs/manual_bite_corred.png){width=6in}
+*Note that the peak in the figures above looks differently from the one in your plots, but the principles are the same.*
 
 ### Normalize (rescale) peaks
 In the next step, we will use `rescale_peaks()` to rescale the time and force data so that they both range from 0 to 1.
@@ -508,30 +518,37 @@ peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
 head(peaks.df.norm)
 ```
 
+Now we will plot the resulting data. You will note that the peaks are not very smooth. This is because the simulated peaks of `df.all` where so short that the reduction to 200 Hz in one of the previous steps resulted in very few time steps per bite. It is, thus, important to choose the sampling frequency wisely. For our example, however, these few time steps are sufficient.
+
+```{r eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6}
+# plot all normalized peaks
+ggplot(peaks.df.norm %>%
+         mutate(color.column = paste0(measurement, "-bite", peak)),
+       aes(x = t.norm , 
+           y = force.norm, 
+           colour=color.column)) +
+  geom_line()
+```
 
 ### Reduce to 100 time steps per peak
 `peaks.df.norm` now contains the same data as `df.all.200.tax`, only with the additional columns of `t.norm` and `force.norm` which contain the rescaled time and force data, both ranging from 0 to 1.
 
-To reduce the data to 100 observations (time steps), we will use the function `red_peaks_100()`:
+To reduce the data to 100 observations (time steps), we will use the function `red_peaks_100()`. Note that, because the peaks of the example dataset are so short, we now actually *increase* the number of time steps. In real data, however, `red_peaks_100()` usually boils down the number of observations.
 
-```{r eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
-peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
-                                   path.plots = path.plots, 
-                                   print.to.pdf = TRUE)
-```
-```
-#> [1] "Saving plots at ./example_data/plots/2022_04_03_rescaled_peaks_100.pdf..."
-#> 
-```
 ```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
                                    print.to.pdf = TRUE)
 ```
-```{r eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
-peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
-                                   path.plots = path.plots, 
-                                   print.to.pdf = TRUE)
 ```
+peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
+path.plots = path.plots, 
+print.to.pdf = TRUE)
+
+#> [1] "Saving plots at ./example_data/plots/2022_04_03_rescaled_peaks_100.pdf..."
+#> 
+```
+
+Again, we will plot the result:
 
 ```{r eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6}
 head(peaks.df.norm.100)
@@ -545,7 +562,7 @@ ggplot(peaks.df.norm.100 %>%
   geom_line()
 ```
 
-The resulting tibble consists of 100 rows per peak, and within each peak, the `index` column runs from 1 to 100, and the `force.norm.100` column consists of the rescaled peak curves, each of whose values range from 0 to 1. Since we included five species in our dataset, the resulting tibble is 1,500 rows long (`species * peaks/species * time steps per peak = 3 * 5 * 100`).
+The resulting tibble consists of 100 rows per peak, and within each peak, the `index` column runs from 1 to 100, and the `force.norm.100` column consists of the rescaled peak curves, each of whose values range from 0 to 1. Since we included 4 species in our dataset, the resulting tibble is 2,000 rows long (`species * peaks/species * time steps per peak = 4 * 5 * 100 = 2,000`).
 
 ### Average peak curve per species
 Next, we will calculate the average peak curve per species and normalize the curves again:
@@ -561,7 +578,7 @@ ggplot(peaks.df.100.avg, aes(x = index ,
   geom_line()
 ```
 
-### Fitting polynomial functions to the force curves
+### Fit polynomial functions to the force curves
 To find out the minimum number of coefficients that well describe all curves, we use the function `find_best_fits()`. It fits polynomial functions with 1 to 20 coefficients and uses the Akaike Information Criterion (AIC) to evaluate the goodness of the fits. A model is considered a good fit when the percentage of change from one model to the next (e.g. a model with 6 coefficients to a model with 7 coefficients) is `<= 5%`. The first four models meeting this criterion are plotted as colored graphs and the AICs of these models are visualized in a second plot for each curve. All first four coefficients per curve that fulfill the criterion are stored and in the end, a histogram of how often which coefficients were good fits is plotted as well. The function returns the numerical value of the coefficient that fulfilled the criterion of a good fit in most curves. If `print.to.pdf == TRUE`, then the plots are saved as PDFs in `path.plots`. Resulting data is saved in `path.data`.
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
@@ -580,15 +597,15 @@ best.fit.poly
 [1] 4
 ```
 
-Both 4 and 8 coefficients most often were under the first 4 models that were followed by an AIC-change `<= 5%`:
+Both 4 and 8 coefficients most often were under the first 4 models that were followed by an AIC-change below `5%`:
 
 ![](./imgs/coeff_graphs.png){width=4in}
 
 ![](./imgs/best_coeffs.png){width=4in}
 
-The first image shows the polynomial fits to the average force curves of species_A and species_B. 
+The first image shows the polynomial fits to the average force curves of species_A and species_B. The second image shows a frequency distribution of how often a polynomial function with *n* coefficients was followed by a function with *n+1* coefficients that only brought an AIC-change below `5%`.
 
-Given the fact that we only analyzed four species (`n = 4 species * 4 coefficients = 12`) in this example, the histogram looks a bit scarce. If more species are analyzed, this may rather look like this:
+Given the fact that we only analyzed four species in this example, the histogram looks a bit scarce (`n = 4 species * 4 coefficients = 16`). If more species are analyzed, this may rather look like this:
 
 ![](./imgs//best_coeffs_more.png){width=4in}
 
@@ -624,7 +641,7 @@ ggplot(models.df,
 Congratulations - you have made it to the end of this vignette. We hope this package helps you with your data. In case of any remarks or questions, please feel free to contact Peter T. Rühr at `peter.ruehr at gmail.com`.
 
 ## `forceR` workflow example
-Below we have compiled a self-sufficient `R` script to run all functions of `forceR` after file loading and, if necessary, drift corrections, are finished. Instead of loading data from real *in vivo* measurements, we simulate bite series with the function `simulate_bites()` and store it in `df.all`. The variable names used are the same as used in the rest of this vignette.
+Below we have compiled a self-sufficient `R` script to run all functions of `forceR` after file loading and drift corrections. Instead of loading data from *in vivo* measurements, we simulate bite series with the function `simulate_bites()` and store it in `df.all`. The variable names used are the same as used in the rest of this vignette. They are also stored in the `forceR` package internally and can be restored by calling, e.g. `df.all <- forceR::df.all`.
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 require(gsheet)

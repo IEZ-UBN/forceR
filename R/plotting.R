@@ -107,7 +107,7 @@ plot_peaks <- function(df.peaks,
 
   if(print.to.pdf == TRUE){
     print(paste0("plotting to ", path.plots, today(),"_all_peak_curves.pdf..."))
-    pdf(paste0(path.plots, today(),"_all_peak_curves.pdf"), onefile = TRUE, paper = "a4", height = 14)
+    pdf(file.path(path.plots, paste0(today(),"_all_peak_curves.pdf")), onefile = TRUE, paper = "a4", height = 14)
   }
   par(mfrow=c(3,2))
   for(b in 1:nrow(df.peaks)){ # nrow(df.peaks)
