@@ -4,8 +4,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----warning=FALSE, message=FALSE---------------------------------------------
-# install.packages('forceR') not yet
+## ----warning=FALSE, message=FALSE, eval=F-------------------------------------
+#  install.packages('forceR')
 
 ## ----warning=FALSE, message=FALSE, eval=F-------------------------------------
 #  require(devtools)

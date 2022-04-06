@@ -175,11 +175,11 @@ y_to_force <- function (df,
                         classifier,
                         measurement.col){
 
-  if(sum(colnames(df) %in% c("t", "y", "measurement")) != 3){
-    stop ("column names of 'df' must contain 't', 'y', 'measurement'.")
+  if(sum(colnames(df) %in% c("t", "y")) != 2){
+    stop ("column names of 'df' must contain 't', 'y'.")
   }
-  if(sum(colnames(classifier) %in% c("species", "specimen", "measurement", "amp", "lever.ratio")) != 5){
-    stop ("column names of 'classifier' must contain 'species', 'specimen', 'measurement', 'amp', 'lever.ratio'.")
+  if(sum(colnames(classifier) %in% c("species", "specimen", "amp", "lever.ratio")) != 4){
+    stop ("column names of 'classifier' must contain 'species', 'specimen', 'amp', 'lever.ratio'.")
   }
   if(!is.character(measurement.col) & !is.null(measurement.col)){
     stop ("'measurement.col' must be NULL or a character string.")
