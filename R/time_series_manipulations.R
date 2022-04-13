@@ -72,10 +72,13 @@ reduce_frq <- function (df,
   if(sum(colnames(df) %in% c("t", "y")) != 2){
     stop ("column names of 'df' must contain 't', 'y'.")
   }
+
   if(!is.numeric(Hz)) stop ("'Hz' must be numeric.")
+
   if(!is.character(measurement.col) & !is.null(measurement.col)){
     stop ("'measurement.col' must be NULL or a character string.")
   }
+
   if(!is.null(measurement.col) & sum(colnames(df) %in% measurement.col) != 1){
     stop (paste0("column names of 'df' must contain '", measurement.col, "' as defined in 'measurement.col'."))
   }
