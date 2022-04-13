@@ -1,38 +1,19 @@
-## -- R CMD check results ------------------------------------ forceR 1.0.9 ----
-Duration: 39.1s
+## -- R CMD check results ----------------------------------- forceR 1.0.10 ----
+Duration: 39s
 
 0 errors v | 0 warnings v | 0 notes v
 
 R CMD check succeeded
 
 ## Misc
-This is the second submission (of a new release).
-we have solved the 2 issues addressed by Uwe Wiggins on 
-  our first submission attmempt (forceR 1.0.7):
+This is the third submission (of a new release).
 
 Issue 1:
-  License components with restrictions and base license permitting such:
-     MIT + file LICENSE
-   File 'LICENSE':
-     MIT License
-
-     Copyright (c) 2022 Peter T. RÃ¼hr
-
-     Permission is...
-
-  Please only ship the CRAN template for the MIT license.
-  
-Solution 1:
-  we have changed the content of LICENSE to only contain the following lines:
-
-
-Issue 2:
-  Found the following (possibly) invalid file URI:
-     URI: xxx
-       From: inst/doc/forceR.html
+  Thanks, please omit the redundant "An R package".
        
-Solution 2:
-       changed "[CRAN](xxx)" to "CRAN" in vignette source file.
+Solution 1:
+  done!
+  
 
 
 Question 1:
@@ -40,6 +21,11 @@ Question 1:
   field in the form Authors (year) <doi:10.....> or <arXiv:.....>?
   
 Answer 1:
-  The article describing this poackage was just accepted in 'Methods in Ecology 
-    and Evolution' today. However, we have no doi yet. As soon as we get one, 
-    we will update the info on the CRAN package.
+  We have changed the line
+  year         = "in press",
+  to
+  year         = "2022",
+  
+  However, the article describing this package was just accepted in 'Methods in 
+    Ecology and Evolution' today. As soon as we get one a DOI, we will update 
+    the info on the CRAN package.
