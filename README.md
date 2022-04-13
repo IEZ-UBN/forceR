@@ -36,6 +36,7 @@ install.packages('forceR')
 ### Citation
 If you use this package, please cite the original publication (currently under review):
 
-Rühr, PT & Blanke, A (**in rev.**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces.
+Rühr, PT & Blanke, A (**in press**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution*.
 
+An image of th eofficial pre-realease can be found at Zenodo:
 [![DOI](https://zenodo.org/badge/469710038.svg)](https://zenodo.org/badge/latestdoi/469710038)

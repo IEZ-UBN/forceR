@@ -40,6 +40,6 @@ Question 1:
   field in the form Authors (year) <doi:10.....> or <arXiv:.....>?
   
 Answer 1:
-  We just submitted the revised version of a manuscript in 'Methods in Ecology 
-    and Evolution' which had good comments in the first round of reviews. As 
-    soon as it gets published, we would update the info on the CRAN package.
+  The article describing this poackage was just accepted in 'Methods in Ecology 
+    and Evolution' today. However, we have no doi yet. As soon as we get one, 
+    we will update the info on the CRAN package.
