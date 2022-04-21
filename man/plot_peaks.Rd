@@ -8,8 +8,9 @@ plot_peaks(
   df.peaks,
   df.data,
   additional.msecs = 2000,
-  path.plots = getwd(),
-  print.to.pdf = TRUE
+  plot.to.screen = TRUE,
+  path.plots = NULL,
+  show.progress = FALSE
 )
 }
 \arguments{
@@ -20,32 +21,49 @@ plot_peaks(
 
 \item{additional.msecs}{A numeric value indicating how many m.secs before and after the actual peak curve should be plotted. Default: \code{2000}}
 
-\item{path.plots}{A string character defining where to save the plots. Default: \code{getwd()}}
+\item{plot.to.screen}{A logical value indicating if results should be
+plotted in the current R plot device. Default: \code{TRUE}.}
 
-\item{print.to.pdf}{A logical value indicating if the peak curves should be saved as PDFs. Default: \code{TRUE}
-Default: \code{TRUE}}
+\item{path.plots}{A string character defining where to save the plots. If \code{NULL},
+plots will not be saved to PDF files. Default: \code{NULL}}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
-In addition, if \code{print.to.pdf == TURE},
-Plots one graph per peak curve and, if \code{print.to.pdf == TURE}, saves all peak curves as one PDF at \code{path.plots}.
+Plots one graph per peak curve and, if \code{plot.to.pdf == TURE}, saves all peak curves as one PDF at \code{path.plots}.
 }
 \description{
 Plots the peaks identified by the function \code{find_peaks()}.
 }
 \details{
-#' The input data frame or tibble \code{df.data} needs to contain the following columns:\tabular{ccc}{
+\code{df.peaks} at least needs to contain the following columns:\tabular{cccc}{
+   \strong{\code{species}} \tab \strong{\code{measurements}} \tab \strong{\code{starts}} \tab \strong{\code{ends}} \cr
+   \code{species.1} \tab \code{measurements.1} \tab \code{starts.1} \tab \code{ends.1} \cr
+   \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \cr
+   \code{species.n} \tab \code{measurements.n} \tab \code{starts.m} \tab \code{ends.m} \cr
+}
+
+
+Check \code{forceR::peaks.df} to see an example tibble.
+
+\code{df.data} at least needs to contain the following columns:\tabular{ccc}{
    \strong{\code{t}} \tab \strong{\code{force}} \tab \strong{\code{measurement}} \cr
    \code{t.1} \tab \code{force.1} \tab \code{measurement.1} \cr
    \code{...} \tab \code{...} \tab \code{...} \cr
    \code{t.n} \tab \code{force.n} \tab \code{measurement.m} \cr
 }
+
+
+Check \code{forceR::df.all.200.tax} to see an example tibble.
 }
 \examples{
 # Using the forceR::peaks.df and forceR::df.all.200.tax datasets:
 
 # plot peaks
-plot_peaks(df.peaks = peaks.df,
-           df.data = df.all.200.tax,
-           additional.msecs = 20,
-           print.to.pdf = FALSE)
+plot_peaks(df.peaks = forceR::peaks.df,
+           df.data = forceR::df.all.200.tax,
+           additional.msecs = 20) # instead of the default (2000) because of
+                                  # the highly downsampled example dataset.
+
 }

@@ -4,7 +4,14 @@
 \alias{rescale_peaks}
 \title{Rescale Peaks}
 \usage{
-rescale_peaks(df.peaks, df.data, path.data = NULL)
+rescale_peaks(
+  df.peaks,
+  df.data,
+  plot.to.screen = FALSE,
+  write.data = TRUE,
+  output.folder,
+  show.progress = FALSE
+)
 }
 \arguments{
 \item{df.peaks}{The resulting tibble of the function \code{find_strongest_peaks()}. See \code{?find_strongest_peaks} for more details.}
@@ -12,34 +19,60 @@ rescale_peaks(df.peaks, df.data, path.data = NULL)
 \item{df.data}{A data frame or tibble in the below format. The columns \code{t} (time), \code{force} and \code{measurement}
 (measurement ID) must be present. This will usually be the same table that was used before in \code{find_strongest_peaks()}.}
 
-\item{path.data}{A string character defining where to save the results. If \code{NULL} (default),
-data is not stored in file.}
+\item{plot.to.screen}{A logical value indicating if results should be
+plotted in the current R plot device. Default: \code{FALSE}.}
+
+\item{write.data}{A logical value indicating if drift-corrected file should
+be saved. If yes, it will be saved in \code{output.folder}. Default: \code{TRUE}.}
+
+\item{output.folder}{A string character defining where to save the results if \code{write.data == TRUE}..}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
-This function returns a tibble with the same format as \code{df}, but with the additional columns \code{t.norm} and \code{force.norm} which will contain the
-rescaled time and force data now both ranging from 0 to 1.
+This function returns a tibble in the same format as \code{df}, but with
+the additional columns \code{t.norm} and \code{force.norm} which will contain the
+rescaled time and force data both ranging from 0 to 1.
 }
 \description{
 Rescales time series in x and y to values ranging from 0 to 1.
 }
-\section{\code{df} needs to contain the following columns:}{
-\tabular{ccc}{
+\details{
+\code{df.peaks} at least needs to contain the following columns:\tabular{cccc}{
+   \strong{\code{species}} \tab \strong{\code{measurements}} \tab \strong{\code{starts}} \tab \strong{\code{ends}} \cr
+   \code{species.1} \tab \code{measurements.1} \tab \code{starts.1} \tab \code{ends.1} \cr
+   \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \cr
+   \code{species.n} \tab \code{measurements.n} \tab \code{starts.m} \tab \code{ends.m} \cr
+}
+
+
+Check \code{forceR::peaks.df} to see an example tibble.
+
+\code{df.data} at least needs to contain the following columns:\tabular{ccc}{
    \strong{\code{t}} \tab \strong{\code{force}} \tab \strong{\code{measurement}} \cr
    \code{t.1} \tab \code{force.1} \tab \code{measurement.1} \cr
    \code{...} \tab \code{...} \tab \code{...} \cr
    \code{t.n} \tab \code{force.n} \tab \code{measurement.m} \cr
 }
-}
 
+
+Check \code{forceR::df.all.200.tax} to see an example tibble.
+}
 \examples{
 # Using the forceR::df.all.200.tax and forceR::df.all.200.tax datasets:
 
 # rescale bites
-peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-                                 df.data = df.all.200.tax)
+peaks.df.norm <- rescale_peaks(df.peaks = forceR::peaks.df,
+                                 df.data = forceR::df.all.200.tax,
+                                 plot.to.screen = FALSE,
+                                 write.data = FALSE,
+                                 output.folder,
+                                 show.progress = FALSE)
 
-# maximum values of time and force are both 1 in the whole data frame:
-max(peaks.df.norm$t.norm)
-max(peaks.df.norm$force.norm)
+
+# maximum values of time and force both range from 0 - 1:
+range(peaks.df.norm$t.norm)
+range(peaks.df.norm$force.norm)
 
 }

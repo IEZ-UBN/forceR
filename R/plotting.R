@@ -57,15 +57,34 @@ plot_measurement <- function (file,
 #' Plots the peaks identified by the function `find_peaks()`.
 #'
 #' @param df.peaks df.peaks The resulting tibble of the function `find_peaks()`. See `?find_peaks` for more details.
+#'
 #' @param df.data A data frame or tibble in the below format. The columns `t` (time), `force` and `measurement`
 #'   (measurement ID) must be present. This will usually be the same table that was used before in `find_peaks()`.
+#'
 #' @param additional.msecs A numeric value indicating how many m.secs before and after the actual peak curve should be plotted. Default: `2000`
-#' @param path.plots A string character defining where to save the plots. Default: `getwd()`
-#' @param print.to.pdf A logical value indicating if the peak curves should be saved as PDFs. Default: `TRUE`
-#'   Default: `TRUE`
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `TRUE`.
+#'
+#' @param path.plots A string character defining where to save the plots. If `NULL`,
+#' plots will not be saved to PDF files. Default: `NULL`
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
 #'
 #' @details
-#' #' The input data frame or tibble `df.data` needs to contain the following columns:
+#' @details
+#' `df.peaks` at least needs to contain the following columns:
+#'
+#' | **`species`** | **`measurements`** |  **`starts`** |  **`ends`** |
+#' | :----: | :----: |:----: |:----: |
+#' | `species.1` |  `measurements.1` | `starts.1` | `ends.1` |
+#' | `...` |  `...` |  `...` |  `...` |
+#' | `species.n` |  `measurements.n` | `starts.m` | `ends.m` |
+#'
+#' Check `forceR::peaks.df` to see an example tibble.
+#'
+#' `df.data` at least needs to contain the following columns:
 #'
 #' | **`t`** | **`force`** |  **`measurement`** |
 #' | :----: | :----: |:----: |
@@ -73,25 +92,37 @@ plot_measurement <- function (file,
 #' | `...` |  `...` |  `...` |
 #' | `t.n` |  `force.n` | `measurement.m` |
 #'
+#' Check `forceR::df.all.200.tax` to see an example tibble.
+#'
+#'
 #' @return
 #'
-#' In addition, if `print.to.pdf == TURE`,
-#' Plots one graph per peak curve and, if `print.to.pdf == TURE`, saves all peak curves as one PDF at `path.plots`.
+#' Plots one graph per peak curve and, if `plot.to.pdf == TURE`, saves all peak curves as one PDF at `path.plots`.
 #'
 #' @examples
 #' # Using the forceR::peaks.df and forceR::df.all.200.tax datasets:
 #'
 #' # plot peaks
-#' plot_peaks(df.peaks = peaks.df,
-#'            df.data = df.all.200.tax,
-#'            additional.msecs = 20,
-#'            print.to.pdf = FALSE)
+#' plot_peaks(df.peaks = forceR::peaks.df,
+#'            df.data = forceR::df.all.200.tax,
+#'            additional.msecs = 20) # instead of the default (2000) because of
+#'                                   # the highly downsampled example dataset.
+#'
 #' @export
 plot_peaks <- function(df.peaks,
                        df.data,
                        additional.msecs = 2000,
-                       path.plots = getwd(),
-                       print.to.pdf = TRUE){
+                       plot.to.screen = TRUE,
+                       path.plots = NULL,
+                       show.progress = FALSE){
+
+  # # testing:
+  # plot_peaks (df.peaks = forceR::peaks.df,
+  #             df.data = forceR::df.all.200.tax,
+  #             additional.msecs = 20,
+  #             plot.to.screen = TRUE,
+  #             path.plots = "./test_folder",
+  #             show.progress = TRUE)
 
   if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
     stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'.")
@@ -100,15 +131,24 @@ plot_peaks <- function(df.peaks,
     stop ("column names of 'df.data' must contain 't', 'force', 'measurement'.")
   }
   if(!is.numeric(additional.msecs)) stop ("'additional.msecs' must be a numeric.")
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+
+  if(!is.null(path.plots)){
+    if(!dir.exists(path.plots)) stop ("Folder to store plots does not exist: ", path.plots, ".")
+  }
+
+  # if(!is.logical(plot.to.pdf)) stop ("'plot.to.pdf' must be logical.")
 
   measurement <- NULL
 
-  if(print.to.pdf == TRUE){
-    print(paste0("plotting to ", path.plots, today(),"_all_peak_curves.pdf..."))
-    pdf(file.path(path.plots, paste0(today(),"_all_peak_curves.pdf")), onefile = TRUE, paper = "a4", height = 14)
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    # print(paste0("plotting to ", path.plots, today(),"_all_peak_curves.pdf..."))
+    pdf(file.path(path.plots, paste0("all_peak_curves_", today(), ".pdf")),
+        onefile = TRUE, paper = "a4", height = 14)
   }
+
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
   par(mfrow=c(3,2))
   for(b in 1:nrow(df.peaks)){ # nrow(df.peaks)
 
@@ -141,11 +181,14 @@ plot_peaks <- function(df.peaks,
         title(main = paste0(curr.measurement, ", peak: ", c), cex.main = 0.95)
       }
     }
-    print_progress(b, nrow(df.peaks))
+    if(show.progress == TRUE){
+      print_progress(b, nrow(df.peaks))
+    }
   }
-  if(print.to.pdf == TRUE){
-    dev.off()
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    invisible(dev.off())
   }
-  par(mfrow=c(1,1))
-  print("Done!")
+  # par(mfrow=c(1,1))
+  # print("Done!")
 }

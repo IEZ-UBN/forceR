@@ -4,15 +4,18 @@
 \alias{peak_to_poly}
 \title{Convert Time Series to Polynomial}
 \usage{
-peak_to_poly(df, coeff, path.data = NULL)
+peak_to_poly(df, coeff, path.data = NULL, show.progress = FALSE)
 }
 \arguments{
 \item{df}{The resulting tibble of the function \code{avg_peaks()}. See \code{?avg_peaks} for more details.}
 
 \item{coeff}{A numerical value indicating the number of coefficients the model used to fit on the time series data should have.}
 
-\item{path.data}{A string character defining where to save the results. If \code{NULL} (default),
-data is not stored in a file.}
+\item{path.data}{A string character defining where to save the results as
+\verb{*.csv} and \verb{*.R}. If \code{NULL}, data is not stored in files. Default: \code{NULL}.}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
 A list with the length equal to the number of unique species within \code{df} containing the fitted models.
@@ -27,6 +30,8 @@ Convert Time Series to Polynomial
 number_of_coeffs = 4
 
 # convert curves to polynomial models
-models <- peak_to_poly(df = peaks.df.100.avg,
+models <- peak_to_poly(df = forceR::peaks.df.100.avg,
                         coeff = number_of_coeffs)
+
+models
 }

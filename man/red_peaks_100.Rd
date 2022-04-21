@@ -4,15 +4,27 @@
 \alias{red_peaks_100}
 \title{Reduce Peaks}
 \usage{
-red_peaks_100(df, path.plots = getwd(), print.to.pdf = TRUE)
+red_peaks_100(
+  df,
+  plot.to.screen = FALSE,
+  write.pdfs = FALSE,
+  path.plots,
+  show.progress = FALSE
+)
 }
 \arguments{
 \item{df}{The resulting tibble of the function \code{rescale_peaks()}. See \code{?rescale_peaks} for more details.
 The columns \code{measurement} and \code{force.norm} must be present.}
 
-\item{path.plots}{A string character defining where to save the plots. Default: working directory. Default: \code{getwd()}.}
+\item{plot.to.screen}{A logical value indicating if results should be
+plotted in the current R plot device. Default: \code{FALSE}.}
 
-\item{print.to.pdf}{A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: \code{TRUE}}
+\item{write.pdfs}{A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: \code{TRUE}}
+
+\item{path.plots}{A string character defining where to save the plots if \code{write.pdfs == TRUE}.}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
 This function returns a tibble with a similar format as \code{df}, but the columns \code{t}, \code{force}, \code{t.norm} and \code{force.norm} are replaced
@@ -33,11 +45,10 @@ Reduces curves to 100 observations per peak.
 
 \examples{
 # Using the forceR::df.all.200.tax dataset:
-peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-                                   print.to.pdf = FALSE)
+peaks.df.norm.100 <- red_peaks_100(df = forceR::peaks.df.norm,
+                                   plot.to.screen = FALSE,
+                                   write.pdfs = FALSE)
 
-plot(peaks.df.norm.100$index,
-       peaks.df.norm.100$force.norm.100,
-       type="l")
+peaks.df.norm.100
 
 }

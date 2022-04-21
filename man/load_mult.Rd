@@ -4,13 +4,16 @@
 \alias{load_mult}
 \title{Load Multiple Measurements}
 \usage{
-load_mult(folder, columns = c(1:2))
+load_mult(folder, columns = c(1:2), show.progress = FALSE)
 }
 \arguments{
 \item{folder}{Character string containing the path to the measurements.}
 
 \item{columns}{A vector of column numbers. The first entry will be used as the x-axis values, the second entry as y-axis values.
 All other columns will be ignored. Default: \code{c(1,2)}.}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
 Returns a tibble in the format\tabular{ccc}{
@@ -21,8 +24,7 @@ Returns a tibble in the format\tabular{ccc}{
 }
 }
 \description{
-Rapidly loads multiple measurements and prints progress and estimated time to completion
-to console.
+Loads multiple measurements.
 }
 \details{
 The input files need to be in the following format (even though column names do not matter):\tabular{cc}{
@@ -36,15 +38,11 @@ The input files need to be in the following format (even though column names do 
 All columns except the first two are removed.
 }
 \examples{
-\dontrun{
-# Using package example files from GitHub stored within
-# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
-
 # store name of folder that contains files
-input.folder <- "./example_data/corrected/"
+input.folder <- forceR_example(type = "folder")
 
 # load a mutiple files
 df.all <- load_mult(folder = input.folder,
-                    columns = c(1:2))
-}
+                    columns = c(1:2),
+                    show.progress = FALSE)
 }

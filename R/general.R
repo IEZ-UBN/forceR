@@ -250,3 +250,57 @@ simulate_bites <- function(no.of.bites = 5,
 
   return(df)
 }
+
+#' Get path to forceR example
+#'
+#' forceR comes with example files of short bite force measurements.
+#' The files are stored in `forceR's` `inst/extdata`
+#' folder, and this function returns the path to that folder or one of the
+#' files  so they can be used in examples.
+#' @param type A character string (either `"folder"`, `"raw"`, or
+#' `"ampdriftcorr"`) defining if the path returned be the function
+#' should point to one of the the example files or the folder containing them.
+#' Default: `"folder"`.
+#' @return
+#' If `type = "folder"`: returns the file path to the folder containing
+#' `BF_raw.csv` and
+#' `BF_ampdriftcorr.csv`.
+#'
+#' If `type = "LJStream"`: returns the file path
+#' to `BF_raw.csv`, which contains a short bite force raw
+#' measurement.
+#'
+#' If `type = "raw"`: returns the file path
+#' to `BF_raw.csv`, which contains a short bite force raw
+#' measurement.
+#'
+#' If `type = "ampdriftcorr"`: returns the file path
+#' to `BF_ampdriftcorr.csv`, which contains a short bite
+#' force raw measurement where the amplifier drift as been corrected for by
+#' the amp_drift_corr() funcion.
+
+#' @export
+forceR_example <- function(type = "folder"){
+  if(type == "raw"){
+  path <- system.file("extdata", "raw/0001_C_big.csv",
+                      package = "forceR",
+              mustWork = TRUE)
+  } else if(type == "LJStream"){
+    path <- system.file("extdata", "LJStream/0001_C_big_LJStream_0.dat",
+                        package = "forceR",
+                        mustWork = TRUE)
+  } else if(type == "ampdriftcorr"){
+    path <- system.file("extdata", "ampdriftcorr/0001_C_big_ampdriftcorr.csv",
+                        package = "forceR",
+                        mustWork = TRUE)
+  } else if(type == "folder"){
+    path <- system.file("extdata", "raw",
+                        package = "forceR",
+                        mustWork = TRUE)
+  } else {
+    stop (
+      '"path" must be either "folder", "raw", or "ampdriftcorr".'
+      )
+  }
+  return(path)
+}

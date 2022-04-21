@@ -10,38 +10,42 @@ sort_files(data.folders, results.folder, move = FALSE)
 \item{data.folders}{Character vector containing full folder paths of folders to check. This list must be sorted
 according to the chronology of previous file editing. If a measurement exists in the last folder,
 this is copied or moved into the \code{results.folder}, and files of the same measurement located in the
-other folders will be ignored. Like this, the file of each measurement that underwent most correction steps
+other folders will be ignored. Hence, the one file per measurement that underwent most correction steps
 will be stored in the \code{results.folder}, while the rest of the files of the same measurement remain in place.}
 
 \item{results.folder}{Character string defining the full path to the folder where the desired files will be stored.}
 
-\item{move}{A logical value specifying if files should be moved (\code{move = TRUE}) or copied (\code{move = FALSE}). Default: \code{FALSE}}
+\item{move}{A logical value specifying if files should be moved (\code{move = TRUE}) or copied (\code{move = FALSE}). Default: \code{FALSE}.}
 }
 \value{
-This sorts existing files.
+This functions does not create new files but sorts existing files. It does, however, create the \code{results.folder}
+in case it did not exist before.
 }
 \description{
 The files of each of the various possible correction steps (cropping, amplififer correction, drift correction)
 are all located in their own folders. This function gets all files that represent the last correction step of a
 given measurement out of all those folders and saves them in the \code{results.folder}.
 }
+\details{
+The function will look for leading numbers in the file names specifying the measurement number to find corresponding
+files in the different folders. E.g., it will identify "0001_ABCD.csv", "0001_ABCD_ampdriftcorr.csv", and
+"0001_ABCD_ampdriftcorr_baselincorr.csv" as stemming from the same measurement and sort them accordingly.
+}
 \examples{
-\dontrun{
-# Using package example files from GitHub stored within
-# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
-
+\donttest{
 # define data.folders
-data.folders <- c(data.folder,
-file.path(data.folder, "/cropped"),
-file.path(data.folder, "/cropped/ampdriftcorr"),
-file.path(data.folder, "/cropped/ampdriftcorr/baselinecorr"))
+data.folders <- c("./raw",
+                   "./cropped",
+                   "./ampdriftcorr",
+                   "./baselinecorr")
 
-# define the folder to contain one corrected file per original raw measurement
-results.folder <- file.path(data.folder, "/corrected/")
+# define the folder in which one corrected file per original raw measurement
+#   should be stored.
+results.folder <- "./corrected"
 
 # run the file sorting
 sort_files(data.folders = data.folders,
-   results.folder = results.folder,
-   move = FALSE)
+             results.folder = results.folder,
+             move = FALSE)
 }
 }

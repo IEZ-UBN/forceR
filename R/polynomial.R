@@ -5,39 +5,73 @@
 #'   6 coefficients to a model with 7 coefficients) is `< 5%`. The first for models meeting this criterion are plotted as colored graphs and the AICs of these models
 #'   are visualized in a second plot for each curve. All first four coefficients per curve that fulfill the criterion are stored and in the end, a histogram of how
 #'   often which coefficients were good fits is plotted as well. The function returns the numerical value of the coefficient that fulfilled the criterion of a good fit
-#'   in most curves. If `print.to.pdf == TRUE`, then the plots are saved as PDFs in `path.plots`. Resulting data is saved in `path.data`.
+#'   in most curves.
 #'
 #' @param df The resulting tibble of the function `avg_peaks()`. See `?avg_peaks` for more details.
-#' @param path.data A string character defining where to save the results and log files. If `NULL` (default),
-#' data is not stored in a file.
-#' @param path.plots A string character defining where to save the plots. Default: working directory.
-#' @param print.to.pdf A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: `TRUE`
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
+#' @param path.data A string character defining where to save the results. If `NULL`,
+#' data is not stored in a file. Default: `NULL`.
+#'
+#' @param path.plots A string character defining where to save the plots. If `NULL`,
+#' plots will not be saved to PDF files. Default: `NULL`.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
 #'
 #' @return Returns the a numerical value representing the number of coefficient that was most often under the first 4 models that were followed by an
-#'   AIC-change `<= 5%` by the next model. Additionally, plots showing the model fits and a histogram of the coefficients that met the 5%-criterion are either plotted to
-#'   the plot device (`print.to.pdf = FALSE`) or saved as PDFs in `path.plots` (`print.to.pdf = TRUE`).
+#'   AIC-change `<= 5%` by the next model. Additionally, plots showing the model fits and a histogram of the coefficients that met the 5%-criterion can be
+#'   plotted to the plot device or saved as PDFs in `path.plots`.
 #'
 #' @export
+#'
 #' @examples
 #' # Using the forceR::peaks.df.100.avg dataset:
 #'
 #' # find smallest polynomial degree that best describes all curves
-#' best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
-#'                                 print.to.pdf = FALSE)
+#' best.fit.poly <- find_best_fits(df = forceR::peaks.df.100.avg)
+#'
+#' best.fit.poly
 #'
 find_best_fits <- function(df,
+                           plot.to.screen = FALSE,
                            path.data = NULL,
-                           path.plots = getwd(),
-                           print.to.pdf = TRUE){
+                           path.plots = NULL,
+                           show.progress = FALSE){
 
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+  # # testing
+  # find_best_fits (df = forceR::peaks.df.100.avg,
+  #                 plot.to.screen = FALSE,
+  #                 path.data = NULL,
+  #                 path.plots = NULL,
+  #                 show.progress = FALSE)
+  #
+  # find_best_fits (df = forceR::peaks.df.100.avg,
+  #                 plot.to.screen = TRUE,
+  #                 path.data = "./test_folder",
+  #                 path.plots = "./test_folder",
+  #                 show.progress = TRUE)
 
+  if(!is.null(path.data)){
+    if(!dir.exists(path.data)) stop ("Folder to store plots does not exist: ", path.data, ".")
+  }
+
+  if(!is.null(path.plots)){
+    if(!dir.exists(path.plots)) stop ("Folder to store plots does not exist: ", path.plots, ".")
+  }
+
+  # if(!is.logical(plot.to.pdf)) stop ("'plot.to.pdf' must be logical.")
+
+  # dplyr NULLs
   species <- NULL
 
-  if(print.to.pdf == TRUE){
-    print(paste0("Saving plots at ", path.plots, "/", today(),"_mean_normalized_peaks_100_fits.pdf..."))
-    pdf(paste0(path.plots, "/", today(),"_mean_normalized_peaks_100_fits.pdf"), onefile = TRUE, paper = "a4", height = 14)
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    # print(paste0("Saving plots at ", path.plots, "/", today(),"_mean_normalized_peaks_100_fits.pdf..."))
+    pdf(file.path(path.plots, paste0("mean_normalized_peaks_100_fits_", today(), ".pdf")),
+        onefile = TRUE, paper = "a4", height = 14)
   }
   par(mfrow=c(3,2))
   taxa <- unique(df$species)
@@ -99,58 +133,70 @@ find_best_fits <- function(df,
       if(length(coeffs) > 0){
 
         ### have a look at the fitted models visually
-        plot(curr.peak.100$index, curr.peak.100$force.norm.100.avg, type="n", lwd=3)
-        for (i in 2:length(sp.models)) {
-          lines(predict(sp.models[[i]]), lwd=0.5, col="grey50") # rainbow(length(sp.models))[i]
-        }
-        lines(curr.peak.100$index, curr.peak.100$force.norm.100.avg, lwd=1)
-        for(p in 1:length(coeffs)){
-          curr.coeff <- coeffs[p]
-          lines(predict(sp.models[[curr.coeff]]), lwd=1, col=coeff.colors[p])
-        }
-        title(main = paste0(curr.species), cex.main = 0.95)
+        if(plot.to.screen == TRUE){
+          plot(curr.peak.100$index, curr.peak.100$force.norm.100.avg, type="n", lwd=3)
+          for (i in 2:length(sp.models)) {
+            lines(predict(sp.models[[i]]), lwd=0.5, col="grey50") # rainbow(length(sp.models))[i]
+          }
+          lines(curr.peak.100$index, curr.peak.100$force.norm.100.avg, lwd=1)
+          for(p in 1:length(coeffs)){
+            curr.coeff <- coeffs[p]
+            lines(predict(sp.models[[curr.coeff]]), lwd=1, col=coeff.colors[p])
+          }
+          title(main = paste0(curr.species), cex.main = 0.95)
 
-        boxplot(aics)
-        for(p in 1:length(coeffs)){
-          curr.coeff <- coeffs[p]
-          points(x = curr.coeff, y = aics[[curr.coeff]], col = coeff.colors[p], cex = 2, lwd = 2)
-        }
-        title(main = paste0("coeffs = ", paste(coeffs, collapse = ", ")), cex.main = 0.95)
+          boxplot(aics)
+          for(p in 1:length(coeffs)){
+            curr.coeff <- coeffs[p]
+            points(x = curr.coeff, y = aics[[curr.coeff]], col = coeff.colors[p], cex = 2, lwd = 2)
+          }
+          title(main = paste0("coeffs = ", paste(coeffs, collapse = ", ")), cex.main = 0.95)
 
+        }
         coeffs.df <- rbind(coeffs.df,
                            tibble(species = curr.species, coeffs = paste(coeffs, collapse = "; ")))
       } else{
-        message(paste0(curr.species, " does not fit coeff-finder criteria..."))
+        warning(paste0(curr.species, " does not fit coeff-finder criteria..."))
       }
     } else{
-      message(paste0(curr.species, " does not fit coeff-finder criteria..."))
+      warning(paste0(curr.species, " does not fit coeff-finder criteria..."))
     }
 
-    print_progress(b, length(taxa))
+    if(show.progress == TRUE){
+      print_progress(b, length(taxa))
+    }
   }
   par(mfrow=c(1,1))
-  if(print.to.pdf == TRUE){
-    dev.off()
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    invisible(dev.off())
   }
 
   if(!is.null(path.data)){
-    print(paste0("Saving coeffs.df at ", path.data, "/", today(), "_mean_normalized_peaks_100_coeffs.csv..."))
-    write_csv(coeffs.df, paste0(path.data, "/", today(), "_mean_normalized_peaks_100_coeffs.csv"))
+    # print(paste0("Saving coeffs.df at ", path.data, "/", today(), "_mean_normalized_peaks_100_coeffs.csv..."))
+    write_csv(coeffs.df, file.path(path.data, paste0("mean_normalized_peaks_100_coeffs_", today(), ".csv")))
   }
 
   # find most-often well-fitting coeffs
   all.coeffs <- unlist(str_split(coeffs.df$coeffs, pattern = "; "))
   best.fit.coeff <- as.numeric(names(sort(table(all.coeffs), decreasing = TRUE))[1])
-  if(print.to.pdf == TRUE){
-    print(paste0("Saving plots at ", path.plots, "/", today(),"_normalized_peaks_100_coeff_histo.pdf..."))
-    pdf(paste0(path.plots, "/", today(),"_normalized_peaks_100_coeff_histo.pdf"), onefile = TRUE, paper = "a4", height = 14)
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    # print(paste0("Saving plots at ", path.plots, "/", today(),"_normalized_peaks_100_coeff_histo.pdf..."))
+    pdf(file.path(path.plots,
+                  paste0("normalized_peaks_100_coeff_histo_", today(), ".pdf")),
+        onefile = TRUE, paper = "a4", height = 14)
   }
-  plot(table(all.coeffs), main = paste0("best-fitting coeff = ", best.fit.coeff, "; n = ", length(all.coeffs)))
-  if(print.to.pdf == TRUE){
-    dev.off()
+  if(plot.to.screen == TRUE){
+    plot(table(all.coeffs),
+         main = paste0("best-fitting coeff = ", best.fit.coeff, "; n = ", length(all.coeffs)))
   }
-  print(paste0("Polynomial model with most best fits contains ", best.fit.coeff, " coefficients."))
-  print("Done!")
+  # if(plot.to.pdf == TRUE){
+  if(!is.null(path.plots)){
+    invisible(dev.off())
+  }
+  # print(paste0("Polynomial model with most best fits contains ", best.fit.coeff, " coefficients."))
+  # print("Done!")
   return(best.fit.coeff)
 }
 
@@ -160,9 +206,14 @@ find_best_fits <- function(df,
 #' Convert Time Series to Polynomial
 #'
 #' @param df The resulting tibble of the function `avg_peaks()`. See `?avg_peaks` for more details.
+#'
 #' @param coeff A numerical value indicating the number of coefficients the model used to fit on the time series data should have.
-#' @param path.data A string character defining where to save the results. If `NULL` (default),
-#' data is not stored in a file.
+#'
+#' @param path.data A string character defining where to save the results as
+#' `*.csv` and `*.R`. If `NULL`, data is not stored in files. Default: `NULL`.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
 #'
 #' @return A list with the length equal to the number of unique species within `df` containing the fitted models.
 #' @export
@@ -173,12 +224,27 @@ find_best_fits <- function(df,
 #' number_of_coeffs = 4
 #'
 #' # convert curves to polynomial models
-#' models <- peak_to_poly(df = peaks.df.100.avg,
+#' models <- peak_to_poly(df = forceR::peaks.df.100.avg,
 #'                         coeff = number_of_coeffs)
+#'
+#' models
 
 peak_to_poly <- function(df,
-                          coeff,
-                          path.data = NULL){
+                         coeff,
+                         path.data = NULL,
+                         show.progress = FALSE){
+
+  # # testing
+  # number_of_coeffs = 4
+  # models <- peak_to_poly(df = forceR::peaks.df.100.avg,
+  #                        coeff = number_of_coeffs)
+  #
+  # number_of_coeffs = 4
+  # models <- peak_to_poly(df = forceR::peaks.df.100.avg,
+  #                        coeff = number_of_coeffs,
+  #                        path.data = "./test_folder",
+  #                        show.progress = TRUE)
+
 
   if(sum(colnames(df) %in% c("species", "index", "force.norm.100.avg")) != 3){
     stop ("column names of 'df' must contain 'species', 'index', 'force.norm.100.avg'")
@@ -200,15 +266,18 @@ peak_to_poly <- function(df,
 
     names(models)[length(models)] <- curr.species
 
-    print_progress(b, length(taxa))
+    if(show.progress == TRUE){
+      print_progress(b, length(taxa))
+    }
   }
 
   if(!is.null(path.data)){
-    print(paste0("Saving models at ", path.data, today(),"_normalized_peaks_100_poly_models.txt..."))
-    sink(paste0(path.data, today(), "_normalized_peaks_100_poly_models.txt"))
+    # print(paste0("Saving models at ", path.data, today(),"_normalized_peaks_100_poly_models.txt..."))
+    sink(file.path(path.data, paste0("normalized_peaks_100_poly_models_", today(), ".txt")))
     print(models)
     sink()
+    save(models, file = file.path(path.data, paste0("normalized_peaks_100_poly_models_", today(), ".R")))
   }
-  print("Done!")
+  # print("Done!")
   return(models)
 }

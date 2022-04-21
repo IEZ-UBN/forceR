@@ -5,23 +5,40 @@
 #'
 #' @param df A data frame or tibble in the below format. The columns `t` (= time), `force` and `measurement`
 #'   (= measurement ID) must be present.
+#'
 #' @param no.of.peaks A numeric value defining how many peaks per `species` (not per `measurement`") should be identified. The function will always return
 #'  the strongest peaks. Default: `5`
+#'
 #' @param initial.threshold A numeric value defining the threshold (in % of the maximum force of the measurement)
 #'   that is used during the first iteration. Default: `0.05`
+#'
 #' @param slope.length.start A numeric value defining the window size (in time steps) of
 #'   slope calculation for peak starts during the second iteration. Default: `5`
+#'
 #' @param slope.length.end A numeric value defining the window size (in time steps) of
 #'   slope calculation for peak ends during the second iteration. Default: `5`
+#'
 #' @param slope.thresh.start A numeric value defining the threshold at which to stop the sliding window and save the
 #'   current time point as the actual start of the current peak. Default: `0.04`
+#'
 #' @param slope.thresh.end A numeric value defining the threshold at which to stop the sliding window and save the
 #'   current time point as the actual end of the current peak. Default: `0.04`
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
 #' @param path.data A string character defining where to save the results. If `NULL` (default),
-#' data is not stored in a file.
-#' @param path.plots A string character defining where to save the plots.
-#' @param print.to.pdf A logical value indicating if the results of the initial peak finding should be saved as PDFs.
-#'   Default: `TRUE`
+#' data is not stored in a file. Default: `NULL`.
+#'
+#' @param path.plots A string character defining where to save the plots. Default: `NULL`.
+#'
+#' @param plot.to.pdf A logical value indicating if the results of the initial
+#' peak finding should be saved as PDFs. Default: `FALSE`.
+#' Default: `TRUE`
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
+#'
 #' @details
 #' The input data frame or tibble needs to contain the following columns:
 #'
@@ -40,7 +57,7 @@
 #'
 #' The column **`ends`** contains as many peak ends as `no.of.peaks`, separated by '`;`':\cr (`end.1; ...; end.no.of.peaks`).
 #'
-#' In addition, if `print.to.pdf == TURE`, a graph indicating the `initial.threshold` as a green line, the peak starts as blue points, and the peak ends
+#' In addition, if `plot.to.pdf == TURE`, a graph indicating the `initial.threshold` as a green line, the peak starts as blue points, and the peak ends
 #'  as orange points is saved as one PDF per measurement at `path.plots`.
 #'
 #' @examples
@@ -52,16 +69,15 @@
 #'   filter(species == "species_A")
 #'
 #' # find strongest peaks
-#' peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
-#'                                  no.of.peaks = 5,
-#'                                  print.to.pdf = FALSE)
+#' peaks.df <- find_strongest_peaks(df = forceR::df.all.200.tax_filtered,
+#'                                  no.of.peaks = 5)
 #'
 #' # plot results
-#' \dontrun{
+#' \donttest{
 #' plot_peaks(df.peaks = peaks.df,
 #'            df.data = df.all,
 #'            additional.msecs = 20,
-#'            print.to.pdf = TRUE)
+#'            plot.to.pdf = TRUE)
 #' }
 #' @export
 find_strongest_peaks <- function(df,
@@ -71,19 +87,42 @@ find_strongest_peaks <- function(df,
                                  slope.length.end = 5,
                                  slope.thresh.start = 0.02,
                                  slope.thresh.end = 0.02,
+                                 plot.to.screen = FALSE,
                                  path.data = NULL,
-                                 path.plots = getwd(),
-                                 print.to.pdf = TRUE){
+                                 path.plots = NULL,
+                                 plot.to.pdf = FALSE,
+                                 show.progress = FALSE){
+
+  # # testing
+  # find_strongest_peaks (df = df.all.200.tax_filtered,
+  #                       no.of.peaks = 5,
+  #                       initial.threshold = 0.05,
+  #                       slope.length.start = 5,
+  #                       slope.length.end = 5,
+  #                       slope.thresh.start = 0.02,
+  #                       slope.thresh.end = 0.02,
+  #                       plot.to.screen = TRUE,
+  #                       path.data = "./test_folder",
+  #                       path.plots = "./test_folder",
+  #                       plot.to.pdf = TRUE,
+  #                       show.progress = TRUE)
 
   if(sum(colnames(df) %in% c("t", "force", "measurement")) != 3){
     stop ("column names of 'df.peaks' must contain 't', 'force', 'measurement'")
   }
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+  if(!is.null(path.plots) & !is.character(path.plots)) stop ("'path.plots' must be a character string.")
+  if(!is.logical(plot.to.pdf)) stop ("'plot.to.pdf' must be logical.")
+
+  if(!is.null(path.data)){
+    if(!dir.exists(path.data)) stop ("Folder to store data does not exist: ", path.data, ".")
+  }
+  if(!is.null(path.plots)){
+    if(!dir.exists(path.plots)) stop ("Folder to store plots does not exist: ", path.plots, ".")
+  }
 
   specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in funciton?
 
-  print("Initial rough threshold search for peaks...")
+  # print("Initial rough threshold search for peaks...")
   measurements.all <- sort(unique(df$measurement))
   BF.starts.ends.tibble <- as_tibble(setNames(data.frame(matrix(nrow = length(measurements.all), ncol = length(c("measurement", "specimen", "starts", "ends")))), c("measurement", "specimen", "starts", "ends")))
 
@@ -126,26 +165,33 @@ find_strongest_peaks <- function(df,
     number.of.starts <- length(starts.msecs)
     number.of.ends <- length(ends.msecs)
 
-    plot(curr.plot.window$t, curr.plot.window$force, type="l")
-    lines(c(0,max(curr.plot.window$t)), c(threshold,threshold), col = "green", type="l")
-    points(starts.msecs, rep(threshold, number.of.starts), pch = 16, cex = 0.5, col = "blue")
-    points(ends.msecs, rep(threshold, number.of.ends), pch = 16, cex = 0.5, col = "orange")
+    if(plot.to.screen == TRUE){
+      plot(curr.plot.window$t, curr.plot.window$force, type="l")
+      lines(c(0,max(curr.plot.window$t)), c(threshold,threshold), col = "green", type="l")
+      points(starts.msecs, rep(threshold, number.of.starts), pch = 16, cex = 0.5, col = "blue")
+      points(ends.msecs, rep(threshold, number.of.ends), pch = 16, cex = 0.5, col = "orange")
 
-    curr.plot.title <- paste0("sp.: ", curr.specimen, "; meas.: ", curr.measurement, ". Found ", length(starts), " starts & ", length(starts), " ends.")
-    title(curr.plot.title, line = -2, adj = .98)
+      curr.plot.title <- paste0("sp.: ", curr.specimen, "; meas.: ", curr.measurement, ". Found ", length(starts), " starts & ", length(starts), " ends.")
+      title(curr.plot.title, line = -2, adj = .98)
+    }
 
-    print_progress(i, length(measurements.all))
+    if(show.progress == TRUE){
+      print_progress(i, length(measurements.all))
+    }
 
-    if(print.to.pdf == TRUE){
-      dev.print(pdf, file = paste0(path.plots, today(), "_initial_starts_and_ends_", curr.specimen, "_", curr.measurement, ".pdf"),
+    if(plot.to.pdf == TRUE){
+      dev.print(pdf,
+                file = file.path(path.plots,
+                                 paste0("initial_starts_and_ends_", curr.specimen,
+                                        "_", curr.measurement, "_", today(), ".pdf")),
                 paper = "a4r", width = 29, height = 21) # , height = 14
     }
 
-    print(paste0("specimen: ", curr.specimen, "; measurement: ", curr.measurement, ". Found ", length(starts), " peak starts and ", length(starts), " peak ends."))
+    # print(paste0("specimen: ", curr.specimen, "; measurement: ", curr.measurement, ". Found ", length(starts), " peak starts and ", length(starts), " peak ends."))
   }
 
   # find max BF per peak
-  print(paste0("Finding max. peak force per peak... (this may take a while)"))
+  # print(paste0("Finding max. peak force per peak... (this may take a while)"))
   # this needs multithreading
   BF.starts.ends.tibble$max.bf.peaks <- as.numeric(NA)
 
@@ -177,11 +223,14 @@ find_strongest_peaks <- function(df,
     }
 
     BF.starts.ends.tibble$max.bf.peaks[b] <- paste(max.bf.peaks, collapse = "; ")
-    print_progress(b, nrow(BF.starts.ends.tibble))
+
+    if(show.progress == TRUE){
+      print_progress(b, nrow(BF.starts.ends.tibble))
+    }
   }
 
   # convert peak table to long format
-  print(paste0("Converting table..."))
+  # print(paste0("Converting table..."))
   specimens <- unique(BF.starts.ends.tibble$specimen)
   all.peaks.specimen.measurement <- as_tibble(
     setNames(data.frame(
@@ -223,7 +272,9 @@ find_strongest_peaks <- function(df,
                                                                                                 specimen = curr.specimen, measurement = specimen.measurements[l])))
       }
     }
-    print_progress(b, length(specimens))
+    if(show.progress == TRUE){
+      print_progress(b, length(specimens))
+    }
   }
 
   # add species to all.peaks.specimen.measurement
@@ -234,7 +285,7 @@ find_strongest_peaks <- function(df,
                                               by = "measurement")
 
 
-  print(paste0("Finding the ", no.of.peaks, " strongest peaks per species..."))
+  # print(paste0("Finding the ", no.of.peaks, " strongest peaks per species..."))
   # find x strongest peaks per species
   strongest.peaks.taxa <- all.peaks.specimen.measurement %>%
     group_by(species) %>%
@@ -242,7 +293,7 @@ find_strongest_peaks <- function(df,
     slice(1:no.of.peaks)
 
 
-  print(paste0("Optimizing peak starts and ends for ", no.of.peaks, " strongest peaks per species..."))
+  # print(paste0("Optimizing peak starts and ends for ", no.of.peaks, " strongest peaks per species..."))
   taxa <- unique(strongest.peaks.taxa$species)
   df.peaks <- as_tibble(setNames(data.frame(matrix(nrow = length(taxa), ncol = length(c("species", "measurements", "starts", "ends")))), c("species", "measurements", "starts", "ends")))
 
@@ -253,7 +304,7 @@ find_strongest_peaks <- function(df,
       filter(species == curr.species)
 
     if(nrow(strongest.peaks.species) < 1){
-      message(paste0("No data found for ", curr.species, "!!!"))
+      warning(paste0("No data found for ", curr.species, "!!!"))
     } else {
       # get peak starts and ends per species
       starts.strongest.species <- strongest.peaks.species %>% pull(peaks.starts.specimen.measurement)
@@ -350,18 +401,20 @@ find_strongest_peaks <- function(df,
     }
 
     df.peaks$species[b] <- curr.species
-    print_progress(b, length(taxa))
+    if(show.progress == TRUE){
+      print_progress(b, length(taxa))
+    }
   }
   # df.peaks
 
   if(!is.null(path.data)){
     # save peak starts and ends
-    print(paste0("Saving df.peaks as ", path.data, today(), "_taxa_starts_ends.csv"))
-    write_csv(df.peaks, paste0(path.data, today(), "_taxa_starts_ends.csv"))
+    # print(paste0("Saving df.peaks as ", path.data, today(), "_taxa_starts_ends.csv"))
+    write_csv(df.peaks, file.path(path.data, paste0("taxa_starts_ends_", today(), ".csv")))
   }
 
   return(df.peaks)
-  print("Done!")
+  # print("Done!")
 }
 
 
@@ -398,10 +451,10 @@ find_strongest_peaks <- function(df,
 #' @return Changes values within `df.peaks` and returns the changed tibble.
 #' @examples
 #' # Using the forceR::df.all.200.tax dataset:
-#' \dontrun{
+#' \donttest{
 #' # This function needs user input.
-#'peaks.df <- correct_peak(df.peaks = peaks.df,
-#'                         df.data = df.all.200.tax,
+#'peaks.df <- correct_peak(df.peaks = forceR::peaks.df,
+#'                         df.data = forceR::df.all.200.tax,
 #'                         measurement = "m_01",
 #'                         peak = 1,
 #'                         additional.msecs = 5)

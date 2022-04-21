@@ -1,22 +1,51 @@
 #' Charge Amplifier Drift Correction
 #'
-#' Removes the systemic, asymptotical drift of charge amplifiers with resistor-capacitor (RC) circuits.
+#' Removes the systemic, asymptotical drift of charge amplifiers with
+#' resistor-capacitor (RC) circuits.
 #'
-#' @param folder Path to folder containing measurements.
-#' @param tau Numeric time constant of charge amplifier in the same time unit as the measurement data.
+#' @param filename Path to file on which amplifier drift correction should be
+#' performed.
+#'
+#' @param tau Numeric time constant of charge amplifier in the same time unit
+#' as the measurement data.
 #' Default: `9400`
-#' @param print.to.screen A logical value indicating if results should be plotted in the current R plot.
-#' device. Slows down process. Default: `FALSE`.
-#' @param print.to.pdf  A logical value indicating  if results should be saved as PDFs. Does not slow
-#' down the process as much as printing to the R plot device and is considered necessary to quality check
-#' the results. Default: `TRUE`.
-#' @param res.reduction A numeric value to reduce the number of time steps by during plotting. Speeds up
-#' the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: `10`.
-#' @param start.file.number A numeric value indicating at which file the loop should start. Helpful in
-#' case the loop stopped during a previous run. Default: `1`.
+#'
+#' @param res.reduction A numeric value to reduce the number of time steps by
+#' during plotting. Speeds up
+#' the plotting process and reduces PDF size. Has no effect on the results,
+#' only on the plots. Default: `10`.
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
+#' @param write.data A logical value indicating if drift-corrected file should
+#' be saved. If yes, it will be saved in `output.folder`.
+#' Default: `FALSE`.
+#'
+#' @param write.PDFs A logical value indicating whether results should be saved
+#' as PDFs. Does not slow
+#' down the process as much as printing to the R plot device and is considered
+#' necessary to quality check the results. If yes, it will be saved in
+#' `output.folder/PDFs`. Default: `FALSE`.
+#'
+#' @param write.logs A logical value indicating whether a log file with
+#' information on the method and values used to correct the amplifier drift should be
+#' saved. Is considered necessary for reproducibility. If yes, it will be saved
+#' in `output.folder/logs`. Default: `FALSE`.
+#'
+#' @param output.folder Path to folder where data, PDF and log files should
+#' be stored.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
 #'
 #' @details
-#' The input files need to be in the following format:
+#' forceR generally expects file names to start with a leading number specifying the
+#' measurement number (E.g. "0001_G_maculatus.csv"). The number ("0001") is used to
+#' keep data files, log files, and PDF files of the same measurement associated
+#' with each other.
+#'
+#' The input file should be in the following format:
 #'
 #' | `t` |   | `y` |
 #' | :----: | :----: |:----: |
@@ -25,256 +54,264 @@
 #' | `t.n` |   | `y.n` |
 #'
 #' @return
+#' Returns a tibble containing the amplifier drift-corrected data in the
+#' following format
 #'
-#' The following folders will be created (if they did not exist before):
-#' * `"./ampdriftcorr/"`
-#' * `"./ampdriftcorr/logs/"`
-#' * `"./ampdriftcorr/pdfs/"`
+#' | `t` |   | `y` |
+#' | :----: | :----: |:----: |
+#' | `t.1` |   | `y.2` |
+#' | `...` |   | `...` |
+#' | `t.n` |   | `y.n` |
 #'
-#' Saves amplifier-drift-corrected data files in CSV-format in new subfolder `"./ampdriftcorr"`,
-#' log files containing information on the method used to correct the amplifier drift in
-#' `"./ampdriftcorr/logs/"` and PDFs with the graphs before and after correction in `"./ampdriftcorr/pdfs/"`.
 #' @examples
-#'\dontrun{
-#'# Using package example files from GitHub stored within
-#'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+#'# define file for amplifier drift correction
+#'filename <- forceR_example(type = "raw")
 #'
-#'# define folder where files are are stored that need amplifier drift correction
-#'data.folder <- "./example_data"
-#'cropped.folder <- file.path(data.folder, "cropped")
+#'# Run amplifier drift correction without saving files or printing to screen:
+#'file.ampdriftcorr <- amp_drift_corr(filename = filename,
+#'                                      tau = 9400,
+#'                                      res.reduction = 10,
+#'                                      plot.to.screen = FALSE,
+#'                                      write.PDFs = FALSE,
+#'                                      write.data = FALSE,
+#'                                      write.logs = FALSE,
+#'                                      output.folder,
+#'                                      show.progress = FALSE)
+#'file.ampdriftcorr
 #'
-#'# run apmplifier drift correction on all of files in cropped.folder
-#'# the results will be saved in several new folders within the cropped folder.
-#'# If print.to.pdf == TRUE, than graphs showing the corrections will be saved as PDFs as well.
+#'\donttest{
+#'# Run amplifier drift correction with saving files and printing to screen:
+#'file.ampdriftcorr <- amp_drift_corr(filename = filename,
+#'                                      tau = 9400,
+#'                                      res.reduction = 10,
+#'                                      plot.to.screen = TRUE,
+#'                                      write.PDFs = TRUE,
+#'                                      write.data = TRUE,
+#'                                      write.logs = TRUE,
+#'                                      output.folder = "./ampdriftcorr",
+#'                                      show.progress = TRUE)
 #'
-#'amp_drift_corr(folder = cropped.folder,
-#'                tau = 9400,
-#'                print.to.screen = FALSE,
-#'                print.to.pdf = TRUE,
-#'                res.reduction = 10,
-#'                start.file.number = 1)
+#'file.ampdriftcorr
 #'}
 #' @export
-amp_drift_corr <- function(folder,
+#'
+amp_drift_corr <- function(filename,
                            tau = 9400,
-                           print.to.screen = FALSE,
-                           print.to.pdf = TRUE,
                            res.reduction = 10,
-                           start.file.number = 1){
+                           plot.to.screen = FALSE,
+                           write.PDFs = FALSE,
+                           write.data = FALSE,
+                           write.logs = FALSE,
+                           output.folder,
+                           show.progress = FALSE){
 
-  if(!is.character(folder)) stop ("'folder' must contain character string only.")
-  if(length(folder) > 1) stop ("'folder' must only contain one character string.")
-  if(!dir.exists(folder)) stop (paste0("folder ", folder, " cannot be found."))
+  if(!is.character(filename)) stop ("'filename' must be a character string.")
+  if(!file.exists(filename)) stop (paste0("filename ", filename, " cannot be found."))
 
   if(!is.numeric(tau)) stop ("'tau' must be numeric.")
-  if(length(tau) > 1) stop ("'tau' must be a single number.")
 
-  if(!is.logical(print.to.screen)) stop ("'print.to.screen' must be logical.")
+  if(!is.logical(plot.to.screen)) stop ("'plot.to.screen' must be logical.")
 
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+  if(!is.logical(write.PDFs)) stop ("'write.PDFs' must be logical.")
+  if(!is.logical(write.data)) stop ("'write.data' must be logical.")
+  if(!is.logical(write.logs)) stop ("'write.logs' must be logical.")
 
   if(!is.numeric(res.reduction)) stop ("'res.reduction' must be numeric.")
-  if(length(res.reduction) > 1) stop ("'res.reduction' must be a single number.")
 
-  if(!is.numeric(start.file.number)) stop ("'start.file.number' must be numeric.")
-  if(length(start.file.number) > 1) stop ("'start.file.number' must be a single number.")
+  if(!is.logical(show.progress)) stop ("'show.progress' must be logical.")
 
+  # dplyr NULLS
   x <- NULL
 
-  if(!str_sub(folder, -1) == '/'){
-    folder <- paste0(folder, "/")
-  }
-  path.target <- paste0(folder, "ampdriftcorr")
-  if(!dir.exists(path.target)){
-    dir.create(path.target, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target, " already exists."))
-  }
-  if(!str_sub(path.target, -1) == '/'){
-    path.target <- paste0(path.target, "/")
-  }
 
-  path.target.logs <- paste0(path.target, "logs")
-  if(!dir.exists(path.target.logs)){
-    dir.create(path.target.logs, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target.logs, " already exists."))
-  }
-  if(!str_sub(path.target.logs, -1) == '/'){
-    path.target.logs <- paste0(path.target.logs, "/")
-  }
-
-  path.target.pdfs <- paste0(path.target, "pdfs")
-  if(!dir.exists(path.target.pdfs)){
-    dir.create(path.target.pdfs, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target.pdfs, " already exists."))
-  }
-  if(!str_sub(path.target.pdfs, -1) == '/'){
-    path.target.pdfs <- paste0(path.target.pdfs, "/")
-  }
-
-  file.list <- list.files(folder, pattern = "csv")
-  print(paste0("found ", length(file.list), " files..."))
-
-  for(f in start.file.number:length(file.list)){
-    file <- file.list[f]
-    curr.measurement <- sub("\\.[[:alnum:]]+$", "", basename(file))
-
-    print(paste0("file ", f, ": ", curr.measurement))
-
-    data <- read_delim(file.path(folder, file.list[f]),
-                       delim = ",",
-                       show_col_types = FALSE)
-
-    colnames(data) <- c("t", "y")
-    time.start <- data$t[1]
-    data$t <- data$t-time.start
-    data$y.raw <- data$y
-    # plot(data$t, data$y, type = "l",
-    #      main = paste0(curr.measurement))
-
-
-    # get time step size
-    t.step <- data$t[2] - data$t[1]
-    # if(t.step == 0.5){
-    #   data$t <- seq(0, nrow(data)*t.step-t.step, t.step)
-    # } else {
-    #   data$t <- seq(0, nrow(data)*t.step-1, t.step)
-    # }
-
-    if(print.to.pdf == TRUE){
-      pdf(paste0(path.target.pdfs, curr.measurement, "_ampdriftcorr", ".pdf"),
-          width = 20, height = 10)
+  if(write.PDFs == TRUE | write.data == TRUE | write.logs == TRUE){
+    if(!is.character(output.folder)) stop ("'output.folder' must be a character string.")
+    if(!dir.exists(output.folder)){
+      dir.create(output.folder, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder, " already exists."))
     }
 
 
-    # # plot data with rownumber in x, not data$t
-    # plot(data$y, type = "l", ylim=c(min(data$y), max(data$y)),
-    #      main = curr.measurement)
-
-    # logarithmic drift correction
-    # correction constant
-    # print(t.step)
-
-    # reference y
-    V0 <- 1
-
-    # calculate change for t.step
-    corr.const <- V0*exp(-(t.step/tau))
-
-    # get first y value to make it V.0
-    V.0 <- data$y[1]
-
-    # check if there are na-values in y (so far only the case in bf_0051)
-    na.row <- which(is.na(data$y))
-    if(length(na.row) > 0){
-      message(paste0("found ", length(na.row), " NA values in time series!"))
-      # replace na value with next y value
-      data$y[na.row] <- data$y[na.row+1]
+    output.folder.logs <- file.path(output.folder, "logs_ampdriftcorr")
+    if(!dir.exists(output.folder.logs)){
+      dir.create(output.folder.logs, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder.logs, " already exists."))
     }
 
-    # subtract V.0 from y
-    data$y.0cor <- data$y-V.0
-    # plot(data$y.0cor, type="l")
+    output.folder.pdfs <- file.path(output.folder, "pdfs_ampdriftcorr")
+    if(!dir.exists(output.folder.pdfs)){
+      dir.create(output.folder.pdfs, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder.pdfs, " already exists."))
+    }
+  }
 
-    # create empty column for corrected y values
-    data$y <- NA
-    data$y[1] <- 0
+  curr.measurement <- sub("^([^_]+)_.*", "\\1", basename(filename))
+  # curr.measurement <- sub('\\..*$', '', basename(filename))
 
-    # predict y under no load
-    # indexing vectors instead of data.frames is much faster
-    y <- data$y
-    y.0cor <- data$y.0cor
+  data <- read_delim(filename,
+                     delim = ",",
+                     show_col_types = FALSE)
 
+  colnames(data) <- c("t", "y")
+  time.start <- data$t[1]
+  data$t <- data$t-time.start
+  data$y.raw <- data$y
+  # plot(data$t, data$y, type = "l",
+  #      main = paste0(curr.measurement))
+
+
+  # get time step size
+  t.step <- data$t[2] - data$t[1]
+  # if(t.step == 0.5){
+  #   data$t <- seq(0, nrow(data)*t.step-t.step, t.step)
+  # } else {
+  #   data$t <- seq(0, nrow(data)*t.step-1, t.step)
+  # }
+
+  # # plot data with rownumber in x, not data$t
+  # plot(data$y, type = "l", ylim=c(min(data$y), max(data$y)),
+  #      main = curr.measurement)
+
+  # logarithmic drift correction
+  # correction constant
+  # print(t.step)
+
+  # reference y
+  V0 <- 1
+
+  # calculate change for t.step
+  corr.const <- V0*exp(-(t.step/tau))
+
+  # get first y value to make it V.0
+  V.0 <- data$y[1]
+
+  # check if there are na-values in y (so far only the case in bf_0051)
+  na.row <- which(is.na(data$y))
+  if(length(na.row) > 0){
+    warning(paste0("found ", length(na.row), " NA values in time series!"))
+    # replace na value with next y value
+    data$y[na.row] <- data$y[na.row+1]
+  }
+
+  # subtract V.0 from y
+  data$y.0cor <- data$y-V.0
+  # plot(data$y.0cor, type="l")
+
+  # create empty column for corrected y values
+  data$y <- NA
+  data$y[1] <- 0
+
+  # predict y under no load
+  # indexing vectors instead of data.frames is much faster
+  y <- data$y
+  y.0cor <- data$y.0cor
+
+  if(show.progress == TRUE){
     for(i in 2:nrow(data)){ # nrow(data)
       y[i] <- y[i-1] + (y.0cor[i] - (y.0cor[i-1] * corr.const))
       print_progress(i, nrow(data))
     }
+  } else {
+    for(i in 2:nrow(data)){ # nrow(data)
+      y[i] <- y[i-1] + (y.0cor[i] - (y.0cor[i-1] * corr.const))
+    }
+  }
 
-    data$y <- y
+  data$y <- y
 
-    # delete columns with correction data
-    data$y.0cor <- NULL
+  # delete columns with correction data
+  data$y.0cor <- NULL
 
-    # plot data
+  if(write.PDFs == TRUE){
+    pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_ampdriftcorr", ".pdf")),
+        width = 20, height = 10)
+  }
+#
+#   # plot data
+#   plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.raw[seq(1,nrow(data),res.reduction/t.step)], type = "l",
+#        ylim=c(min(data$y.raw, data$y, na.rm = TRUE), max(data$y.raw, data$y, na.rm = TRUE)),
+#        main = paste0(curr.measurement, "; t.step = ", t.step), lwd = 3, col = "grey70",
+#        xlab = "t", ylab = "y")
+#   lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", lwd = 2, col = "green")
+#   lines(c(min(data$t), max(data$t)), c(0,0), type="l", col = "red")
+
+  # get linear correction line
+  lin.cor.line.x <- c(0,max(data$t))
+  lin.cor.line.y <- c(0,data$y[nrow(data)]) # nrow(data)
+  # lines(lin.cor.line.x, lin.cor.line.y, type="l", col = "orange")
+
+  baseline.sp <- spline(x=lin.cor.line.x, y=lin.cor.line.y, n = nrow(data)*2.1)
+  baseline.sp <- bind_cols(x = baseline.sp$x, y = baseline.sp$y)
+  # lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
+
+  # set round factor: -1 = 10; 0 = same
+  if(t.step == 1 | t.step == 2){
+    round.factor <- 0
+  } else if(t.step == 10){
+    round.factor <- -1
+  } else if(t.step == 0.5){
+    round.factor <- "defined later"
+  }
+
+  # filter points that lie within measured area
+  if(t.step == 1 | t.step == 2 | t.step == 10){
+    baseline.sp.filtered <- baseline.sp %>%
+      mutate(x = round(x,round.factor)) %>%
+      group_by(x) %>%
+      summarize(mean.V = mean(y)) %>%
+      filter(x>=0 & x<= max(data$t))
+    if(t.step == 2){
+      baseline.sp.filtered <- baseline.sp.filtered %>%
+        filter(x %% t.step == 0)
+    }
+  } else if(t.step == 0.5){
+    baseline.sp.filtered <- baseline.sp %>%
+      mutate(x = ceiling(x*2) / 2) %>%
+      group_by(x) %>%
+      summarize(mean.V = mean(y)) %>%
+      filter(x>=0 & x<= max(data$t))
+  }
+
+  # subtract new baseline from rawdata
+  data$y <- round(data$y-baseline.sp.filtered$mean.V,6)
+  # lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
+
+  if(write.PDFs == TRUE){
+    invisible(dev.off())
+  }
+
+  # plot data
+  if(plot.to.screen == TRUE){
     plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.raw[seq(1,nrow(data),res.reduction/t.step)], type = "l",
          ylim=c(min(data$y.raw, data$y, na.rm = TRUE), max(data$y.raw, data$y, na.rm = TRUE)),
          main = paste0(curr.measurement, "; t.step = ", t.step), lwd = 3, col = "grey70",
          xlab = "t", ylab = "y")
     lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", lwd = 2, col = "green")
     lines(c(min(data$t), max(data$t)), c(0,0), type="l", col = "red")
-
-    # get linear correction line
-    lin.cor.line.x <- c(0,max(data$t))
-    lin.cor.line.y <- c(0,data$y[nrow(data)]) # nrow(data)
-    # lines(lin.cor.line.x, lin.cor.line.y, type="l", col = "orange")
-
-    baseline.sp <- spline(x=lin.cor.line.x, y=lin.cor.line.y, n = nrow(data)*2.1)
-    baseline.sp <- bind_cols(x = baseline.sp$x, y = baseline.sp$y)
     lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
-
-    # set round factor: -1 = 10; 0 = same
-    if(t.step == 1 | t.step == 2){
-      round.factor <- 0
-    } else if(t.step == 10){
-      round.factor <- -1
-    } else if(t.step == 0.5){
-      round.factor <- "defined later"
-    }
-
-    # filter points that lie within measured area
-    if(t.step == 1 | t.step == 2 | t.step == 10){
-      baseline.sp.filtered <- baseline.sp %>%
-        mutate(x = round(x,round.factor)) %>%
-        group_by(x) %>%
-        summarize(mean.V = mean(y)) %>%
-        filter(x>=0 & x<= max(data$t))
-      if(t.step == 2){
-        baseline.sp.filtered <- baseline.sp.filtered %>%
-          filter(x %% t.step == 0)
-      }
-    } else if(t.step == 0.5){
-      baseline.sp.filtered <- baseline.sp %>%
-        mutate(x = ceiling(x*2) / 2) %>%
-        group_by(x) %>%
-        summarize(mean.V = mean(y)) %>%
-        filter(x>=0 & x<= max(data$t))
-    }
-
-    # subtract new baseline from rawdata
-    data$y <- round(data$y-baseline.sp.filtered$mean.V,6)
     lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
 
-    if(print.to.pdf == TRUE){
-      dev.off()
-    }
+  }
 
-    # plot data
-    if(print.to.screen == TRUE){
-      plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.raw[seq(1,nrow(data),res.reduction/t.step)], type = "l",
-           ylim=c(min(data$y.raw, data$y, na.rm = TRUE), max(data$y.raw, data$y, na.rm = TRUE)),
-           main = paste0(curr.measurement, "; t.step = ", t.step), lwd = 3, col = "grey70",
-           xlab = "t", ylab = "y")
-      lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", lwd = 2, col = "green")
-      lines(c(min(data$t), max(data$t)), c(0,0), type="l", col = "red")
-      lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
-      lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
+  data <- data %>%
+    select(t, y)
 
-    }
+  if(write.data == TRUE){
+    write_csv(data, file.path(output.folder, paste0(curr.measurement, "_ampdriftcorr.csv")))
+  }
 
-    data <- data %>%
-      select(t, y)
-
-    write_csv(data, paste0(path.target, curr.measurement, "_ampdriftcorr.csv"))
-
-    # save little log file with cut window infos
+  # save little log file with cut window infos
+  if(write.logs == TRUE){
     write_csv(data.frame(correction.factor = "exp(-(t/tau))",
                          tau = tau,
                          t = t.step,
                          script.version = "0.0.4"),
-              paste0(path.target.logs, curr.measurement, "_ampdriftcorr_log.csv"))
+              file.path(output.folder.logs, paste0(curr.measurement, "_ampdriftcorr_log.csv")))
   }
+  return(data)
 }
 
 
@@ -294,31 +331,63 @@ amp_drift_corr <- function(folder,
 #' If the automatic approach does not yield acceptable results, an interactive manual approach to correct
 #' the baseline can be performed instead.
 #'
-#' @param file A character string containing the full path to the measurement file that needs correction.
+#' @param filename A character string containing the full path to the measurement file that needs correction.
 #' See Details for info on what the file should look like.
+#'
 #' @param corr.type Character string defining the desired mode of baseline correction. One of `"auto"`
 #'   or `"manual"`. Default: `"auto"`
-#' @param print.to.screen A logical value indicating if results should be plotted in the current R plot
-#'   device. Default: `TRUE`.
-#' @param print.to.pdf  A logical value indicating  if results should be saved as PDFs. This is considered
-#'   necessary to quality check and communicate the results. Default: `TRUE`.
+#'
 #' @param window.size.mins A numeric value for the size of the search window to find minima in. Should be
 #'   in the same time unit as the measurement. Longer peaks require higher values, shorter peaks require
 #'   smaller values. Default: `1000`.
+#'
 #' @param window.size.means  A numeric value for the size of the window to average the minima in. Should be
 #'   in the same time unit as the measurement. By default (`NULL`), the same value as specified for
 #'   `window.size.mins` is used.
+#'
 #' @param quantile.size A numerical value between `0` and `1` to define the quantile which is treated as
 #'   the 'minimum' of a sliding window. Default: `0.05`.
+#'
 #' @param y.scale A numeric value to reduce the y-axis range during plotting. This simplifies the manual
 #'   placement of the points during the manual correction procedure.
+#'
 #' @param res.reduction A numeric value to reduce the number of time steps by during plotting. Speeds up
-#'   the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: 10.
+#'   the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: `10`.
+#'
 #' @param Hz A numeric value to reduce sampling frequency for temporary analyses. This works as a smoothing
 #'   filter during temporary analyses and does not reduce the actual sampling frequency of the data.
 #'   Default: `100`.
 #'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
+#' @param write.data A logical value indicating if drift-corrected file should
+#' be saved. If yes, it will be saved in `output.folder`.
+#' Default: `FALSE`.
+#'
+#' @param write.PDFs A logical value indicating whether results should be saved
+#' as PDFs. Does not slow
+#' down the process as much as printing to the R plot device and is considered
+#' necessary to quality check the results. If yes, it will be saved in
+#' `output.folder/PDFs`. Default: `FALSE`.
+#'
+#' @param write.logs A logical value indicating whether a log file with
+#' information on the method and values used to correct the baseline drift should be
+#' saved. Is considered necessary for reproducibility. If yes, it will be saved
+#' in `output.folder/logs`. Default: `FALSE`.
+#'
+#' @param output.folder Path to folder where data, PDF and log files should
+#' be stored.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
+#'
 #' @details
+#' forceR generally expects file names to start with a leading number specifying the
+#' measurement number (E.g. "0001_G_maculatus.csv"). The number ("0001") is used to
+#' keep data files, log files, and PDF files of the same measurement associated
+#' with each other.
+#'
 #' The input files should to be in the following format:
 #'
 #' | `t` |   | `y` |
@@ -332,103 +401,83 @@ amp_drift_corr <- function(folder,
 #'
 #' @return
 #'
-#' The following folders will be created (if they did not exist before):
-#' * `"./ampdriftcorr/"`
-#' * `"./ampdriftcorr/logs/"`
-#' * `"./ampdriftcorr/pdfs/"`
-#'
-#' Saves amplifier-drift-corrected data files in CSV-format in new subfolder `"./ampdriftcorr"`,
-#' log files containing information on the method used to correct the amplifier drift in
-#' `"./ampdriftcorr/logs/"` and PDFs with the graphs before and after correction in `"./ampdriftcorr/pdfs/"`.
-#' ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
 #' @examples
-#'\dontrun{
-#'# Using a package example file from GitHub stored within
-#'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
-#'
 #'#'########### AUTOMATIC MODE
+#'# define file to apply the baseline drift correction to
+#'filename <- forceR_example(type = "ampdriftcorr")
 #'
-#'# define folder and file to apply the baseline drift correction to
-#'data.folder <- "./example_data"
-#'ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
-#'file = file.path(ampdriftcorr.folder, "1068_cropped_ampdriftcorr.csv")
+#'# run automatic baseline drift corrections without saving files or
+#'#   printing to screen:
+#'file.baseline_corr <- baseline_corr(filename = filename,
+#'                                      corr.type = "auto",
+#'                                      window.size.mins = 1000,
+#'                                      window.size.means = NULL,
+#'                                      quantile.size = 0.05,
+#'                                      y.scale = 0.5,
+#'                                      res.reduction = 10,
+#'                                      Hz = 100,
+#'                                      plot.to.screen = FALSE,
+#'                                      write.data = FALSE,
+#'                                      write.PDFs = FALSE,
+#'                                      write.logs = FALSE,
+#'                                      output.folder,
+#'                                      show.progress = FALSE)
 #'
-#'# plot file
-#'plot_measurement(file)
-#'
-#'# run the automatic baseline drift correction
-#'# the results will be saved in new subfolders of the ampdriftcorr.folder
-#'baseline_corr(file,
-#'              corr.type = "auto",
-#'              print.to.screen = TRUE,
-#'              print.to.pdf = TRUE,
-#'              window.size.mins = 2000,
-#'              window.size.means = NULL,
-#'              quantile.size = 0.05,
-#'              y.scale = 0.5,
-#'              res.reduction = 10,
-#'              Hz = 100)
-#'
-#'[1] "1068_cropped_ampdriftcorr"
-#'[1] "You selected automatic drift correction:"
-#'[1] "sliding minima window size: 2000"
-#'[1] "sliding means of minima window size: 2000"
-#'[1] "calculating with 100 Hz."
-#'[1] "Finding 5th percentile sliding minima..."
-#'100%...[1] "Finding sliding means..."
-#'
-#'
+#'file.baseline_corr
 #'
 #'#'########### MANUAL MODE
 #'
-#'#'# define folder and file to apply the baseline drift correction to
-#'data.folder <- "./example_data"
-#'ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
-#'file = file.path(ampdriftcorr.folder, "1174_cropped_ampdriftcorr")
+#'# define file to apply the baseline drift correction to
+#'filename <- forceR_example(type = "ampdriftcorr")
 #'
-#'# plot file
-#'plot_measurement(file)
+#'\donttest{
+#'# run interactive baseline drift corrections with saving files and
+#'#   printing to screen:
+#'file.baseline_corr <- baseline_corr(filename = filename,
+#'                                      corr.type = "manual",
+#'                                      window.size.mins = 1000,
+#'                                      window.size.means = NULL,
+#'                                      quantile.size = 0.05,
+#'                                      y.scale = 0.5,
+#'                                      res.reduction = 10,
+#'                                      Hz = 100,
+#'                                      plot.to.screen = TRUE,
+#'                                      write.data = TRUE,
+#'                                      write.PDFs = TRUE,
+#'                                      write.logs = TRUE,
+#'                                      output.folder = "./baselinecorr",
+#'                                      show.progress = TRUE)
 #'
-#'# run the manual baseline drift correction.The user is expected to
-#'# interactively mark the baseline with dots in the R plot device.
-#'# the results will be saved in new subfolders of the ampdriftcorr.folder
-#'
-#'baseline_corr(file,
-#'              corr.type = "manual",
-#'              print.to.screen = TRUE,
-#'              print.to.pdf = TRUE)
-#'              plot_measurement(file)
-#'
-#'[1] "1174_cropped_ampdriftcorr"
-#'[1] "You selected manual drift correction."
-#'[1] "Please select baseline points and click \"Finish\"."
-#'[1] "31 line points taken."
-#'[1] "Done!"
+#'file.baseline_corr
 #'}
-#' @export
 #' @importFrom roll roll_mean
-baseline_corr <- function(file,
+#' @export
+baseline_corr <- function(filename,
                           corr.type = "auto",
-                          print.to.screen = TRUE,
-                          print.to.pdf = TRUE,
                           window.size.mins = 1000,
                           window.size.means = NULL,
                           quantile.size = 0.05,
                           y.scale = 0.5,
                           res.reduction = 10,
-                          Hz = 100){
+                          Hz = 100,
+                          plot.to.screen = FALSE,
+                          write.data = FALSE,
+                          write.PDFs = FALSE,
+                          write.logs = FALSE,
+                          output.folder,
+                          show.progress = FALSE){
 
-  if(!is.character(file)) stop ("'file' must contain character string only.")
-  if(length(file) > 1) stop ("'file' must only contain one character string.")
-  if(!file.exists(file)) stop (paste0("file ", file, " cannot be found."))
+  if(!is.character(filename)) stop ("'filename' must contain character string only.")
+  if(length(filename) > 1) stop ("'filename' must only contain one character string.")
+  if(!file.exists(filename)) stop (paste0("filename ", filename, " cannot be found."))
 
   if(!is.character(corr.type)) stop ("'corr.type' must be a character string.")
   if(length(corr.type) != 1) stop ("'corr.type' must only contain one character string.")
   if(!(corr.type == "auto") & !(corr.type == "manual")) stop ("'corr.type' can only be one of the following strings: 'auto' or 'manual'.")
 
-  if(!is.logical(print.to.screen)) stop ("'print.to.screen' must be logical.")
+  if(!is.logical(plot.to.screen)) stop ("'plot.to.screen' must be logical.")
 
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+  if(!is.logical(write.PDFs)) stop ("'write.PDFs' must be logical.")
 
   if(!is.numeric(window.size.mins)) stop ("'window.size.mins' must be numeric.")
   if(length(window.size.mins) > 1) stop ("'window.size.mins' must be a single number.")
@@ -448,50 +497,40 @@ baseline_corr <- function(file,
   if(!is.numeric(Hz)) stop ("'Hz' must be numeric.")
   if(length(Hz) > 1) stop ("'Hz' must be a single number.")
 
+  # dplyr NULLs
   x <- y <- y.zerocor <- t.10 <- V.10 <- NULL
 
   if(is.null(window.size.means)) window.size.means <- window.size.mins
 
-  folder <- dirname(file)
-  if(!str_sub(folder, -1) == '/'){
-    folder <- paste0(folder, "/")
-  }
-  path.target = paste0(folder, "baselinecorr")
-  if(!dir.exists(path.target)){
-    dir.create(path.target, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target, " already exists."))
-  }
-  if(!str_sub(path.target, -1) == '/'){
-    path.target <- paste0(path.target, "/")
+  if(write.PDFs == TRUE | write.data == TRUE | write.logs == TRUE){
+    if(!is.character(output.folder)) stop ("'output.folder' must be a character string.")
+    if(!dir.exists(output.folder)){
+      dir.create(output.folder, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder, " already exists."))
+    }
+
+    output.folder.logs <- file.path(output.folder, "logs_baselinecorr")
+    if(!dir.exists(output.folder.logs)){
+      dir.create(output.folder.logs, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder.logs, " already exists."))
+    }
+
+    output.folder.pdfs <- file.path(output.folder, "pdfs_baselinecorr")
+    if(!dir.exists(output.folder.pdfs)){
+      dir.create(output.folder.pdfs, showWarnings = FALSE)
+    } else {
+      # print(paste0(output.folder.pdfs, " already exists."))
+    }
   }
 
-  path.target.logs = paste0(path.target, "logs")
-  if(!dir.exists(path.target.logs)){
-    dir.create(path.target.logs, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target.logs, " already exists."))
-  }
-  if(!str_sub(path.target.logs, -1) == '/'){
-    path.target.logs <- paste0(path.target.logs, "/")
-  }
-
-  path.target.pdfs = paste0(path.target, "pdfs")
-  if(!dir.exists(path.target.pdfs)){
-    dir.create(path.target.pdfs, showWarnings = FALSE)
-  } else {
-    print(paste0(path.target.pdfs, " already exists."))
-  }
-  if(!str_sub(path.target.pdfs, -1) == '/'){
-    path.target.pdfs <- paste0(path.target.pdfs, "/")
-  }
-
-  data <- read_delim(file,
+  data <- read_delim(filename,
                      delim = ",",
                      show_col_types = FALSE)
 
-  curr.measurement <- sub("\\.[[:alnum:]]+$", "", basename(file))
-  print(curr.measurement)
+  curr.measurement <- sub("^([^_]+)_.*", "\\1", basename(filename))
+  # curr.measurement <- sub('\\..*$', '', basename(filename))
 
   if(ncol(data) <= 1) stop("Data contains less than two columns. Process terminated")
 
@@ -505,29 +544,33 @@ baseline_corr <- function(file,
     colnames(data) <- c("t", "y")
   }
 
-
   t.step <- data$t[2] - data$t[1]
-  plot(data$t[seq(1,nrow(data),res.reduction/t.step)],
-       data$y[seq(1,nrow(data),res.reduction/t.step)],
-       type = "l", lwd = 2, col = "darkgreen",
-       main = paste0(curr.measurement))
-  lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
+
+  # # plot measurement to screen
+  # plot(data$t[seq(1,nrow(data),res.reduction/t.step)],
+  #      data$y[seq(1,nrow(data),res.reduction/t.step)],
+  #      type = "l", lwd = 2, col = "darkgreen",
+  #      main = paste0(curr.measurement))
+  # lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
 
 
+  # manual mode -------------------------------------------------------------
   if(corr.type == "manual"){
-    print("You selected manual drift correction.")
+    message("Manual drift correction selected.")
+    message("Measurement name: ", curr.measurement, "\n")
 
     t.step <- data$t[2] - data$t[1]
 
+    # plot measurement to screen. Due to interactive mode, this will always be done
     plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l", lwd = 2, col = "grey90",
          main = paste0(curr.measurement), ylim = c(1.1*min(data$y), y.scale*max(data$y)))
     lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l", col = "darkgreen",
           main = paste0(curr.measurement))
     lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
 
-    print("Please select baseline points and click \"Finish\".")
+    message("Please select baseline points and click \"Finish\".")
     baseline <- locator(type = "n")
-    print(paste0(length(baseline$x), " line points taken."))
+    message(paste0(length(baseline$x), " line points taken."))
 
     lines(baseline, type="l", col = "orange")
     means.spline <- spline(x=baseline$x, y=baseline$y, n = nrow(data)*2.1)
@@ -591,28 +634,28 @@ baseline_corr <- function(file,
     data$y <- round(data$y, 6)
     data$y.zerocor <- round(data$y.zerocor, 6)
 
-    # start PDF device
-    if(print.to.pdf == TRUE){
-      pdf(paste0(path.target.pdfs, curr.measurement, "_baselinecorr", ".pdf"),
+    if(write.PDFs == TRUE){
+      # start PDF device
+      pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_baselinecorr", ".pdf")),
           width = 20, height = 10)
+
+      # plot data
+      plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l",
+           main = paste0(curr.measurement), lwd = 4, col = "grey80",
+           xlim = c(0, max(data$t)),
+           ylim = c(min(data$y, data$y, data$y.zerocor, na.rm = TRUE),
+                    max(data$y, data$y, data$y.zerocor, na.rm = TRUE)))
+      lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "grey60", lwd = 4)
+      lines(means.spline.filtered$x, means.spline.filtered$mean.V, type="l", col = "green", lwd = 1)
+      lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen", lwd = 1)
+      lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
+
+      if(write.PDFs == TRUE){
+        invisible(dev.off())
+      }
     }
 
-    # plot data
-    plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l",
-         main = paste0(curr.measurement), lwd = 4, col = "grey80",
-         xlim = c(0, max(data$t)),
-         ylim = c(min(data$y, data$y, data$y.zerocor, na.rm = TRUE),
-                  max(data$y, data$y, data$y.zerocor, na.rm = TRUE)))
-    lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "grey60", lwd = 4)
-    lines(means.spline.filtered$x, means.spline.filtered$mean.V, type="l", col = "green", lwd = 1)
-    lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen", lwd = 1)
-    lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
-
-    if(print.to.pdf == TRUE){
-      dev.off()
-    }
-
-    if(print.to.screen == TRUE){
+    if(plot.to.screen == TRUE){
       # plot data with correction lines
       plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l",
            main = paste0(curr.measurement), lwd = 4, col = "grey80",
@@ -629,19 +672,25 @@ baseline_corr <- function(file,
       select(t, y.zerocor) %>%
       rename(y = y.zerocor)
 
-    write_csv(data, paste0(path.target, curr.measurement, "_baselinecorr.csv"))
+    if(write.data == TRUE){
+      write_csv(data, file.path(output.folder, paste0(curr.measurement, "_baselinecorr.csv")))
+    }
 
-    # save little log file with manual base spline line
-    # write_csv(data.frame(baseline), paste0(path.target, "/logs/", "prepared_bf_", curr.measurement, "_man_log.csv"))
-    write_csv(data.frame(baseline), paste0(path.target.logs, curr.measurement, "_baselinecorr_log.csv"))
-    print("Done!")
-
+    if(write.logs == TRUE){
+      # save little log file with manual base spline line
+      # write_csv(data.frame(baseline), paste0(output.folder, "/logs/", "prepared_bf_", curr.measurement, "_man_log.csv"))
+      write_csv(data.frame(baseline), file.path(output.folder.logs, paste0(curr.measurement, "_baselinecorr_log.csv")))
+    }
+    # print("Done!")
   }
+
+  # automatic mode ----------------------------------------------------------
   if(corr.type == "auto") {
     # graphics.off()
-    print("You selected automatic drift correction:")
-    print(paste0("sliding minima window size: ", window.size.mins))
-    print(paste0("sliding means of minima window size: ", window.size.means))
+    # message("You selected automatic drift correction:")
+    # message(paste0("sliding minima window size: ", window.size.mins))
+    # message(paste0("sliding means of minima window size: ", window.size.means))
+    # message(paste0("calculating with ", Hz, " Hz."))
 
     t.step <- data$t[2] - data$t[1]
 
@@ -665,14 +714,13 @@ baseline_corr <- function(file,
 
     # create data frame with data reduced to x Hz to even out spikes and unsteady sensor signal
     t.step.10 = 1000/Hz
-    print(paste0("calculating with ", Hz, " Hz."))
 
     data.concat.10 <- data.concat %>%
       group_by(t.10 = t.step.10 * round(t/t.step.10)) %>%
       summarize(V.10 = mean(y)) %>%
       rename(t = t.10, y = V.10)
 
-    print(paste0("Finding ", quantile.size*100, "th percentile sliding minima..."))
+    # message(paste0("Finding ", quantile.size*100, "th percentile sliding minima..."))
 
     times.msec <- c()
     minima <- c()
@@ -699,7 +747,9 @@ baseline_corr <- function(file,
         # This prevents getting singular value or very short minima
         minima[length(minima)+1] <- quantile(curr.window.data, quantile.size)
       }
-      print_progress(k, nrow(data.concat.10)-window.size.mins/t.step.10/2)
+      if(show.progress == TRUE){
+        print_progress(k, nrow(data.concat.10)-window.size.mins/t.step.10/2)
+      }
     }
 
 
@@ -718,7 +768,7 @@ baseline_corr <- function(file,
     # lines(c(data.concat.10$t[1], data.concat.10$t[nrow(data.concat.10)]), rep(0, 2), type="l", col = "red", lwd = 1)
     # lines(times.msec, minima, col = "cyan")
 
-    print("Finding sliding means...")
+    # message("Finding sliding means...")
 
     means <- roll_mean(
       x = minima,
@@ -777,29 +827,28 @@ baseline_corr <- function(file,
     data$y <- round(data$y, 6)
     data$y.zerocor <- round(data$y.zerocor, 6)
 
-    # start PDF device
-    print("Writing to PDF...")
-    if(print.to.pdf == TRUE){
-      pdf(paste0(path.target.pdfs, curr.measurement, "_baselinecorr", ".pdf"),
+    if(write.PDFs == TRUE){
+      # start PDF device
+      # print("Writing to PDF...")
+      pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_baselinecorr", ".pdf")),
           width = 20, height = 10)
-    }
-    plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)],
-         main = paste0(curr.measurement), lwd = 4, type="l", col = "grey60",
-         xlim = c(0, max(data$t)),
-         ylim = c(min(data$y, data$y, data$y.zerocor),
-                  max(data$y, data$y, data$y.zerocor))) # y_raw
-    lines(x=c(data$t[1], data$t[nrow(data)]), y=c(0,0), lty = 3, col = "red") # zero liner
-    lines(times.msec-nrow(line.start.tibble)*t.step, minima, type="l", col = "blue", lwd = 1) # minima
-    lines(means.spline$t , means.spline$means, type="l", col = "green", lwd = 2) # means
-    lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type = "l", lwd = 1,
-          main = paste0(curr.measurement), col = "darkgreen") # y_cor
 
-    if(print.to.pdf == TRUE){
-      dev.off()
+      plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)],
+           main = paste0(curr.measurement), lwd = 4, type="l", col = "grey60",
+           xlim = c(0, max(data$t)),
+           ylim = c(min(data$y, data$y, data$y.zerocor),
+                    max(data$y, data$y, data$y.zerocor))) # y_raw
+      lines(x=c(data$t[1], data$t[nrow(data)]), y=c(0,0), lty = 3, col = "red") # zero liner
+      lines(times.msec-nrow(line.start.tibble)*t.step, minima, type="l", col = "blue", lwd = 1) # minima
+      lines(means.spline$t , means.spline$means, type="l", col = "green", lwd = 2) # means
+      lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type = "l", lwd = 1,
+            main = paste0(curr.measurement), col = "darkgreen") # y_cor
+
+      invisible(dev.off())
     }
 
-    if(print.to.screen == TRUE){
-      print("Printing to screen...")
+    if(plot.to.screen == TRUE){
+      # print("Printing to screen...")
       # plot data without correction lines
       plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type = "l",
            main = paste0(curr.measurement), lwd = 1, col = "black",
@@ -811,7 +860,7 @@ baseline_corr <- function(file,
 
       # plot data with correction lines
       plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)],
-           main = paste0(curr.measurement), lwd = 4, , type="l", col = "grey60",
+           main = paste0(curr.measurement), lwd = 4, type="l", col = "grey60",
            xlim = c(0, max(data$t)),
            ylim = c(min(data$y, data$y, data$y.zerocor),
                     max(data$y, data$y, data$y.zerocor))) # y_raw
@@ -827,14 +876,19 @@ baseline_corr <- function(file,
       select(t, y.zerocor) %>%
       rename(y = y.zerocor)
 
-    write_csv(data, paste0(path.target, curr.measurement, "_baselinecorr.csv"))
+    if(write.data == TRUE){
+      write_csv(data, file.path(output.folder, paste0(curr.measurement, "_baselinecorr.csv")))
+    }
 
-    # save little log file with window size infos
-    write_csv(data.frame(window.size.minima.msec = window.size.mins,
-                         window.size.means.msec = window.size.means,
-                         script.version = "0.0.4"),
-              paste0(path.target.logs, curr.measurement, "_baselinecorr_log.csv")) # _auto_log.csv
-
-    print("Done!")
+    if(write.logs == TRUE){
+      # save little log file with window size infos
+      write_csv(data.frame(window.size.minima.msec = window.size.mins,
+                           window.size.means.msec = window.size.means,
+                           script.version = "0.0.4"),
+                file.path(output.folder.logs, paste0(curr.measurement, "_baselinecorr_log.csv")))
+    }
+    # print("Done!")
   }
+
+  return(data)
 }

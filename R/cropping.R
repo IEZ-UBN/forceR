@@ -2,10 +2,13 @@
 #'
 #' Converts LJStream *.dat file to standard time series.
 #' @param file File path to raw measurement (*.dat file).
-#' @param decimal A character string of length 1 defining the decimal separator. Default `"."`.
-#'@return Saves data file in CSV-format in new subfolder "./converted". If this folder does not exist, it will be created. \cr
+#' @param write.files A logical value indicating if results should be
+#' written as file. Default: `TRUE`.
+#'@return Returns and, if `write.files == TRUE`, saves converted data in
+#' CSV-format in new subfolder "./converted". If this folder does not exist,
+#' it will be created. \cr
 #' \cr
-#' The output file has the following format:
+#' The output tibble has the following format:
 #'
 #' | **`t`** |   | **`y`** |
 #' | :----: | :----: |:----: |
@@ -13,16 +16,17 @@
 #' | `...` |   | `...` |
 #' | `t.n` |   | `y.n` |
 #' @examples
-#' \dontrun{
-#' convert_measurement (file = "LJStream_file_0.dat",
-#'   decimal = ".")
-#' }
+#' # get file path of forceR example file
+#' filename <- forceR_example(type = "LJStream")
+#' file.converted <- convert_measurement (file = filename,
+#'                        write.files = FALSE)
+#' file.converted
+#'
 #' @export
-
-convert_measurement <- function (file, decimal = "."){
+convert_measurement <- function (file,
+                                 write.files = TRUE){
 
   if(!is.character(file)) stop ("'file' must be a character string.")
-  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
 
   Time <- y0 <- NULL
 
@@ -36,7 +40,7 @@ convert_measurement <- function (file, decimal = "."){
   if(!dir.exists(path.target)){
     dir.create(path.target, showWarnings = FALSE)
   } else {
-    print(paste0(path.target, " already exists."))
+    # print(paste0(path.target, " already exists."))
   }
   if(!str_sub(path.target, -1) == '/'){
     path.target <- paste0(path.target, "/")
@@ -45,10 +49,15 @@ convert_measurement <- function (file, decimal = "."){
   res.reduction <- 10
   file.name <- basename(file)
 
-  data <- read_delim(file, delim = "\t", skip = 6)
+  data <- read_delim(file, delim = "\t", skip = 6,
+                     show_col_types = FALSE)
 
-  if(decimal != "."){
-    print(paste0("Converting \'", decimal, "\' to \'.\'..."))
+  # Check what the decimal is. Returns "" when it is a full stop, and the
+  #   decimal, e.g. "," if it is not.
+  decimal <- gsub('[[:digit:]]+', '', data[1,1])
+
+  if(decimal != ""){
+    # print(paste0("Converting \'", decimal, "\' to \'.\'..."))
     data$Time <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$Time))) * 1000
     data$y0 <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$y0)))
   }
@@ -57,25 +66,28 @@ convert_measurement <- function (file, decimal = "."){
     select(Time, y0) %>%
     rename(t = Time, y = y0)
 
-  write_csv(data, paste0(path.target, gsub("\\.dat$", "\\.csv", basename(file))), quote = "none")
-
-  print("Done!")
+  if(write.files == TRUE){
+    write_csv(data, paste0(path.target, gsub("\\.dat$", "\\.csv", basename(file))), quote = "none")
+  }
+  return(data)
+  # print("Done!")
 }
-
-
-
 
 
 #' Crop Time Series
 #'
 #' Interactive function to crop a time series.
 #' @param file File path to measurement.
-#' @param decimal A character string of length 1 defining the decimal separator. Default `"."`.
-#' @details Select points at start and end of desired part of measurements. Only the last two points will be
+#' @param write.files A logical value indicating if results should be
+#' written as file. Default: `TRUE`.
+#' @details Select points at start and end of desired part of measurements.
+#' Only the last two points will be
 #'   taken into account to allow the user to correct erroneous clicks.
-#' @return Saves cropped data file in CSV-format in new subfolder "./cropped". If this folder does not exist, it will be created. \cr
+#' @return Returns and, if `write.files == TRUE`, saves cropped data in
+#' CSV-format in new subfolder "./cropped". If this folder does not exist,
+#' it will be created. \cr
 #' \cr
-#' The output file has the following format:
+#' The tibble has the following format:
 #'
 #' | **`t`** |   | **`y`** |
 #' | :----: | :----: |:----: |
@@ -84,35 +96,44 @@ convert_measurement <- function (file, decimal = "."){
 #' | `t.n` |   | `y.n` |
 #'
 #' @examples
-#'\dontrun{
-#'# Using a package example file from GitHub stored within
-#'# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+#' # get file path of forceR example file
+#' filename <- forceR_example(type = "raw")
 #'
-#'# load the original file
-#'data.folder <- "./example_data"
-#'file <- file.path(data.folder, "0982.csv")
+#'# plot measurement
+#'plot_measurement(filename)
 #'
-#'# crop file
-#'crop_measurement(file,
-#'   decimal = ".")
+#'# crop file - without storing result as file
+#'file.cropped <- crop_measurement(file,
+#'                   write.files = FALSE)
+#'
+#'file.cropped
+#'
+#'\donttest{
+#'# crop file - with result stored in "./cropped"
+#'crop_measurement(filename,
+#'                   write.files = TRUE)
 #'
 #'# plot results
-#'# define folder where cropped file is stored
-#'cropped.folder <- file.path(data.folder, "cropped")
+#'# define folder where cropped file wass stored:
+#'cropped.folder <- "./cropped"
+#'
+#'# plot the cropped file - this will only work if you used your own
+#'filename.cropped <- file.path(dirname(filename), "cropped",
+#'                                 gsub("\\.csv", '_cropped.csv', basename(filename)))
 #'
 #'# plot the cropped file
-#'cropped.file <- file.path(cropped.folder, "0982_cropped.csv")
-#'plot_measurement(cropped.file)
+#'plot_measurement(filename.cropped)
 #'}
 #' @export
-crop_measurement <- function (file, decimal = "."){
+crop_measurement <- function (file,
+                              write.files = TRUE){
 
   if(!is.character(file)) stop ("'file' must be a character string.")
-  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
 
-  y <- NULL
 
   if(!file.exists(file)) stop(paste0("File ", file, " does not exist!"))
+
+  y <- NULL
 
   folder <- dirname(file)
   if(!str_sub(folder, -1) == '/'){
@@ -122,7 +143,7 @@ crop_measurement <- function (file, decimal = "."){
   if(!dir.exists(path.target)){
     dir.create(path.target, showWarnings = FALSE)
   } else {
-    print(paste0(path.target, " already exists."))
+    # print(paste0(path.target, " already exists."))
   }
   if(!str_sub(path.target, -1) == '/'){
     path.target <- paste0(path.target, "/")
@@ -135,9 +156,12 @@ crop_measurement <- function (file, decimal = "."){
 
   colnames(data) <- c("t", "y")
 
+  # Check what the decimal is. Returns "" when it is a full stop, and the
+  #   decimal, e.g. "," if it is not.
+  decimal <- gsub('[[:digit:]]+', '', data[1,1])
 
-  if(decimal != "."){
-    print(paste0("Converting \'", decimal, "\' to \'.\'..."))
+  if(decimal != ""){
+    warning(paste0("Converting decimal separator \'", decimal, "\' to \'.\'..."))
     data$t <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$t))) * 1000
     data$y <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$y)))
   }
@@ -147,7 +171,7 @@ crop_measurement <- function (file, decimal = "."){
   plot(data[,1:2], type = 'l',
        main = paste0(file.name, " (", sampling_rate_Hz, " Hz)"), xlab = "time [m.sec]", ylab = "y")
 
-  print("Select beginning and end of measurement and click \"Finish\". Only the last two points will be used.")
+  message("Select beginning and end of measurement and click \"Finish\". Only the last two points will be used.")
   cutoffs <- locator(type = "n")
 
   # only take last two cutoffs
@@ -179,123 +203,10 @@ crop_measurement <- function (file, decimal = "."){
 
   data_cut <- data_cut %>%
     select(t, y)
-
-  write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = "none")
-  print("Done!")
-}
-
-#' Crops LJStream Time Series
-#'
-#' Interactive function to crop a time series measured with LJStream (LabJack Corporation, Lakewood, Colorado, US), the standard software of the forceR setup.
-#' @param file File path to measurement.
-#' @param decimal A character string of length 1 defining the decimal separator. Default `"."`.
-#' @details Select points at start and end of desired part of measurements. Only the last two points will be
-#'   taken into account to allow the user to correct erroneous clicks.
-#' @return Saves cropped data file in CSV-format in new subfolder "./cropped". If this folder does not exist, it will be created. \cr
-#' \cr
-#' The output file has the following format:
-#'
-#' | **`t`** |   | **`y`** |
-#' | :----: | :----: |:----: |
-#' | `t.1` |   | `y.1` |
-#' | `...` |   | `...` |
-#' | `t.n` |   | `y.n` |
-#'
-#' @export
-crop_measurement_LJStream <- function (file, decimal = "."){
-
-  if(!is.character(file)) stop ("'file' must be a character string.")
-  if(decimal != '.' & decimal != ',') stop ("'decimal' must be either '.' or ','.")
-
-  y <- NULL
-
-  if(file.exists(file)){
-
-    folder <- dirname(file)
-    if(!str_sub(folder, -1) == '/'){
-      folder <- paste0(folder, "/")
-    }
-    path.target = paste0(folder, "cropped")
-    if(!dir.exists(path.target)){
-      dir.create(path.target, showWarnings = FALSE)
-    } else {
-      print(paste0(path.target, " already exists."))
-    }
-    if(!str_sub(path.target, -1) == '/'){
-      path.target <- paste0(path.target, "/")
-    }
-
-    res.reduction <- 10
-
-    # file <- file.list[18]
-    file.name <- basename(file)
-
-    data = read_delim(file,
-                      skip = 4,
-                      delim = "\t",
-                      show_col_types = FALSE)
-    # data
-
-    colnames(data) <- c("t", "y")
-
-    if(decimal != "."){
-      print(paste0("Converting \'", decimal, "\' to \'.\'..."))
-      data$t <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$t))) * 1000
-      data$y <- as.numeric(gsub(decimal, ".", gsub("\\.", "", data$y)))
-    }
-    # data$y <- data$y/1000000
-
-    sampling_rate_Hz <- 1/round(data$t[2] - data$t[1], digits = 4) * 1000
-
-    plot(data[,1:2], type = 'l',
-         main = paste0(file.name, " (", sampling_rate_Hz, " Hz)"), xlab = "time [m.sec]", ylab = "y")
-
-    print("Select beginning and end of measurement and click \"Finish\". Only the last two points will be used.")
-    cutoffs <- locator(type = "n")
-
-    # only take last two cutoffs
-    cutoffs$x <- cutoffs$x[(length(cutoffs$x)-1):(length(cutoffs$x))]
-    cutoffs$y <- cutoffs$y[(length(cutoffs$y)-1):(length(cutoffs$y))]
-
-    # convert cutoffs outside the graph area to time value(s) at beginning and/or end of graph area
-    if(cutoffs$x[length(cutoffs$x)-1] < min(data$t)){cutoffs$x[1] <- min(data$t)}
-    if(cutoffs$x[length(cutoffs$x)] > max(data$t)){cutoffs$x[2] <- max(data$t)}
-
-    ceiling_dec <- function(x, level=1) round(x + 5*10^(-level-1), level)
-    floor_dec <- function(x, level=1) round(x - 5*10^(-level-1), level)
-    start_time_msec <- which(data$t == ceiling_dec(cutoffs$x[length(cutoffs$x)-1], level = -1))
-    end_time_msec <-  which(data$t == floor_dec(cutoffs$x[length(cutoffs$x)], level = -1))
-
-    # for some reason end_time_msec is sometimes not found even though numbers in row above are identical.
-    if(length(end_time_msec) == 0){
-      for(d in 1:nrow(data)){
-        if(grepl(data$t[length(data$t)-d], floor_dec(cutoffs$x[length(cutoffs$x)], level = -1))){
-          end_time_msec <- nrow(data)-d
-          break
-        }
-      }
-    }
-
-    data_cut <- data[start_time_msec:end_time_msec,]
-    data_cut$t <- data_cut$t - data_cut$t[1]
-
-    # define x ticks
-    x_ticks <- seq(0, data_cut$t[nrow(data_cut)], 1000)
-
-    # plot with amplifier_scaling - correction
-    plot(data_cut$t[seq(1,nrow(data_cut),res.reduction)], data_cut$y[seq(1,nrow(data_cut),res.reduction)], type = 'l',
-         main = paste0(file.name, " (", sampling_rate_Hz, " Hz)"), xlab = "t", ylab = "y", xaxt = "n")
-
-    axis(side = 1,
-         at = x_ticks,
-         labels = x_ticks)
-
-    data_cut <- data_cut %>% select(t, y)
-
+  if(write.files == TRUE){
     write_csv(data_cut, paste0(path.target, sub("\\.[[:alnum:]]+$", "", file.name), "_cropped.csv"), quote = "none")
-
-    print("Done!")
-  } else {
-    stop("File does not exist!")
   }
+  return(data_cut)
+  # print("Done!")
 }
+

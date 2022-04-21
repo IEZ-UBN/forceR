@@ -20,14 +20,14 @@ Calculates mean curve shape per group (here: species) and rescales result on the
 # Using the forceR::df.all.200.tax dataset:
 
 # calculate mean curves per species
-peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
-
-\dontrun{
+peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100)
+\donttest{
 # plot averaged normalized curves per species
 require(ggplot2)
-ggplot(peaks.df.100.avg, aes(x = index ,
-                             y = force.norm.100.avg,
-                             colour=species)) +
+ggplot(peaks.df.100.avg,
+          aes(x = index ,
+               y = force.norm.100.avg,
+               colour=species)) +
   geom_line()
 }
 }

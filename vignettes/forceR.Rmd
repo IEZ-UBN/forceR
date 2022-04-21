@@ -50,7 +50,7 @@ install.packages('forceR')
 ```
 
 ### Development version
-You can install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR):
+The development version of `forceR` is available at [GitHub](https://github.com/Peter-T-Ruehr/forceR):
 ```{r warning=FALSE, message=FALSE, eval=F}
 require(devtools)
 devtools::install_github("https://github.com/Peter-T-Ruehr/forceR")
@@ -71,6 +71,9 @@ library(forceR)
 
 ### Download raw measurement files
 From hereon, everything will happen within a folder stored within the variable `data.folder`. Please download and unzip the content of the [example_data.zip file](https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip) onto your hard drive and store the folder location in the variable `data.folder`. This folder contains every file that is needed and has been produced during the writing of this vignette, so you can always restore the files from `GitGub` in case you have accidentally overwritten anything you wanted to keep.
+
+If you decide to use your own files, consider that `forceR` generally expects file names to start with leading digits specifying the measurement number (E.g. `0001_G_maculatus.csv`). The number (in this case `0001`) is used to keep data files, log files, and PDF files of the same measurement associated 
+with each other. If not already the case, we strongly recommend renaming the raw data files before continuing with this `forceR` vignette.
 
 First, we set the folder containing the example data as the `data.folder` (make sure this fits your local path):
 

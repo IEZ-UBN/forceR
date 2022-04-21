@@ -5,30 +5,28 @@
 \title{Automatic or Manual Baseline Correction of Time Series}
 \usage{
 baseline_corr(
-  file,
+  filename,
   corr.type = "auto",
-  print.to.screen = TRUE,
-  print.to.pdf = TRUE,
   window.size.mins = 1000,
   window.size.means = NULL,
   quantile.size = 0.05,
   y.scale = 0.5,
   res.reduction = 10,
-  Hz = 100
+  Hz = 100,
+  plot.to.screen = FALSE,
+  write.data = FALSE,
+  write.PDFs = FALSE,
+  write.logs = FALSE,
+  output.folder,
+  show.progress = FALSE
 )
 }
 \arguments{
-\item{file}{A character string containing the full path to the measurement file that needs correction.
+\item{filename}{A character string containing the full path to the measurement file that needs correction.
 See Details for info on what the file should look like.}
 
 \item{corr.type}{Character string defining the desired mode of baseline correction. One of \code{"auto"}
 or \code{"manual"}. Default: \code{"auto"}}
-
-\item{print.to.screen}{A logical value indicating if results should be plotted in the current R plot
-device. Default: \code{TRUE}.}
-
-\item{print.to.pdf}{A logical value indicating  if results should be saved as PDFs. This is considered
-necessary to quality check and communicate the results. Default: \code{TRUE}.}
 
 \item{window.size.mins}{A numeric value for the size of the search window to find minima in. Should be
 in the same time unit as the measurement. Longer peaks require higher values, shorter peaks require
@@ -45,24 +43,38 @@ the 'minimum' of a sliding window. Default: \code{0.05}.}
 placement of the points during the manual correction procedure.}
 
 \item{res.reduction}{A numeric value to reduce the number of time steps by during plotting. Speeds up
-the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: 10.}
+the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: \code{10}.}
 
 \item{Hz}{A numeric value to reduce sampling frequency for temporary analyses. This works as a smoothing
 filter during temporary analyses and does not reduce the actual sampling frequency of the data.
 Default: \code{100}.}
+
+\item{plot.to.screen}{A logical value indicating if results should be
+plotted in the current R plot device. Default: \code{FALSE}.}
+
+\item{write.data}{A logical value indicating if drift-corrected file should
+be saved. If yes, it will be saved in \code{output.folder}.
+Default: \code{FALSE}.}
+
+\item{write.PDFs}{A logical value indicating whether results should be saved
+as PDFs. Does not slow
+down the process as much as printing to the R plot device and is considered
+necessary to quality check the results. If yes, it will be saved in
+\code{output.folder/PDFs}. Default: \code{FALSE}.}
+
+\item{write.logs}{A logical value indicating whether a log file with
+information on the method and values used to correct the baseline drift should be
+saved. Is considered necessary for reproducibility. If yes, it will be saved
+in \code{output.folder/logs}. Default: \code{FALSE}.}
+
+\item{output.folder}{Path to folder where data, PDF and log files should
+be stored.}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
-The following folders will be created (if they did not exist before):
-\itemize{
-\item \code{"./ampdriftcorr/"}
-\item \code{"./ampdriftcorr/logs/"}
-\item \code{"./ampdriftcorr/pdfs/"}
-}
 
-Saves amplifier-drift-corrected data files in CSV-format in new subfolder \code{"./ampdriftcorr"},
-log files containing information on the method used to correct the amplifier drift in
-\code{"./ampdriftcorr/logs/"} and PDFs with the graphs before and after correction in \code{"./ampdriftcorr/pdfs/"}.
-ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
 }
 \description{
 If baseline (zero-line) of measurement is unstable (e.g. due to temperature fluctuations, wind, ...),
@@ -78,6 +90,11 @@ If the automatic approach does not yield acceptable results, an interactive manu
 the baseline can be performed instead.
 }
 \details{
+forceR generally expects file names to start with a leading number specifying the
+measurement number (E.g. "0001_G_maculatus.csv"). The number ("0001") is used to
+keep data files, log files, and PDF files of the same measurement associated
+with each other.
+
 The input files should to be in the following format:\tabular{ccc}{
    \code{t} \tab  \tab \code{y} \cr
    \code{t.1} \tab  \tab \code{y.2} \cr
@@ -90,67 +107,52 @@ In case there are more than two columns, only the first two columns will be used
 are not named 't' and 'y', they will be renamed.
 }
 \examples{
-\dontrun{
-# Using a package example file from GitHub stored within
-# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
-
 #'########### AUTOMATIC MODE
+# define file to apply the baseline drift correction to
+filename <- forceR_example(type = "ampdriftcorr")
 
-# define folder and file to apply the baseline drift correction to
-data.folder <- "./example_data"
-ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
-file = file.path(ampdriftcorr.folder, "1068_cropped_ampdriftcorr.csv")
+# run automatic baseline drift corrections without saving files or
+#   printing to screen:
+file.baseline_corr <- baseline_corr(filename = filename,
+                                     corr.type = "auto",
+                                     window.size.mins = 1000,
+                                     window.size.means = NULL,
+                                     quantile.size = 0.05,
+                                     y.scale = 0.5,
+                                     res.reduction = 10,
+                                     Hz = 100,
+                                     plot.to.screen = FALSE,
+                                     write.data = FALSE,
+                                     write.PDFs = FALSE,
+                                     write.logs = FALSE,
+                                     output.folder,
+                                     show.progress = FALSE)
 
-# plot file
-plot_measurement(file)
-
-# run the automatic baseline drift correction
-# the results will be saved in new subfolders of the ampdriftcorr.folder
-baseline_corr(file,
-             corr.type = "auto",
-             print.to.screen = TRUE,
-             print.to.pdf = TRUE,
-             window.size.mins = 2000,
-             window.size.means = NULL,
-             quantile.size = 0.05,
-             y.scale = 0.5,
-             res.reduction = 10,
-             Hz = 100)
-
-[1] "1068_cropped_ampdriftcorr"
-[1] "You selected automatic drift correction:"
-[1] "sliding minima window size: 2000"
-[1] "sliding means of minima window size: 2000"
-[1] "calculating with 100 Hz."
-[1] "Finding 5th percentile sliding minima..."
-100\%...[1] "Finding sliding means..."
-
-
+file.baseline_corr
 
 #'########### MANUAL MODE
 
-#'# define folder and file to apply the baseline drift correction to
-data.folder <- "./example_data"
-ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
-file = file.path(ampdriftcorr.folder, "1174_cropped_ampdriftcorr")
+# define file to apply the baseline drift correction to
+filename <- forceR_example(type = "ampdriftcorr")
 
-# plot file
-plot_measurement(file)
+\donttest{
+# run interactive baseline drift corrections with saving files and
+#   printing to screen:
+file.baseline_corr <- baseline_corr(filename = filename,
+                                     corr.type = "manual",
+                                     window.size.mins = 1000,
+                                     window.size.means = NULL,
+                                     quantile.size = 0.05,
+                                     y.scale = 0.5,
+                                     res.reduction = 10,
+                                     Hz = 100,
+                                     plot.to.screen = TRUE,
+                                     write.data = TRUE,
+                                     write.PDFs = TRUE,
+                                     write.logs = TRUE,
+                                     output.folder = "./baselinecorr",
+                                     show.progress = TRUE)
 
-# run the manual baseline drift correction.The user is expected to
-# interactively mark the baseline with dots in the R plot device.
-# the results will be saved in new subfolders of the ampdriftcorr.folder
-
-baseline_corr(file,
-             corr.type = "manual",
-             print.to.screen = TRUE,
-             print.to.pdf = TRUE)
-             plot_measurement(file)
-
-[1] "1174_cropped_ampdriftcorr"
-[1] "You selected manual drift correction."
-[1] "Please select baseline points and click \"Finish\"."
-[1] "31 line points taken."
-[1] "Done!"
+file.baseline_corr
 }
 }

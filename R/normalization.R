@@ -3,12 +3,33 @@
 #' Rescales time series in x and y to values ranging from 0 to 1.
 #'
 #' @param df.peaks The resulting tibble of the function `find_strongest_peaks()`. See `?find_strongest_peaks` for more details.
+#'
 #' @param df.data A data frame or tibble in the below format. The columns `t` (time), `force` and `measurement`
 #'   (measurement ID) must be present. This will usually be the same table that was used before in `find_strongest_peaks()`.
-#' @param path.data A string character defining where to save the results. If `NULL` (default),
-#' data is not stored in file.
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
+#' @param output.folder A string character defining where to save the results if `write.data == TRUE`..
+#'
+#' @param write.data A logical value indicating if drift-corrected file should
+#' be saved. If yes, it will be saved in `output.folder`. Default: `TRUE`.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
+#'
 #' @details
-#' # `df` needs to contain the following columns:
+#' `df.peaks` at least needs to contain the following columns:
+#'
+#' | **`species`** | **`measurements`** |  **`starts`** |  **`ends`** |
+#' | :----: | :----: |:----: |:----: |
+#' | `species.1` |  `measurements.1` | `starts.1` | `ends.1` |
+#' | `...` |  `...` |  `...` |  `...` |
+#' | `species.n` |  `measurements.n` | `starts.m` | `ends.m` |
+#'
+#' Check `forceR::peaks.df` to see an example tibble.
+#'
+#' `df.data` at least needs to contain the following columns:
 #'
 #' | **`t`** | **`force`** |  **`measurement`** |
 #' | :----: | :----: |:----: |
@@ -16,24 +37,36 @@
 #' | `...` |  `...` |  `...` |
 #' | `t.n` |  `force.n` | `measurement.m` |
 #'
-#' @return This function returns a tibble with the same format as `df`, but with the additional columns `t.norm` and `force.norm` which will contain the
-#'  rescaled time and force data now both ranging from 0 to 1.
+#' Check `forceR::df.all.200.tax` to see an example tibble.
+#'
+#'
+#' @return This function returns a tibble in the same format as `df`, but with
+#' the additional columns `t.norm` and `force.norm` which will contain the
+#'  rescaled time and force data both ranging from 0 to 1.
 #'
 #' @examples
 #' # Using the forceR::df.all.200.tax and forceR::df.all.200.tax datasets:
 #'
 #' # rescale bites
-#' peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-#'                                  df.data = df.all.200.tax)
+#' peaks.df.norm <- rescale_peaks(df.peaks = forceR::peaks.df,
+#'                                  df.data = forceR::df.all.200.tax,
+#'                                  plot.to.screen = FALSE,
+#'                                  write.data = FALSE,
+#'                                  output.folder,
+#'                                  show.progress = FALSE)
 #'
-#' # maximum values of time and force are both 1 in the whole data frame:
-#' max(peaks.df.norm$t.norm)
-#' max(peaks.df.norm$force.norm)
+#'
+#' # maximum values of time and force both range from 0 - 1:
+#' range(peaks.df.norm$t.norm)
+#' range(peaks.df.norm$force.norm)
 #'
 #' @export
 rescale_peaks <- function(df.peaks,
                           df.data,
-                          path.data = NULL){
+                          plot.to.screen = FALSE,
+                          write.data = TRUE,
+                          output.folder,
+                          show.progress = FALSE){
 
   if(sum(colnames(df.peaks) %in% c("species","measurements","starts","ends")) != 4){
     stop ("column names of 'df.peaks' must contain 'species','measurements','starts','ends'.")
@@ -43,11 +76,12 @@ rescale_peaks <- function(df.peaks,
     stop ("column names of 'df.data' must contain 't','force','measurement'.")
   }
 
+  # dplyr nulls
   species <- measurement <- peak <- specimen <- start <- end <- t.norm <- force.norm <- NULL
 
   #### linear mapping: normalization of x and y ####
   # create tibble with 1 peak per row with start and end
-  print("Converting table to one peak per row...")
+  # print("Converting table to one peak per row...")
   df.peaks.1.per.row <- as_tibble(setNames(data.frame(matrix(nrow = 1, ncol = length(c("species", "measurement", "peak", "start", "end")))),
                                            c("species", "measurement", "peak", "start", "end")))
   # change col types and delete first row
@@ -74,7 +108,9 @@ rescale_peaks <- function(df.peaks,
                                              start=curr.peak.start,
                                              end=curr.peak.end))
     }
-    print_progress(b, nrow(df.peaks))
+    if(show.progress == TRUE){
+      print_progress(b, nrow(df.peaks))
+    }
   }
 
   # add specimen to df.peaks.1.per.row
@@ -86,12 +122,12 @@ rescale_peaks <- function(df.peaks,
                                   by="measurement") %>%
     select(species, specimen, measurement, peak, start, end)
 
-  if(!is.null(path.data)){
-    print(paste0("Saving df.peaks.1.per.row at ", path.data, today(), "_peak_starts_ends_1_per_row.csv..."))
-    write_csv(df.peaks.1.per.row, paste0(path.data, "/", today(), "_peak_starts_ends_1_per_row.csv"))
+  if(write.data == TRUE){
+    # print(paste0("Saving df.peaks.1.per.row at ", output.folder, today(), "_peak_starts_ends_1_per_row.csv..."))
+    write_csv(df.peaks.1.per.row, file.path(output.folder, paste0("peak_starts_ends_1_per_row_", today(), ".csv")))
   }
 
-  print(paste0("Calculating rescaled curves for all ", length(unique(paste0(df.peaks.1.per.row$measurement, df.peaks.1.per.row$peak))), " peaks (this may take a while)..."))
+  # print(paste0("Calculating rescaled curves for all ", length(unique(paste0(df.peaks.1.per.row$measurement, df.peaks.1.per.row$peak))), " peaks (this may take a while)..."))
 
   # save all peaks with their peak forces and rescaled peak forces in one tibble (multi-core)
   df.data.red.for.looping <- df.data %>%
@@ -115,10 +151,13 @@ rescale_peaks <- function(df.peaks,
       select(measurement, peak, t.norm, force.norm) # t, force,
 
     curves_df_norm <-  rbind(curves_df_norm, curr.peak.window)
-    print_progress(i, nrow(df.peaks.1.per.row))
+
+    if(show.progress == TRUE){
+      print_progress(i, nrow(df.peaks.1.per.row))
+    }
   }
 
-  print("Rescaling finished.")
+  # print("Rescaling finished.")
 
   rm(df.data.red.for.looping)
 
@@ -130,13 +169,13 @@ rescale_peaks <- function(df.peaks,
                               by = "measurement") %>%
     select(-c(t, force))
 
-  if(!is.null(path.data)){
-    print(paste0("Saving curves_df_norm at ", path.data, "/", today(), "_curves_df_norm.csv..."))
-    write_csv(curves_df_norm, paste0(path.data, "/", today(), "_curves_df_norm.csv"))
+  if(write.data == TRUE){
+    # print(paste0("Saving curves_df_norm at ", output.folder, "/", today(), "_curves_df_norm.csv..."))
+    write_csv(curves_df_norm, file.path(output.folder, paste0("curves_df_norm_", today(), ".csv")))
   }
 
   return(curves_df_norm)
-  print("Done!")
+  # print("Done!")
 }
 
 
@@ -148,8 +187,17 @@ rescale_peaks <- function(df.peaks,
 #'
 #' @param df The resulting tibble of the function `rescale_peaks()`. See `?rescale_peaks` for more details.
 #'   The columns `measurement` and `force.norm` must be present.
-#' @param path.plots A string character defining where to save the plots. Default: working directory. Default: `getwd()`.
-#' @param print.to.pdf A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: `TRUE`
+#'
+#' @param plot.to.screen A logical value indicating if results should be
+#' plotted in the current R plot device. Default: `FALSE`.
+#'
+#' @param write.pdfs A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: `TRUE`
+#'
+#' @param path.plots A string character defining where to save the plots if `write.pdfs == TRUE`.
+#'
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
+#'
 #' @details
 #' # `df` needs to contain the following columns:
 #'
@@ -165,30 +213,31 @@ rescale_peaks <- function(df.peaks,
 #'
 #' @examples
 #' # Using the forceR::df.all.200.tax dataset:
-#' peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
-#'                                    print.to.pdf = FALSE)
+#' peaks.df.norm.100 <- red_peaks_100(df = forceR::peaks.df.norm,
+#'                                    plot.to.screen = FALSE,
+#'                                    write.pdfs = FALSE)
 #'
-#' plot(peaks.df.norm.100$index,
-#'        peaks.df.norm.100$force.norm.100,
-#'        type="l")
+#'peaks.df.norm.100
 #'
 #' @export
 red_peaks_100 <- function(df,
-                          path.plots = getwd(),
-                          print.to.pdf = TRUE){
+                          plot.to.screen = FALSE,
+                          write.pdfs = FALSE,
+                          path.plots,
+                          show.progress = FALSE){
 
   if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
     stop ("column names of 'df' must contain 'measurement','force.norm'.")
   }
-  if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
-  if(!is.logical(print.to.pdf)) stop ("'print.to.pdf' must be logical.")
+  if(!is.logical(write.pdfs)) stop ("'write.pdfs' must be logical.")
 
   peak <- force.norm <- measurement <- specimen <- NULL
 
   # reduce all peaks to 100 observations and plot
-  if(print.to.pdf == TRUE){
-    print(paste0("Saving plots at ", path.plots, "/", today(),"_rescaled_peaks_100.pdf..."))
-    pdf(paste0(path.plots, "/", today(),"_rescaled_peaks_100.pdf"), onefile = TRUE, paper = "a4", height = 14)
+  if(write.pdfs == TRUE){
+    if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
+    # print(paste0("Saving plots at ", path.plots, "/", today(),"_rescaled_peaks_100.pdf..."))
+    pdf(file.path(path.plots, paste0("rescaled_peaks_100_", today(), ".pdf")), onefile = TRUE, paper = "a4", height = 14)
   }
   par(mfrow=c(3,2))
   species <- unique(df$species)
@@ -202,7 +251,6 @@ red_peaks_100 <- function(df,
     peaks <- unique(curr.species.norm.df %>%
                       pull(peak))
 
-    # plot each peak
     for(c in peaks){
       curr.peak.F <- curr.species.norm.df %>%
         filter(peak == c) %>%
@@ -221,27 +269,31 @@ red_peaks_100 <- function(df,
                                 index = seq(1, 100, length.out = 100),
                                 force.norm.100 = spline(x=seq(0, 1, length.out = length(curr.peak.F)), y=curr.peak.F, n = 100)$y)
 
-      # plot((curr.species.norm.df %>%
-      #        filter(peak == c) %>%
-      #        pull(t.norm)),
-      #      curr.species.norm.df %>%
-      #        filter(peak == c) %>%
-      #        pull(force.norm),
-      #      type="l", lwd=5, col="grey80")
+      if(plot.to.screen == TRUE){
+        # plot each peak
+        # plot((curr.species.norm.df %>%
+        #        filter(peak == c) %>%
+        #        pull(t.norm)),
+        #      curr.species.norm.df %>%
+        #        filter(peak == c) %>%
+        #        pull(force.norm),
+        #      type="l", lwd=5, col="grey80")
 
-      plot(curr.peak.F.100$index/100, curr.peak.F.100$force.norm.100, type="l", lwd=.5)
-      title(main = paste0(curr.species, " (meas. ", curr.measurement, ", spec. ", curr.specimen, "); peak ", c), cex.main = 0.95)
-
+        plot(curr.peak.F.100$index/100, curr.peak.F.100$force.norm.100, type="l", lwd=.5)
+        title(main = paste0(curr.species, " (meas. ", curr.measurement, ", spec. ", curr.specimen, "); peak ", c), cex.main = 0.95)
+      }
       df.peaks.100 <- rbind(df.peaks.100, curr.peak.F.100)
     }
 
-    print_progress(b, length(species))
+    if(show.progress == TRUE){
+      print_progress(b, length(species))
+    }
   }
   par(mfrow=c(1,1))
-  if(print.to.pdf == TRUE){
-    dev.off()
+  if(write.pdfs == TRUE){
+    invisible(dev.off())
   }
-  print("Done!")
+  # print("Done!")
   return(df.peaks.100)
 }
 
@@ -260,14 +312,14 @@ red_peaks_100 <- function(df,
 #' # Using the forceR::df.all.200.tax dataset:
 #'
 #' # calculate mean curves per species
-#' peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
-#'
-#' \dontrun{
+#' peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100)
+#' \donttest{
 #' # plot averaged normalized curves per species
 #' require(ggplot2)
-#' ggplot(peaks.df.100.avg, aes(x = index ,
-#'                              y = force.norm.100.avg,
-#'                              colour=species)) +
+#' ggplot(peaks.df.100.avg,
+#'           aes(x = index ,
+#'                y = force.norm.100.avg,
+#'                colour=species)) +
 #'   geom_line()
 #' }
 
@@ -286,6 +338,6 @@ avg_peaks <- function(df){
     mutate(force.norm.100.avg = rescale_to_range(force.norm.100, from = 0, to = 1)) %>%
     select(-force.norm.100)
 
-  print("Done!")
+  # print("Done!")
   return(df.peaks.100.avg)
 }

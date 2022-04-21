@@ -53,10 +53,10 @@ than exactly 2 points are defined, the process is terminated.
 
 \examples{
 # Using the forceR::df.all.200.tax dataset:
-\dontrun{
+\donttest{
 # This function needs user input.
-peaks.df <- correct_peak(df.peaks = peaks.df,
-                        df.data = df.all.200.tax,
+peaks.df <- correct_peak(df.peaks = forceR::peaks.df,
+                        df.data = forceR::df.all.200.tax,
                         measurement = "m_01",
                         peak = 1,
                         additional.msecs = 5)

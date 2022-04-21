@@ -4,13 +4,13 @@
 \alias{load_single}
 \title{Load single measurement}
 \usage{
-load_single(file, columns = c(1:2))
+load_single(filename, columns = c(1:2))
 }
 \arguments{
-\item{file}{Character string containing the path to measurement file.}
-
 \item{columns}{A vector of column numbers. The first entry will be used as the x-axis values, the second entry as y-axis values.
 All other columns will be ignored. Default: \code{c(1,2)}.}
+
+\item{file}{Character string containing the path to measurement file.}
 }
 \value{
 A tibble with two columns named "t" and "y".
@@ -28,19 +28,4 @@ Loads a single measurement.
 
 
 All columns except the first two are removed.
-}
-\examples{
-\dontrun{
-# Using package example files from GitHub stored within
-# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
-
-# store name of folder that contains file
-input.folder <- "./example_data/corrected/"
-
-# store file name of file to load (first file of file.list)
-file.name <- list.files(input.folder, pattern = "csv", full.names = TRUE)[1]
-
-# load a single file
-df.1 <- load_single(file.name)
-}
 }

@@ -12,9 +12,11 @@ find_strongest_peaks(
   slope.length.end = 5,
   slope.thresh.start = 0.02,
   slope.thresh.end = 0.02,
+  plot.to.screen = FALSE,
   path.data = NULL,
-  path.plots = getwd(),
-  print.to.pdf = TRUE
+  path.plots = NULL,
+  plot.to.pdf = FALSE,
+  show.progress = FALSE
 )
 }
 \arguments{
@@ -39,13 +41,20 @@ current time point as the actual start of the current peak. Default: \code{0.04}
 \item{slope.thresh.end}{A numeric value defining the threshold at which to stop the sliding window and save the
 current time point as the actual end of the current peak. Default: \code{0.04}}
 
+\item{plot.to.screen}{A logical value indicating if results should be
+plotted in the current R plot device. Default: \code{FALSE}.}
+
 \item{path.data}{A string character defining where to save the results. If \code{NULL} (default),
-data is not stored in a file.}
+data is not stored in a file. Default: \code{NULL}.}
 
-\item{path.plots}{A string character defining where to save the plots.}
+\item{path.plots}{A string character defining where to save the plots. Default: \code{NULL}.}
 
-\item{print.to.pdf}{A logical value indicating if the results of the initial peak finding should be saved as PDFs.
+\item{plot.to.pdf}{A logical value indicating if the results of the initial
+peak finding should be saved as PDFs. Default: \code{FALSE}.
 Default: \code{TRUE}}
+
+\item{show.progress}{A logical value indicating if progress should be
+printed to the console. Default: \code{FALSE}.}
 }
 \value{
 Creates a tibble in the following format and saves it as a CSV-file:
@@ -57,7 +66,7 @@ The column \strong{\code{starts}} contains as many peak starts as \code{no.of.pe
 
 The column \strong{\code{ends}} contains as many peak ends as \code{no.of.peaks}, separated by '\verb{;}':\cr (\verb{end.1; ...; end.no.of.peaks}).
 
-In addition, if \code{print.to.pdf == TURE}, a graph indicating the \code{initial.threshold} as a green line, the peak starts as blue points, and the peak ends
+In addition, if \code{plot.to.pdf == TURE}, a graph indicating the \code{initial.threshold} as a green line, the peak starts as blue points, and the peak ends
 as orange points is saved as one PDF per measurement at \code{path.plots}.
 }
 \description{
@@ -80,15 +89,14 @@ df.all.200.tax_filtered <- df.all.200.tax \%>\%
   filter(species == "species_A")
 
 # find strongest peaks
-peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
-                                 no.of.peaks = 5,
-                                 print.to.pdf = FALSE)
+peaks.df <- find_strongest_peaks(df = forceR::df.all.200.tax_filtered,
+                                 no.of.peaks = 5)
 
 # plot results
-\dontrun{
+\donttest{
 plot_peaks(df.peaks = peaks.df,
            df.data = df.all,
            additional.msecs = 20,
-           print.to.pdf = TRUE)
+           plot.to.pdf = TRUE)
 }
 }

@@ -4,17 +4,20 @@
 \alias{convert_measurement}
 \title{Convert LJStream *.dat file to standard time series}
 \usage{
-convert_measurement(file, decimal = ".")
+convert_measurement(file, write.files = TRUE)
 }
 \arguments{
 \item{file}{File path to raw measurement (*.dat file).}
 
-\item{decimal}{A character string of length 1 defining the decimal separator. Default \code{"."}.}
+\item{write.files}{A logical value indicating if results should be
+written as file. Default: \code{TRUE}.}
 }
 \value{
-Saves data file in CSV-format in new subfolder "./converted". If this folder does not exist, it will be created. \cr
+Returns and, if \code{write.files == TRUE}, saves converted data in
+CSV-format in new subfolder "./converted". If this folder does not exist,
+it will be created. \cr
 \cr
-The output file has the following format:\tabular{ccc}{
+The output tibble has the following format:\tabular{ccc}{
    \strong{\code{t}} \tab  \tab \strong{\code{y}} \cr
    \code{t.1} \tab  \tab \code{y.1} \cr
    \code{...} \tab  \tab \code{...} \cr
@@ -25,8 +28,10 @@ The output file has the following format:\tabular{ccc}{
 Converts LJStream *.dat file to standard time series.
 }
 \examples{
-\dontrun{
-convert_measurement (file = "LJStream_file_0.dat",
-  decimal = ".")
-}
+# get file path of forceR example file
+filename <- forceR_example(type = "LJStream")
+file.converted <- convert_measurement (file = filename,
+                       write.files = FALSE)
+file.converted
+
 }

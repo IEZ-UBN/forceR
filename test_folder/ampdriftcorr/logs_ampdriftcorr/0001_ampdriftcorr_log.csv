@@ -1,0 +1,2 @@
+correction.factor,tau,t,script.version
+exp(-(t/tau)),9400,1,0.0.4
