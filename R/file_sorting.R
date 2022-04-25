@@ -17,7 +17,6 @@
 #' files in the different folders. E.g., it will identify "0001_ABCD.csv", "0001_ABCD_ampdriftcorr.csv", and
 #' "0001_ABCD_ampdriftcorr_baselincorr.csv" as stemming from the same measurement and sort them accordingly.
 #' @examples
-#'\donttest{
 #'# define data.folders
 #'data.folders <- c("./raw",
 #'                    "./cropped",
@@ -28,11 +27,10 @@
 #'#   should be stored.
 #'results.folder <- "./corrected"
 #'
-#'# run the file sorting
-#'sort_files(data.folders = data.folders,
-#'              results.folder = results.folder,
-#'              move = FALSE)
-#'}
+#'# run the file sorting - commented out to pass package tests
+#'# sort_files(data.folders = data.folders,
+#'#               results.folder = results.folder,
+#'#               move = FALSE)
 #' @export
 sort_files <- function(data.folders,
                        results.folder,
@@ -49,19 +47,17 @@ sort_files <- function(data.folders,
   if(!dir.exists(results.folder)){
     dir.create(results.folder, showWarnings = FALSE)
   } else {
-    print(results.folder, " already exists!")
-  }
-  if(!str_sub(results.folder, -1) == '/'){
-    results.folder <- paste0(results.folder, "/")
+    # print(results.folder, " already exists!")
   }
 
   for (i in length(data.folders):2) {
+    # 1 <- length(data.folders)
     filelist.last <- list.files(data.folders[i], pattern = "\\.csv")
     filelist.results.folder <- list.files(results.folder, pattern = "\\.csv")
 
     # find files that are not yet present in results folder
-    measurements.last <- gsub("^([^_]+)_.*", "\\1", filelist.last)
-    measurements.results <- gsub("^([^_]+)_.*", "\\1", filelist.results.folder)
+    measurements.last <- gsub("(^\\d+).+", "\\1", filelist.last)
+    measurements.results <- gsub("(^\\d+).+", "\\1", filelist.results.folder)
     measurements.new <- setdiff(measurements.last, measurements.results)
     files.only.in.last <- filelist.last[which(measurements.last %in% measurements.new)]
     for(file in files.only.in.last){

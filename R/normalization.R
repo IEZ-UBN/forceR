@@ -10,10 +10,8 @@
 #' @param plot.to.screen A logical value indicating if results should be
 #' plotted in the current R plot device. Default: `FALSE`.
 #'
-#' @param output.folder A string character defining where to save the results if `write.data == TRUE`..
-#'
-#' @param write.data A logical value indicating if drift-corrected file should
-#' be saved. If yes, it will be saved in `output.folder`. Default: `TRUE`.
+#' @param path.data A string character defining where to save the results.
+#' If `NULL`, data will not be saved to disk. Default: `NULL`.
 #'
 #' @param show.progress A logical value indicating if progress should be
 #' printed to the console. Default: `FALSE`.
@@ -49,11 +47,10 @@
 #'
 #' # rescale bites
 #' peaks.df.norm <- rescale_peaks(df.peaks = forceR::peaks.df,
-#'                                  df.data = forceR::df.all.200.tax,
-#'                                  plot.to.screen = FALSE,
-#'                                  write.data = FALSE,
-#'                                  output.folder,
-#'                                  show.progress = FALSE)
+#'                                df.data = forceR::df.all.200.tax,
+#'                                plot.to.screen = FALSE,
+#'                                path.data = NULL,
+#'                                show.progress = FALSE)
 #'
 #'
 #' # maximum values of time and force both range from 0 - 1:
@@ -64,8 +61,7 @@
 rescale_peaks <- function(df.peaks,
                           df.data,
                           plot.to.screen = FALSE,
-                          write.data = TRUE,
-                          output.folder,
+                          path.data = NULL,
                           show.progress = FALSE){
 
   if(sum(colnames(df.peaks) %in% c("species","measurements","starts","ends")) != 4){
@@ -76,6 +72,9 @@ rescale_peaks <- function(df.peaks,
     stop ("column names of 'df.data' must contain 't','force','measurement'.")
   }
 
+  if(!is.null(path.data)){
+    if(!is.character(path.data)) stop ("'path.data' must be a character string.")
+  }
   # dplyr nulls
   species <- measurement <- peak <- specimen <- start <- end <- t.norm <- force.norm <- NULL
 
@@ -122,9 +121,10 @@ rescale_peaks <- function(df.peaks,
                                   by="measurement") %>%
     select(species, specimen, measurement, peak, start, end)
 
-  if(write.data == TRUE){
-    # print(paste0("Saving df.peaks.1.per.row at ", output.folder, today(), "_peak_starts_ends_1_per_row.csv..."))
-    write_csv(df.peaks.1.per.row, file.path(output.folder, paste0("peak_starts_ends_1_per_row_", today(), ".csv")))
+  if(!is.null(path.data)){
+    # if(write.data == TRUE){
+    # print(paste0("Saving df.peaks.1.per.row at ", path.data, today(), "_peak_starts_ends_1_per_row.csv..."))
+    write_csv(df.peaks.1.per.row, file.path(path.data, paste0("peak_starts_ends_1_per_row_", today(), ".csv")))
   }
 
   # print(paste0("Calculating rescaled curves for all ", length(unique(paste0(df.peaks.1.per.row$measurement, df.peaks.1.per.row$peak))), " peaks (this may take a while)..."))
@@ -169,9 +169,10 @@ rescale_peaks <- function(df.peaks,
                               by = "measurement") %>%
     select(-c(t, force))
 
-  if(write.data == TRUE){
-    # print(paste0("Saving curves_df_norm at ", output.folder, "/", today(), "_curves_df_norm.csv..."))
-    write_csv(curves_df_norm, file.path(output.folder, paste0("curves_df_norm_", today(), ".csv")))
+  if(!is.null(path.data)){
+    # if(write.data == TRUE){
+    # print(paste0("Saving curves_df_norm at ", path.data, "/", today(), "_curves_df_norm.csv..."))
+    write_csv(curves_df_norm, file.path(path.data, paste0("curves_df_norm_", today(), ".csv")))
   }
 
   return(curves_df_norm)
@@ -191,9 +192,11 @@ rescale_peaks <- function(df.peaks,
 #' @param plot.to.screen A logical value indicating if results should be
 #' plotted in the current R plot device. Default: `FALSE`.
 #'
-#' @param write.pdfs A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: `TRUE`
+#' @param path.data A string character defining where to save the results.
+#' If `NULL`, data will not be saved to disk. Default: `NULL`.
 #'
-#' @param path.plots A string character defining where to save the plots if `write.pdfs == TRUE`.
+#' @param path.plots A string character defining where to save result plots.
+#' If `NULL`, plots will not be saved to disk. Default: `NULL`.
 #'
 #' @param show.progress A logical value indicating if progress should be
 #' printed to the console. Default: `FALSE`.
@@ -214,30 +217,41 @@ rescale_peaks <- function(df.peaks,
 #' @examples
 #' # Using the forceR::df.all.200.tax dataset:
 #' peaks.df.norm.100 <- red_peaks_100(df = forceR::peaks.df.norm,
-#'                                    plot.to.screen = FALSE,
-#'                                    write.pdfs = FALSE)
+#'                                    path.data = NULL,
+#'                                    path.plots = NULL,
+#'                                    show.progress = FALSE)
 #'
 #'peaks.df.norm.100
 #'
 #' @export
 red_peaks_100 <- function(df,
                           plot.to.screen = FALSE,
-                          write.pdfs = FALSE,
-                          path.plots,
+                          path.data = NULL,
+                          path.plots = NULL,
                           show.progress = FALSE){
 
   if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
     stop ("column names of 'df' must contain 'measurement','force.norm'.")
   }
-  if(!is.logical(write.pdfs)) stop ("'write.pdfs' must be logical.")
+
+  if(!is.null(path.data)){
+    if(!is.character(path.data)) stop ("'path.data' must be a character string.")
+  }
+
+  if(!is.null(path.plots)){
+    if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
+  }
 
   peak <- force.norm <- measurement <- specimen <- NULL
 
   # reduce all peaks to 100 observations and plot
-  if(write.pdfs == TRUE){
+  # if(write.pdfs == TRUE){
+  if(!is.null(path.plots)){
     if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
     # print(paste0("Saving plots at ", path.plots, "/", today(),"_rescaled_peaks_100.pdf..."))
-    pdf(file.path(path.plots, paste0("rescaled_peaks_100_", today(), ".pdf")), onefile = TRUE, paper = "a4", height = 14)
+    pdf(file.path(path.plots, paste0("rescaled_peaks_100_", today(), ".pdf")),
+        onefile = TRUE, paper = "a4", height = 14)
+    on.exit(invisible(dev.off()), add = TRUE)
   }
   par(mfrow=c(3,2))
   species <- unique(df$species)
@@ -290,9 +304,11 @@ red_peaks_100 <- function(df,
     }
   }
   par(mfrow=c(1,1))
-  if(write.pdfs == TRUE){
+  if(!is.null(path.plots)){
     invisible(dev.off())
   }
+
+
   # print("Done!")
   return(df.peaks.100)
 }
@@ -305,6 +321,9 @@ red_peaks_100 <- function(df,
 #'
 #' @param df The resulting tibble of the function `red_peaks_100()`. See `?red_peaks_100` for more details.
 #'
+#' @param path.data A string character defining where to save the results.
+#' If `NULL`, data will not be saved to disk. Default: `NULL`.
+#'
 #' @return This function returns a tibble made of three columns: `species` containing the species names, `index` ranging from 1 to 100 for each species,
 #'   and `force.norm.100` containing the averaged and rescaled curve of each species.
 #' @export
@@ -312,7 +331,8 @@ red_peaks_100 <- function(df,
 #' # Using the forceR::df.all.200.tax dataset:
 #'
 #' # calculate mean curves per species
-#' peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100)
+#' peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100,
+#'                                path.data = NULL)
 #' \donttest{
 #' # plot averaged normalized curves per species
 #' require(ggplot2)
@@ -323,10 +343,15 @@ red_peaks_100 <- function(df,
 #'   geom_line()
 #' }
 
-avg_peaks <- function(df){
+avg_peaks <- function(df,
+                      path.data = NULL){
 
   if(sum(colnames(df) %in% c("species", "index", "force.norm.100")) != 3){
     stop ("column names of 'df' must contain 'species', 'index', 'force.norm.100.")
+  }
+
+  if(!is.null(path.data)){
+    if(!is.character(path.data)) stop ("'path.data' must be a character string.")
   }
 
   species <- index <- force.norm.100 <- NULL
@@ -337,6 +362,11 @@ avg_peaks <- function(df){
     group_by(species) %>%
     mutate(force.norm.100.avg = rescale_to_range(force.norm.100, from = 0, to = 1)) %>%
     select(-force.norm.100)
+
+  if(!is.null(path.data)){
+    # if(write.data == TRUE){
+    write_csv(df.peaks.100.avg, file.path(path.data, paste0("peaks_100_avg_", today(), ".csv")))
+  }
 
   # print("Done!")
   return(df.peaks.100.avg)

@@ -15,7 +15,6 @@ find_strongest_peaks(
   plot.to.screen = FALSE,
   path.data = NULL,
   path.plots = NULL,
-  plot.to.pdf = FALSE,
   show.progress = FALSE
 )
 }
@@ -49,10 +48,6 @@ data is not stored in a file. Default: \code{NULL}.}
 
 \item{path.plots}{A string character defining where to save the plots. Default: \code{NULL}.}
 
-\item{plot.to.pdf}{A logical value indicating if the results of the initial
-peak finding should be saved as PDFs. Default: \code{FALSE}.
-Default: \code{TRUE}}
-
 \item{show.progress}{A logical value indicating if progress should be
 printed to the console. Default: \code{FALSE}.}
 }
@@ -85,18 +80,18 @@ require(dplyr)
 # Using the forceR::df.all.200.tax dataset:
 
 # reduce dataset
-df.all.200.tax_filtered <- df.all.200.tax \%>\%
+df.all.200.tax_filtered <- forceR::df.all.200.tax \%>\%
   filter(species == "species_A")
 
 # find strongest peaks
-peaks.df <- find_strongest_peaks(df = forceR::df.all.200.tax_filtered,
+peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
                                  no.of.peaks = 5)
 
-# plot results
-\donttest{
-plot_peaks(df.peaks = peaks.df,
-           df.data = df.all,
-           additional.msecs = 20,
-           plot.to.pdf = TRUE)
-}
+# use plot results:
+
+# plot_peaks(df.peaks = peaks.df,
+#            df.data = df.all,
+#            additional.msecs = 20,
+#            plot.to.screen = TRUE)
+
 }

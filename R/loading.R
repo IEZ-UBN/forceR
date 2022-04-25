@@ -12,18 +12,12 @@
 #'
 #' All columns except the first two are removed.
 #'
-#' @param file Character string containing the path to measurement file.
+#' @param filename Character string containing the path to measurement file.
 #' @param columns A vector of column numbers. The first entry will be used as the x-axis values, the second entry as y-axis values.
 #' All other columns will be ignored. Default: `c(1,2)`.
 #' @return A tibble with two columns named "t" and "y".
 #' @examples
-#'# store name of folder that contains file
-#'input.folder <- "./example_data/corrected/"
-#'
-#'# store file name of file to load (first file of file.list)
-#'file.name <- list.files(input.folder, pattern = "csv", full.names = TRUE)[1]
-#'
-#'# load a single file
+#'# Store filename
 #'filename <- forceR_example(type="raw")
 #'
 #'df.1 <- load_single(filename,

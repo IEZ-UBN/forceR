@@ -32,10 +32,6 @@
 #'
 #' @param path.plots A string character defining where to save the plots. Default: `NULL`.
 #'
-#' @param plot.to.pdf A logical value indicating if the results of the initial
-#' peak finding should be saved as PDFs. Default: `FALSE`.
-#' Default: `TRUE`
-#'
 #' @param show.progress A logical value indicating if progress should be
 #' printed to the console. Default: `FALSE`.
 #'
@@ -65,20 +61,20 @@
 #' # Using the forceR::df.all.200.tax dataset:
 #'
 #' # reduce dataset
-#' df.all.200.tax_filtered <- df.all.200.tax %>%
+#' df.all.200.tax_filtered <- forceR::df.all.200.tax %>%
 #'   filter(species == "species_A")
 #'
 #' # find strongest peaks
-#' peaks.df <- find_strongest_peaks(df = forceR::df.all.200.tax_filtered,
+#' peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
 #'                                  no.of.peaks = 5)
 #'
-#' # plot results
-#' \donttest{
-#' plot_peaks(df.peaks = peaks.df,
-#'            df.data = df.all,
-#'            additional.msecs = 20,
-#'            plot.to.pdf = TRUE)
-#' }
+#' # use plot results:
+#'
+#' # plot_peaks(df.peaks = peaks.df,
+#' #            df.data = df.all,
+#' #            additional.msecs = 20,
+#' #            plot.to.screen = TRUE)
+#'
 #' @export
 find_strongest_peaks <- function(df,
                                  no.of.peaks = 5,
@@ -90,7 +86,6 @@ find_strongest_peaks <- function(df,
                                  plot.to.screen = FALSE,
                                  path.data = NULL,
                                  path.plots = NULL,
-                                 plot.to.pdf = FALSE,
                                  show.progress = FALSE){
 
   # # testing
@@ -104,14 +99,12 @@ find_strongest_peaks <- function(df,
   #                       plot.to.screen = TRUE,
   #                       path.data = "./test_folder",
   #                       path.plots = "./test_folder",
-  #                       plot.to.pdf = TRUE,
   #                       show.progress = TRUE)
 
   if(sum(colnames(df) %in% c("t", "force", "measurement")) != 3){
     stop ("column names of 'df.peaks' must contain 't', 'force', 'measurement'")
   }
   if(!is.null(path.plots) & !is.character(path.plots)) stop ("'path.plots' must be a character string.")
-  if(!is.logical(plot.to.pdf)) stop ("'plot.to.pdf' must be logical.")
 
   if(!is.null(path.data)){
     if(!dir.exists(path.data)) stop ("Folder to store data does not exist: ", path.data, ".")
@@ -179,12 +172,14 @@ find_strongest_peaks <- function(df,
       print_progress(i, length(measurements.all))
     }
 
-    if(plot.to.pdf == TRUE){
+    # if(plot.to.pdf == TRUE){
+    if(!is.null(path.plots)){
       dev.print(pdf,
                 file = file.path(path.plots,
                                  paste0("initial_starts_and_ends_", curr.specimen,
                                         "_", curr.measurement, "_", today(), ".pdf")),
                 paper = "a4r", width = 29, height = 21) # , height = 14
+      on.exit(invisible(dev.off()), add = TRUE)
     }
 
     # print(paste0("specimen: ", curr.specimen, "; measurement: ", curr.measurement, ". Found ", length(starts), " peak starts and ", length(starts), " peak ends."))

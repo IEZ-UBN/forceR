@@ -8,8 +8,7 @@ rescale_peaks(
   df.peaks,
   df.data,
   plot.to.screen = FALSE,
-  write.data = TRUE,
-  output.folder,
+  path.data = NULL,
   show.progress = FALSE
 )
 }
@@ -22,10 +21,8 @@ rescale_peaks(
 \item{plot.to.screen}{A logical value indicating if results should be
 plotted in the current R plot device. Default: \code{FALSE}.}
 
-\item{write.data}{A logical value indicating if drift-corrected file should
-be saved. If yes, it will be saved in \code{output.folder}. Default: \code{TRUE}.}
-
-\item{output.folder}{A string character defining where to save the results if \code{write.data == TRUE}..}
+\item{path.data}{A string character defining where to save the results.
+If \code{NULL}, data will not be saved to disk. Default: \code{NULL}.}
 
 \item{show.progress}{A logical value indicating if progress should be
 printed to the console. Default: \code{FALSE}.}
@@ -64,11 +61,10 @@ Check \code{forceR::df.all.200.tax} to see an example tibble.
 
 # rescale bites
 peaks.df.norm <- rescale_peaks(df.peaks = forceR::peaks.df,
-                                 df.data = forceR::df.all.200.tax,
-                                 plot.to.screen = FALSE,
-                                 write.data = FALSE,
-                                 output.folder,
-                                 show.progress = FALSE)
+                               df.data = forceR::df.all.200.tax,
+                               plot.to.screen = FALSE,
+                               path.data = NULL,
+                               show.progress = FALSE)
 
 
 # maximum values of time and force both range from 0 - 1:

@@ -7,10 +7,10 @@
 load_single(filename, columns = c(1:2))
 }
 \arguments{
+\item{filename}{Character string containing the path to measurement file.}
+
 \item{columns}{A vector of column numbers. The first entry will be used as the x-axis values, the second entry as y-axis values.
 All other columns will be ignored. Default: \code{c(1,2)}.}
-
-\item{file}{Character string containing the path to measurement file.}
 }
 \value{
 A tibble with two columns named "t" and "y".

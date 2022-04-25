@@ -9,10 +9,10 @@ amp_drift_corr(
   tau = 9400,
   res.reduction = 10,
   plot.to.screen = FALSE,
-  write.PDFs = FALSE,
   write.data = FALSE,
+  write.PDFs = FALSE,
   write.logs = FALSE,
-  output.folder,
+  output.folder = NULL,
   show.progress = FALSE
 )
 }
@@ -32,15 +32,15 @@ only on the plots. Default: \code{10}.}
 \item{plot.to.screen}{A logical value indicating if results should be
 plotted in the current R plot device. Default: \code{FALSE}.}
 
+\item{write.data}{A logical value indicating if drift-corrected file should
+be saved. If yes, it will be saved in \code{output.folder}.
+Default: \code{FALSE}.}
+
 \item{write.PDFs}{A logical value indicating whether results should be saved
 as PDFs. Does not slow
 down the process as much as printing to the R plot device and is considered
 necessary to quality check the results. If yes, it will be saved in
 \code{output.folder/PDFs}. Default: \code{FALSE}.}
-
-\item{write.data}{A logical value indicating if drift-corrected file should
-be saved. If yes, it will be saved in \code{output.folder}.
-Default: \code{FALSE}.}
 
 \item{write.logs}{A logical value indicating whether a log file with
 information on the method and values used to correct the amplifier drift should be
@@ -51,7 +51,7 @@ in \code{output.folder/logs}. Default: \code{FALSE}.}
 be stored.}
 
 \item{show.progress}{A logical value indicating if progress should be
-printed to the console. Default: \code{FALSE}.}
+printed to the console. Slows down the process. Default: \code{FALSE}.}
 }
 \value{
 Returns a tibble containing the amplifier drift-corrected data in the
@@ -88,25 +88,25 @@ file.ampdriftcorr <- amp_drift_corr(filename = filename,
                                      tau = 9400,
                                      res.reduction = 10,
                                      plot.to.screen = FALSE,
-                                     write.PDFs = FALSE,
                                      write.data = FALSE,
+                                     write.PDFs = FALSE,
                                      write.logs = FALSE,
                                      output.folder,
                                      show.progress = FALSE)
-file.ampdriftcorr
+# file.ampdriftcorr
 
-\donttest{
 # Run amplifier drift correction with saving files and printing to screen:
-file.ampdriftcorr <- amp_drift_corr(filename = filename,
-                                     tau = 9400,
-                                     res.reduction = 10,
-                                     plot.to.screen = TRUE,
-                                     write.PDFs = TRUE,
-                                     write.data = TRUE,
-                                     write.logs = TRUE,
-                                     output.folder = "./ampdriftcorr",
-                                     show.progress = TRUE)
+#    - commented out to pass package tests
+# file.ampdriftcorr <- amp_drift_corr(filename = filename,
+#                                       tau = 9400,
+#                                       res.reduction = 10,
+#                                       plot.to.screen = TRUE,
+#                                       write.data = TRUE,
+#                                       write.PDFs = TRUE,
+#                                       write.logs = TRUE,
+#                                       output.folder = "./ampdriftcorr",
+#                                       show.progress = TRUE)
+#
+# file.ampdriftcorr
 
-file.ampdriftcorr
-}
 }

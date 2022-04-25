@@ -56,8 +56,8 @@ require(devtools)
 devtools::install_github("https://github.com/Peter-T-Ruehr/forceR")
 ```
 
-## Detailed example workflow
-### Load necessary packages, including `forceR`
+## Detailed example workflow: Data loading and preparation
+### Load packages to work with this vignette, including `forceR`
 ```{r warning=FALSE, message=FALSE}
 library(magrittr)
 library(dplyr)
@@ -70,12 +70,12 @@ library(forceR)
 ```
 
 ### Download raw measurement files
-From hereon, everything will happen within a folder stored within the variable `data.folder`. Please download and unzip the content of the [example_data.zip file](https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip) onto your hard drive and store the folder location in the variable `data.folder`. This folder contains every file that is needed and has been produced during the writing of this vignette, so you can always restore the files from `GitGub` in case you have accidentally overwritten anything you wanted to keep.
+From hereon, we will use data stored in a local folder. Please download and unzip the content of the [example_data.zip file from Zenodo](https://doi.org/10.5281/zenodo.6477245) onto your hard drive, unzip the files and store the folder location in the variable `data.folder`. This folder now contains every file that is needed and has been produced during the creation of this vignette, so you can always restore the files from `Zenodo` in case you have accidentally overwritten anything you wanted to keep.
 
 If you decide to use your own files, consider that `forceR` generally expects file names to start with leading digits specifying the measurement number (E.g. `0001_G_maculatus.csv`). The number (in this case `0001`) is used to keep data files, log files, and PDF files of the same measurement associated 
-with each other. If not already the case, we strongly recommend renaming the raw data files before continuing with this `forceR` vignette.
+with each other. If not already the case, we strongly recommend renaming the raw data files accordingly before continuing with this `forceR` vignette.
 
-First, we set the folder containing the example data as the `data.folder` (make sure this fits your local path):
+First, we set the folder containing the example data as the `data.folder` (make sure this fits your local path, e.g. `"./example_data"`):
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 data.folder <- "./example_data"
@@ -85,7 +85,7 @@ data.folder <- "./example_data"
 data.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data"
 ```
 
-In case you want to use your own measurements, *and if they were recorded by the LJStream software (LabJack Corporation, Lakewood, Colorado, US; tested for v1.19) as suggested in the forceX instructions*, you can use the convert_measurement() function of `forceR` to convert your files and save them in the `data.folder`.
+In case you want to use your own measurements, *and if they were recorded by the LJStream software (LabJack Corporation, Lakewood, Colorado, US; tested for v1.19) as suggested in the forceX instructions*, you can use the `convert_measurement()` function of `forceR` to convert your files and save them in the `data.folder`. See `?convert_measurement()` for details.
 
 ### Plot raw measurement
 The measurement file should have the time steps (preferably in m.secs, since all code of this package expects this) in the first column, and the measurements in the second column. Column names do not matter, and everything but the first two columns will be ignored.
@@ -99,55 +99,84 @@ plot_measurement(file,
 ![](./imgs/plot_measurement.png){width=6in}
 
 ### Crop raw measurement
+The function `crop_measurement()` can be used to crop a measurement. Since we want to work with the cropped file later , we define `path.data` when calling the function to store the result as a new file. Before running the function, create the folder on your hard drive, e.g. at `"./example_data/cropped"`.
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=F}
+cropped.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped"
+```
+
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
-crop_measurement(file)
+cropped.folder <- "./example_data/cropped"
+```
+
+```{r eval=FALSE, warning=FALSE, message=FALSE}
+file.cropped <- crop_measurement(file,
+                                 path.data = cropped.folder)
 ```
 Select two points at the beginning and end of the part of the measurement we want to keep. If more than two points are selected, only the last two points will be considered. This allows for corrections of erroneous clicks. The position of the points on the y-axis is irrelevant. Make sure that the start and end points are placed on the graph between peaks, i.e. on the baseline. The y-values of the graph at these positions will be used as reference points in the following `amp_drift_corr()` function.
 
 ![](./imgs/cropping.png){width=6in}
 
-The resulting file will be saved in the subfolder `./cropped` with the suffix `"_cropped"`. We can plot it again:
+The resulting file will be saved with the suffix `"_cropped"`. We can plot it again:
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
-cropped.folder <- file.path(data.folder, "cropped")
+cropped.folder <- "./example_data/cropped"
 
 file <- file.path(cropped.folder, "0982_cropped.csv")
 plot_measurement(file)
 ```
+
+
 ![](./imgs/cropped.png){width=6in}
 
 ### Amplifier drift correction
-To remove the systemic, asymptotical drift characteristic for charge amplifiers with resistor–capacitor (RC) circuits, we can use the `amp_drift_corr()` function. This function requires a few parameters. `?amp_drift_corr` brings up the following explanation:
+To remove the systemic, asymptotical drift characteristic for charge amplifiers with resistor–capacitor (RC) circuits, we can use the `amp_drift_corr()` function. This function requires a few parameters. `?amp_drift_corr` brings up the full explanation of all values.
 
-| parameter | function |
-| -- | ----------- |
-| folder | Path to folder containing measurements |
-| tau | Numeric time constant of charge amplifier in the same time unit as the measurement data. Default: `9400` |
-| print.to.screen | A logical value indicating if results should be plotted in the current R plot. device. Slows down process. Default: `FALSE`. |
-| print.to.pdf | A logical value indicating  if results should be saved as PDFs. Does not slow down the process as much as printing to the R plot device and is considered necessary to quality check the results. Default: `TRUE`. |
-| res.reduction | A numeric value to reduce the number of time steps by during plotting. Speeds up the plotting process and reduces PDF size. Has no effect on the results, only on the plots. Default: `10`. |
-| start.file.number | A numeric value indicating at which file the loop should start. Helpful in case the loop stopped during a previous run. Default: `1`. |
+Basically, we only have to decide how we want to plot the data, define the correct folder with our measurement data, provide the time constant (tau, $\tau$) of our charge amplifier, and define a folder where we want to store the results. This function, in contrast to the previous functions, takes a folder as input because when the same charge amplifier was used for all measurements, the same settings can be used for all measurement files.
 
-Basically, we only have to decide how we want to plot the data, define the correct folder with our measurement data and provide the time constant (tau, $\tau$) of our charge amplifier. This function, in contrast to the previous functions, takes a folder as input because when the same charge amplifier was used for all measurements, the same settings can be used for all measurement files.
-
-```{r eval=FALSE, warning=FALSE, message=FALSE}
-amp_drift_corr(folder = cropped.folder)
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=F}
+cropped.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped"
+ampdriftcorr.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped/ampdriftcorr"
 ```
 
-This creates some new folders:
+```{r eval=FALSE, warning=FALSE, message=FALSE}
+# create file list with all cropped files that need amplifier drift corrections.
+#   Her we use the cropped.folder with the cropped measurements.
+file.list <- list.files(cropped.folder, 
+                        pattern = "csv$",
+                        full.names = TRUE)
 
-* `"./ampdriftcorr/"` to store the corrected CSV-files.
-* `"./ampdriftcorr/logs/"` to store log files containing info on the `tau` used and the script version.
-* `"./ampdriftcorr/pdfs/"` to store the PDFs of the time series before and after the correction (if `print.to.pdf == TRUE`).
+# define folder where to save the amplifier drift corrected file.
+#   If this folder exists, it will be created.
+ampdriftcorr.folder <- "./cropped/ampdriftcorr"
 
-The resulting PDF figure of one corrected measurement will look like this:
+for(filename in file.list){
+  print(filename)
+  amp_drift_corr(filename = filename,
+                 tau = 9400,
+                 res.reduction = 10,
+                 plot.to.screen = FALSE,
+                 write.data = TRUE,
+                 write.PDFs = TRUE,
+                 write.logs = TRUE,
+                 output.folder = ampdriftcorr.folder,
+                 show.progress = FALSE)
+  print("***********")
+}
+```
+
+Because we set the arguments `write.data`, `write.PDFs` and `write.logs` to `TRUE`, this creates the `output.folder` (`"./ampdriftcorr"`) and two new folders inside the `output.folder`:
+
+* `"./ampdriftcorr/logs/"` where log files containing info on the `amp_drift_corr` used are stored
+* `"./ampdriftcorr/pdfs/"` where the PDFs of the time series before and after the corrections are stored.
+
+The resulting graph of one corrected measurement may look like this:
 
 ![](./imgs/ampdriftcorr_0982.png){width=6in}
 
-In gray, we see the raw measurements, and in green the corrected data. Sometimes, there is an additional linear drift in the data, as indicated by the bright green graph that follows the upward linear slope of the orange line in the next figure. This occurs in case the first value of the measurement is not exactly `0` and is also corrected by the function. The final result is plotted as the dark green graph and saved in a new CSV file in the `"./ampdriftcorr/"` folder.
+In gray, we see the raw measurements, and in green the corrected data. A linear drift in the corrected data may occur in case the first value of the measurement is not exactly `0`. This drift is also corrected for by the function. The final result for each file is, since  `write.data` was set to `TRUE`, also saved in a new CSV file in the `"./ampdriftcorr/"` folder.
 
 ![](./imgs/ampdriftcorr_0980.png){width=6in}
-
 
 ### Automatic or manual baseline correction of time series
 If the baseline (zero-line) of a measurement is unstable (e.g. due to temperature fluctuations, wind, ...), it needs to be continually adjusted throughout the measurement. Ideally, this is done automatically 
@@ -155,63 +184,64 @@ by the function `baseline.corr()`. This automatic adjustment of the baseline inv
 
 This approach works well for time series with relatively short peaks. For longer peaks, the `window.size.mins` should be increased. However, the greater `window.size.mins` gets, the smaller becomes the baseline-correcting effect of the function.
 
-For the file `"./example_data/cropped/ampdriftcorr/1068_cropped_ampdriftcorr.csv"`, we choose a `window.size.mins` of 2000:
+For the file `"./example_data/cropped/ampdriftcorr/1068_ampdriftcorr.csv"`, we choose a `window.size.mins` of 2000:
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=F}
+cropped.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped"
+ampdriftcorr.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped/ampdriftcorr"
+baselinecorr.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped/ampdriftcorr/baselinecorr"
+```
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
-ampdriftcorr.folder <- file.path(data.folder, "cropped/ampdriftcorr")
 
-file = file.path(ampdriftcorr.folder, "1068_cropped_ampdriftcorr.csv")
+filename = file.path(ampdriftcorr.folder, "1068_ampdriftcorr.csv")
 
-plot_measurement(file)
+plot_measurement(filename)
 
-baseline_corr(file, 
-              corr.type = "auto",  
-              print.to.screen = TRUE, 
-              print.to.pdf = TRUE, 
-              window.size.mins = 2000,
-              window.size.means = NULL,
-              quantile.size = 0.05,
-              y.scale = 0.5,
-              res.reduction = 10,
-              Hz = 100)
-```
-```
-[1] "1068_cropped_ampdriftcorr"
-[1] "You selected automatic drift correction:"
-[1] "sliding minima window size: 2000"
-[1] "sliding means of minima window size: 2000"
-[1] "calculating with 100 Hz."
-[1] "Finding 5th percentile sliding minima..."
-100%...[1] "Finding sliding means..."
+baselinecorr.folder <- "./cropped/ampdriftcorr/baselinecorr"
+
+file.baselinecorr <- baseline_corr(filename = filename, 
+                                   corr.type = "auto",  
+                                   window.size.mins = 2000,
+                                   window.size.means = NULL,
+                                   quantile.size = 0.05,
+                                   y.scale = 0.5,
+                                   res.reduction = 10,
+                                   Hz = 100,
+                                   plot.to.screen = TRUE,
+                                   write.data = TRUE,
+                                   write.PDFs = TRUE,
+                                   write.logs = TRUE,
+                                   output.folder = baselinecorr.folder,
+                                   show.progress = FALSE)
 ```
 
 Again, new folders, PDFs and log files are created. The resulting plot shows the original data in gray, the 'minima' of the sliding windows in blue, the sliding mean of the 'minima' in bright green and the corrected time series in dark green:
 
 ![](./imgs/baselinecorr_auto.png){width=6in}
 
-If the automatic approach does not yield acceptable results, an interactive manual approach to correct the baseline can be performed instead. We do the manual correction for the file `"./example_data/cropped/ampdriftcorr/1174_cropped_ampdriftcorr.csv"`, which contains measurements with long, plateau-like peaks where the automatic baseline correction would fail. 
+If the automatic approach does not yield acceptable results, an interactive manual approach to correct the baseline can be performed instead. We do the manual correction for the file `"./example_data/cropped/ampdriftcorr/1174_ampdriftcorr.csv"`, which contains measurements with long, plateau-like peaks where the automatic baseline correction would fail. 
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
-file = file.path(ampdriftcorr.folder, "1174_cropped_ampdriftcorr.csv")
+filename = file.path(ampdriftcorr.folder, "1174_ampdriftcorr.csv")
 
 plot_measurement(file)
 
-baseline_corr(file, 
-              corr.type = "manual",  
-              print.to.screen = TRUE, 
-              print.to.pdf = TRUE)
-```
-```
-[1] "1174_cropped_ampdriftcorr"
-[1] "You selected manual drift correction."
-[1] "Please select baseline points and click \"Finish\"."
-[1] "31 line points taken."
-[1] "Done!"
+file.baselinecorr <- baseline_corr(filename = filename, 
+                                   corr.type = "manual",
+                                   plot.to.screen = TRUE,
+                                   write.data = TRUE,
+                                   write.PDFs = TRUE,
+                                   write.logs = TRUE,
+                                   output.folder = baselinecorr.folder,
+                                   show.progress = FALSE)
 ```
 
 ![](./imgs/baselinecorr_man.png){width=6in}
 
-The green line represents a spline along the 31 manually defined points and is subtracted from the original data (gray). The corrected data is plotted in dark green again.
+The green line represents a spline along the manually defined points and is subtracted from the original data (gray). The corrected data is plotted in dark green again.
+
+We have used `baseline_corr()` on the files `1041_ampdriftcorr.csv`, `1068_ampdriftcorr.csv`, `1174_ampdriftcorr.csv`, `1440_ampdriftcorr.csv`.
 
 ### File sorting
 After all original files have been processed, we need to separate the resulting files that we want to keep from files that have been created along the way. The function `sort_files()` looks through a vector of folders (`data.folders`) to identify files with the same measurement name (i.e., the same character string in the file names before the first underscore (`_`) and keeps the version of the file that is found in the folder that is most closely to the end of the list of `data.folders`. Thus, it is important that the folders are parsed in the correct order. In our example, this order would look like this:
@@ -223,21 +253,29 @@ After all original files have been processed, we need to separate the resulting 
 
 If a file is present in `"./example_data/cropped/ampdriftcorr/baselinecorr"`, this will be copied (`move = FALSE`) or moved (`move = TRUE`) to a folder specified in `path.corrected`, e.g., `"./example_data/corrected/"`. Versions of the same measurement in the other folders will be ingored. This is iteratively repeated for the rest of the folders in reverse order of the `data.folders` vector.
 
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+data.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data"
+cropped.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped"
+ampdriftcorr.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped/ampdriftcorr"
+baselinecorr.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/cropped/ampdriftcorr/baselinecorr"
+data.folders <- c(data.folder,
+                  cropped.folder,
+                  ampdriftcorr.folder,
+                  baselinecorr.folder)
+results.folder <- "C:/Users/pruehr.EVOLUTION/Documents/forceR_bkp_2022-03-01/vignettes/example_data/corrected"
+```
+
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 data.folders <- c(data.folder,
                   file.path(data.folder, "/cropped"),
                   file.path(data.folder, "/cropped/ampdriftcorr"),
                   file.path(data.folder, "/cropped/ampdriftcorr/baselinecorr"))
+
 results.folder <- file.path(data.folder, "/corrected/")
+
 sort_files(data.folders = data.folders,
            results.folder = results.folder,
-           move = F)
-```
-```
-[1] "copying 1068_cropped_ampdriftcorr_baselinecorr.csv..."
-[1] "copying 1174_cropped_ampdriftcorr_baselinecorr.csv..."
-[1] "copying 0980_cropped_ampdriftcorr.csv..."
-[1] "copying 0982_cropped_ampdriftcorr.csv..."
+           move = FALSE)
 ```
 
 ### File loading
@@ -253,28 +291,29 @@ df.1
 #> # A tibble: 129,001 x 3
 #>        t       y filename                              
 #>    <dbl>   <dbl> <chr>                                 
-#>  1     0 0.00447 0979_cropped_ampdriftcorr_baselinecorr
-#>  2     1 0.00954 0979_cropped_ampdriftcorr_baselinecorr
-#>  3     2 0.0146  0979_cropped_ampdriftcorr_baselinecorr
-#>  4     3 0.0146  0979_cropped_ampdriftcorr_baselinecorr
-#>  5     4 0.00951 0979_cropped_ampdriftcorr_baselinecorr
-#>  6     5 0.00951 0979_cropped_ampdriftcorr_baselinecorr
-#>  7     6 0.00950 0979_cropped_ampdriftcorr_baselinecorr
-#>  8     7 0.00949 0979_cropped_ampdriftcorr_baselinecorr
-#>  9     8 0.00948 0979_cropped_ampdriftcorr_baselinecorr
-#> 10     9 0.00948 0979_cropped_ampdriftcorr_baselinecorr
+#>  1     0 0.00447 0979_ampdriftcorr
+#>  2     1 0.00954 0979_ampdriftcorr
+#>  3     2 0.0146  0979_ampdriftcorr
+#>  4     3 0.0146  0979_ampdriftcorr
+#>  5     4 0.00951 0979_ampdriftcorr
+#>  6     5 0.00951 0979_ampdriftcorr
+#>  7     6 0.00950 0979_ampdriftcorr
+#>  8     7 0.00949 0979_ampdriftcorr
+#>  9     8 0.00948 0979_ampdriftcorr
+#> 10     9 0.00948 0979_ampdriftcorr
 #> # ... with 128,991 more rows
 ```
 
 ```
 unique(df.1$filename)
-#> [1] "0979_cropped_ampdriftcorr_baselinecorr"
+#> [1] "0979_ampdriftcorr"
 ```
 
 Alternatively, We can rapidly load all files in the `results` folder by using `load_mult()`:
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 df.all <- load_mult(folder = results.folder,
-                    columns = c(1:2))
+                    columns = c(1:2),
+                    show.progress = TRUE)
 ```
 
 ```
@@ -282,34 +321,38 @@ df.all
 #> # A tibble: 615,724 x 3
 #>        t       y filename                              
 #>    <dbl>   <dbl> <chr>                                 
-#>  1     0 0.00447 0979_cropped_ampdriftcorr_baselinecorr
-#>  2     1 0.00954 0979_cropped_ampdriftcorr_baselinecorr
-#>  3     2 0.0146  0979_cropped_ampdriftcorr_baselinecorr
-#>  4     3 0.0146  0979_cropped_ampdriftcorr_baselinecorr
-#>  5     4 0.00951 0979_cropped_ampdriftcorr_baselinecorr
-#>  6     5 0.00951 0979_cropped_ampdriftcorr_baselinecorr
-#>  7     6 0.00950 0979_cropped_ampdriftcorr_baselinecorr
-#>  8     7 0.00949 0979_cropped_ampdriftcorr_baselinecorr
-#>  9     8 0.00948 0979_cropped_ampdriftcorr_baselinecorr
-#> 10     9 0.00948 0979_cropped_ampdriftcorr_baselinecorr
+#>  1     0 0.00447 0979_ampdriftcorr
+#>  2     1 0.00954 0979_ampdriftcorr
+#>  3     2 0.0146  0979_ampdriftcorr
+#>  4     3 0.0146  0979_ampdriftcorr
+#>  5     4 0.00951 0979_ampdriftcorr
+#>  6     5 0.00951 0979_ampdriftcorr
+#>  7     6 0.00950 0979_ampdriftcorr
+#>  8     7 0.00949 0979_ampdriftcorr
+#>  9     8 0.00948 0979_ampdriftcorr
+#> 10     9 0.00948 0979_ampdriftcorr
 #> # ... with 615,714 more rows
 
 unique(df.all$filename)
-#> [1] "0979_cropped_ampdriftcorr_baselinecorr"
-#> [2] "0980_cropped_ampdriftcorr"             
-#> [3] "0981_cropped_ampdriftcorr"             
-#> [4] "0982_cropped_ampdriftcorr"             
-#> [5] "1041_cropped_ampdriftcorr_baselinecorr"
-#> [6] "1068_cropped_ampdriftcorr_baselinecorr"
-#> [7] "1174_cropped_ampdriftcorr_baselinecorr"
-#> [8] "1440_cropped_ampdriftcorr_baselinecorr"
+#> [1] "0979_ampdriftcorr"
+#> [2] "0980_ampdriftcorr"             
+#> [3] "0981_ampdriftcorr"             
+#> [4] "0982_ampdriftcorr"             
+#> [5] "1041_baselinecorr"
+#> [6] "1068_baselinecorr"
+#> [7] "1174_baselinecorr"
+#> [8] "1440_baselinecorr"
+
 ```
 
 The new tibble contains the measurement of all files in the selected folder.
 
-For the sake of reproducibility to keep the package size to a minimum, we have simulated our own data using the `forceR` function `simulate_bites()`. The resulting data comes with the installation of `forceR`. **We will replace our previous `df.all` tibble with the internal `forceR` tibble**:
+
+## Detailed example workflow: Data analysis
+To allow users to test the package and follow the analysis steps of this vignette without having to load actual files, we have simulated data using the `forceR` function `simulate_bites()` and stored them within `forceR`. **We will replace our previous `df.all` tibble with the internal `forceR` tibble**. You may, however, continue with your just created version of `df.all`.
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE}
+# create/replace df.all
 df.all <- forceR::df.all
 head(df.all)
 ```
@@ -328,7 +371,7 @@ ggplot(df.all,
 We can see that some bites have more (reddish colors) or less (blueish colors) plateau-like peaks, whereas others have more sinusoidal peaks with early (orange) or late peaks (green).
 
 ### Sampling Frequency Reduction
-`df.all` has a sampling frequency of 1000 Hz. This is more than is often needed to analyse a time series. To reduce the sampling frequency of all measurements that are above a desired frequency of e.g. `200 Hz`, we can use the function `reduce.frq()`:
+`df.all` has a sampling frequency of 1000 Hz. This is more than is often needed to analyse a time series. To reduce the sampling frequency of all measurements that are above a desired frequency of e.g. `200 Hz`, we can use the function `reduce.frq()`. However, please not that the simulated bites are only 50 ms long, which is much shorter than, e.g., actual insect bites. This will keep all calculations quick, but will result in measurement series that are more downsampled than we would recommend. For real insect bites, though, a sampling frequency of 200 Hz is sufficient, so we will proceed as if we were working with such real bites:
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE}
 # reduce frequency to 200 Hz
@@ -343,12 +386,15 @@ If `measurement.col` is not defined, the whole input data frame will be treated 
 
 ### Creating a classifier with dataset info
 For further analyses, we need a `classifier` in which data on the species, specimens and measurements of our dataset are stored:
+
 ```{r eval=TRUE, warning=FALSE, message=FALSE}
 # create a classifier
 number_of_species <- 4
 number_of_specimens_per_species <- 3
 number_of_measurements_per_specimen <- 2
-number_of_rows <- number_of_species*number_of_specimens_per_species*number_of_measurements_per_specimen
+number_of_rows <- number_of_species *
+  number_of_specimens_per_species *
+  number_of_measurements_per_specimen
 
 species <- sort(rep(paste0("species_", LETTERS[1:number_of_species]),
                     length=number_of_rows))
@@ -435,24 +481,40 @@ ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
 ### Identify bites
 Now we come to one of the core functions of `forceR`: `find_strongest_peaks()`. This function identifies the strongest peaks of each measurement. But first, we need to create some folders to store the data and plots that are produced in all subsequent analyses of this example:
 
-```{r eval=FALSE, warning=FALSE, message=FALSE}
-# create folders to save df and results (if they do not exist yet) ---------------------------------
+```{r eval=TRUE, warning=FALSE, message=FALSE}
+# create folders to save df and results
 path.plots <- paste0(data.folder, "/plots/")
 ifelse(!dir.exists(path.plots), dir.create(path.plots), "./plots already exists")
+
 path.plots.initial_peak_finding <- paste0(data.folder, "/plots/initial_peak_finding/")
 ifelse(!dir.exists(path.plots.initial_peak_finding), dir.create(path.plots), "./plots/initial_peak_finding already exists")
+
 path.data <- paste0(data.folder, "/data/")
 ifelse(!dir.exists(path.data), dir.create(path.data), "./data already exists")
 
 ```
 
 Now we let `find_strongest_peaks()` identify all actual peak curves in all measurements:
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+peaks.df <- find_strongest_peaks(df = df.all.200.tax, 
+                                 no.of.peaks = 5, 
+                                 plot.to.screen = FALSE,
+                                 path.data = NULL,
+                                 path.plots = NULL,
+                                 show.progress = FALSE)
+```
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 peaks.df <- find_strongest_peaks(df = df.all.200.tax, 
                                  no.of.peaks = 5, 
+                                 plot.to.screen = TRUE,
+                                 path.data = path.data,
                                  path.plots = path.plots,
-                                 print.to.pdf = TRUE)
+                                 show.progress = TRUE)
+```
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
+head(peaks.df)
 ```
 
 The initial peak finding in the first iteration of the function `find_strongest_peaks()` identifies peaks *via* a the `initial.threshold` which is by default set to `0.05` (= 5%) of the maximum force of the respective measurement. The threshold is indicated as a green line in the plots. Bite starts are indicated as blue points, peak ends as orange points:
@@ -464,12 +526,10 @@ In a second iteration, the function `find_strongest_peaks()` optimizes the peak 
 The results are not automatically plotted. This can be done with the function `plot_peaks()`:
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
-path.plots <- paste0(data.folder, "/plots/")
 plot_peaks(df.peaks = peaks.df,
            df.data = df.all.200.tax, 
            additional.msecs = 2000, 
-           path.plots = path.plots, 
-           print.to.pdf = TRUE)
+           path.plots = path.plots)
 ```
 
 The first page of the resulting PDF looks like this, showing the five strongest peaks of `species_A`, which was measured in measurements `m_01 - m_06`, and the strongest peak of `species_A` which occured in measurement `m_11`. Plots of further peaks of `species_A` and the peaks of the other species follow on the next pages.
@@ -479,14 +539,16 @@ The first page of the resulting PDF looks like this, showing the five strongest 
 We strongly recommend saving `df.peaks` as a csv file on your computer and keep a copy of it save. The following procedures overwrite values in this table, so the peak-finding step needs to be repeated to restore original values.
 
 ### Manual peak corrections
-For some measurements, the automatic finding identification of peak starts and ends may fail. Changing the parameters of `find_strongest_peaks()` might help, but in some cases, the starts and ends have to be manually defined. For these cases, the function `correct_peak()` has been written. Below is an example of how to use this function with a real measurement, not the simulated data: 
+For some measurements, the automatic finding identification of peak starts and ends may fail. Changing the parameters of `find_strongest_peaks()` might help, but in some cases, the starts and ends have to be manually defined. For these cases, the function `correct_peak()` has been written. Set `path.data` to the folder where you stored `peaks.df` before. *This will overwrite the info of the bite you want to correct (here: `bite 1` of measurement `m_01`!*
+
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 peaks.df <- correct_peak(df.peaks = peaks.df,
                          df.data = df.all.200.tax,
                          measurement = "m_01", 
                          peak = 1, 
-                         additional.msecs = 100)
+                         additional.msecs = 100,
+                         path.data = path.data)
 ```
 ```
 [1] "Select new peak start and end. If more than two points are selected, the operation is automatically terminated."
@@ -503,21 +565,26 @@ The function overwrites the start and end values of the selected peak in the sel
 
 ### Normalize (rescale) peaks
 In the next step, we will use `rescale_peaks()` to rescale the time and force data so that they both range from 0 to 1.
-```{r, eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+
+```{r, eval=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 # this prints too long to let it stay
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-                               df.data = df.all.200.tax)
-head(peaks.df.norm)
+                               df.data = df.all.200.tax,
+                               plot.to.screen = FALSE,
+                               path.data = NULL,
+                               show.progress = FALSE)
 ```
+
 ```{r, eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
+# this prints too long to let it stay
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-                               df.data = df.all.200.tax)
+                               df.data = df.all.200.tax,
+                               plot.to.screen = TRUE,
+                               path.data = path.data,
+                               show.progress = TRUE)
 ```
-```
-#> [1] "Converting table to one peak per row..."
-#> 100%..[1] "Rescaling finished."
-```
-```{r, eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
 head(peaks.df.norm)
 ```
 
@@ -526,7 +593,7 @@ Now we will plot the resulting data. You will note that the peaks are not very s
 ```{r eval=TRUE, warning=FALSE, message=TRUE, include=TRUE, fig.width = 7, fig.height=6}
 # plot all normalized peaks
 ggplot(peaks.df.norm %>%
-         mutate(color.column = paste0(measurement, "-bite", peak)),
+         mutate(color.column = paste0(measurement, "__bite_", peak)),
        aes(x = t.norm , 
            y = force.norm, 
            colour=color.column)) +
@@ -538,17 +605,27 @@ ggplot(peaks.df.norm %>%
 
 To reduce the data to 100 observations (time steps), we will use the function `red_peaks_100()`. Note that, because the peaks of the example dataset are so short, we now actually *increase* the number of time steps. In real data, however, `red_peaks_100()` usually boils down the number of observations.
 
+
+
+```{r eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
+peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
+                                   plot.to.screen = TRUE,
+                                   path.data = path.data,
+                                   path.plots = path.plots,
+                                   show.progress = TRUE)
+head(peaks.df.norm.100)
+```
+
 ```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
-                                   print.to.pdf = TRUE)
+                                   plot.to.screen = FALSE,
+                                   path.data = NULL,
+                                   path.plots = NULL,
+                                   show.progress = FALSE)
 ```
-```
-peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm, 
-path.plots = path.plots, 
-print.to.pdf = TRUE)
 
-#> [1] "Saving plots at ./example_data/plots/2022_04_03_rescaled_peaks_100.pdf..."
-#> 
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
+head(peaks.df.norm.100)
 ```
 
 Again, we will plot the result:
@@ -570,10 +647,22 @@ The resulting tibble consists of 100 rows per peak, and within each peak, the `i
 ### Average peak curve per species
 Next, we will calculate the average peak curve per species and normalize the curves again:
 
-```{r eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
-peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
-head(peaks.df.100.avg)
+```{r eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
+peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100,
+                              path.data = path.data)
+```
 
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100,
+                              path.data = NULL)
+head(peaks.df.100.avg)
+```
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
+head(peaks.df.100.avg)
+```
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
 # plot averaged normalized curves per species
 ggplot(peaks.df.100.avg, aes(x = index , 
                              y = force.norm.100.avg, 
@@ -582,22 +671,20 @@ ggplot(peaks.df.100.avg, aes(x = index ,
 ```
 
 ### Fit polynomial functions to the force curves
-To find out the minimum number of coefficients that well describe all curves, we use the function `find_best_fits()`. It fits polynomial functions with 1 to 20 coefficients and uses the Akaike Information Criterion (AIC) to evaluate the goodness of the fits. A model is considered a good fit when the percentage of change from one model to the next (e.g. a model with 6 coefficients to a model with 7 coefficients) is `<= 5%`. The first four models meeting this criterion are plotted as colored graphs and the AICs of these models are visualized in a second plot for each curve. All first four coefficients per curve that fulfill the criterion are stored and in the end, a histogram of how often which coefficients were good fits is plotted as well. The function returns the numerical value of the coefficient that fulfilled the criterion of a good fit in most curves. If `print.to.pdf == TRUE`, then the plots are saved as PDFs in `path.plots`. Resulting data is saved in `path.data`.
+To find out the minimum number of coefficients that well describe all curves, we use the function `find_best_fits()`. It fits polynomial functions with 1 to 20 coefficients and uses the Akaike Information Criterion (AIC) to evaluate the goodness of the fits. A model is considered a good fit when the percentage of change from one model to the next (e.g. a model with 6 coefficients to a model with 7 coefficients) is `<= 5%`. The first four models meeting this criterion are plotted as colored graphs and the AICs of these models are visualized in a second plot for each curve. All first four coefficients per curve that fulfill the criterion are stored and in the end, a histogram of how often which coefficients were good fits is plotted as well. The function returns the numerical value of the coefficient that fulfilled the criterion of a good fit in most curves. If `write.PDFs == TRUE`, then the plots are saved as PDFs in `path.plots`. Resulting data is saved in `path.data`.
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
-best.fit.poly <- find_best_fits(df = peaks.df.100.avg, 
-                                print.to.pdf = TRUE)
+best.fit.poly <- find_best_fits(df = peaks.df.100.avg)
 ```
 
 ```{r eval=FALSE, warning=FALSE, message=FALSE}
 best.fit.poly <- find_best_fits(df = peaks.df.100.avg, 
-                                print.to.pdf = TRUE, 
-                                path.data, 
-                                path.plots)
+                                plot.to.screen = TRUE, 
+                                path.data = path.data, 
+                                path.plots = path.plots)
+```
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=TRUE}
 best.fit.poly
-```
-```
-[1] 4
 ```
 
 Both 4 and 8 coefficients most often were under the first 4 models that were followed by an AIC-change below `5%`:
@@ -616,8 +703,10 @@ Given the fact that we only analyzed four species in this example, the histogram
 In the last step of this vignette, we convert the average peak curve shape into polynomial models in which all have the same amount of coefficients (defined by the previously identified `best.fit.poly`):
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE, include=T}
-models <- peak_to_poly(peaks.df.100.avg, 
-                       best.fit.poly)
+models <- peak_to_poly(df = peaks.df.100.avg, 
+                       coeff = best.fit.poly,
+                       path.data = path.data,
+                       show.progress = TRUE)
 ```
 
 
@@ -973,20 +1062,20 @@ df.summary.species$BFQ.body_mass <- 100*(df.summary.species$mean.F.species/
 hist(df.summary.species$BFQ.body_mass, breaks = 25)
 
 # INDIVIDUAL BITE CURVE FINDING
-# we have set all plotting parameters so that they plot to the R plot device (print.to.pdf = FALSE)
-# and not to PDFs (print.to.pdf = TRUE) so that results can be observed in real time.
+# we have set all plotting parameters so that they plot to the R plot device (write.PDFs = FALSE)
+# and not to PDFs (write.PDFs = TRUE) so that results can be observed in real time.
 # find five strongest peaks per species
 peaks.df <- find_strongest_peaks(df = df.all.200.tax,
                                  no.of.peaks = 5,
                                  path.plots = path.plots,
-                                 print.to.pdf = FALSE) # TRUE
+                                 write.PDFs = FALSE) # TRUE
 
 # save plots of every peak in a PDF
 plot_peaks(df.peaks = peaks.df,
            df.data = df.all.200.tax,
            additional.msecs = 2000,
            path.plots = path.plots,
-           print.to.pdf = FALSE) # TRUE
+           write.PDFs = FALSE) # TRUE
 
 # rescale bites
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
@@ -999,7 +1088,7 @@ max(peaks.df.norm$force.norm)
 # reduce to 100 observations per bite
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
                                    path.plots = path.plots,
-                                   print.to.pdf = FALSE) # TRUE
+                                   write.PDFs = FALSE) # TRUE
 
 # get average bite curve per species
 peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
@@ -1007,7 +1096,7 @@ peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
 # find best polynomial degree to describe all average curves
 best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
                                 path.plots = path.plots,
-                                print.to.pdf = FALSE) # TRUE
+                                write.PDFs = FALSE) # TRUE
 
 # convert species-wise average curves to polynomial models
 models <- peak_to_poly(peaks.df.100.avg,

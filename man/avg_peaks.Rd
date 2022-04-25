@@ -4,10 +4,13 @@
 \alias{avg_peaks}
 \title{Average Curves per Group}
 \usage{
-avg_peaks(df)
+avg_peaks(df, path.data = NULL)
 }
 \arguments{
 \item{df}{The resulting tibble of the function \code{red_peaks_100()}. See \code{?red_peaks_100} for more details.}
+
+\item{path.data}{A string character defining where to save the results.
+If \code{NULL}, data will not be saved to disk. Default: \code{NULL}.}
 }
 \value{
 This function returns a tibble made of three columns: \code{species} containing the species names, \code{index} ranging from 1 to 100 for each species,
@@ -20,7 +23,8 @@ Calculates mean curve shape per group (here: species) and rescales result on the
 # Using the forceR::df.all.200.tax dataset:
 
 # calculate mean curves per species
-peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100)
+peaks.df.100.avg <- avg_peaks(df = forceR::peaks.df.norm.100,
+                               path.data = NULL)
 \donttest{
 # plot averaged normalized curves per species
 require(ggplot2)

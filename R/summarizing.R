@@ -52,7 +52,7 @@ summarize_measurements <- function(df, var1, var2){
   # df <- df.all.200.tax
   # var1 <- "measurement"
   # var2 <- "species"
-  print(paste0("Summary will be created for '", var1, "' and '", var2, "'."))
+  # print(paste0("Summary will be created for '", var1, "' and '", var2, "'."))
 
   var1.col.no <- which(colnames(df) == var1)
   colnames(df)[var1.col.no] <- "var1"

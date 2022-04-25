@@ -145,10 +145,11 @@ plot_peaks <- function(df.peaks,
     # print(paste0("plotting to ", path.plots, today(),"_all_peak_curves.pdf..."))
     pdf(file.path(path.plots, paste0("all_peak_curves_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
+    on.exit(invisible(dev.off()), add = TRUE)
   }
 
   oldpar <- par(no.readonly = TRUE)
-  on.exit(par(oldpar))
+  on.exit(par(oldpar), add = TRUE)
   par(mfrow=c(3,2))
   for(b in 1:nrow(df.peaks)){ # nrow(df.peaks)
 

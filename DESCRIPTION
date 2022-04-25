@@ -6,7 +6,7 @@ Description: For cleaning and analyses of animal closing force measurements.
     to load, plot and crop data, correct amplifier and baseline drifts, 
     identify individual peak shapes (bites), rescale (normalize) peak curves, 
     and find best polynomial fits to describe and analyze force curve shapes.
-Version: 1.0.12
+Version: 1.0.11
 Date: 2022-04-13
 License: MIT + file LICENSE
 URL: https://github.com/Peter-T-Ruehr/forceR

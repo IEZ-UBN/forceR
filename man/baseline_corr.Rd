@@ -17,7 +17,7 @@ baseline_corr(
   write.data = FALSE,
   write.PDFs = FALSE,
   write.logs = FALSE,
-  output.folder,
+  output.folder = NULL,
   show.progress = FALSE
 )
 }
@@ -68,13 +68,19 @@ saved. Is considered necessary for reproducibility. If yes, it will be saved
 in \code{output.folder/logs}. Default: \code{FALSE}.}
 
 \item{output.folder}{Path to folder where data, PDF and log files should
-be stored.}
+be stored. Default: \code{NULL.}}
 
 \item{show.progress}{A logical value indicating if progress should be
 printed to the console. Default: \code{FALSE}.}
 }
 \value{
-
+Returns a tibble containing the amplifier baseline drift-corrected data in the
+following format\tabular{ccc}{
+   \code{t} \tab  \tab \code{y} \cr
+   \code{t.1} \tab  \tab \code{y.2} \cr
+   \code{...} \tab  \tab \code{...} \cr
+   \code{t.n} \tab  \tab \code{y.n} \cr
+}
 }
 \description{
 If baseline (zero-line) of measurement is unstable (e.g. due to temperature fluctuations, wind, ...),
@@ -90,7 +96,7 @@ If the automatic approach does not yield acceptable results, an interactive manu
 the baseline can be performed instead.
 }
 \details{
-forceR generally expects file names to start with a leading number specifying the
+\code{forceR} generally expects file names to start with a leading number specifying the
 measurement number (E.g. "0001_G_maculatus.csv"). The number ("0001") is used to
 keep data files, log files, and PDF files of the same measurement associated
 with each other.
@@ -125,7 +131,6 @@ file.baseline_corr <- baseline_corr(filename = filename,
                                      write.data = FALSE,
                                      write.PDFs = FALSE,
                                      write.logs = FALSE,
-                                     output.folder,
                                      show.progress = FALSE)
 
 file.baseline_corr
@@ -135,24 +140,20 @@ file.baseline_corr
 # define file to apply the baseline drift correction to
 filename <- forceR_example(type = "ampdriftcorr")
 
-\donttest{
 # run interactive baseline drift corrections with saving files and
-#   printing to screen:
-file.baseline_corr <- baseline_corr(filename = filename,
-                                     corr.type = "manual",
-                                     window.size.mins = 1000,
-                                     window.size.means = NULL,
-                                     quantile.size = 0.05,
-                                     y.scale = 0.5,
-                                     res.reduction = 10,
-                                     Hz = 100,
-                                     plot.to.screen = TRUE,
-                                     write.data = TRUE,
-                                     write.PDFs = TRUE,
-                                     write.logs = TRUE,
-                                     output.folder = "./baselinecorr",
-                                     show.progress = TRUE)
+#   printing to screen:  - out-commented to pass package tests
 
-file.baseline_corr
-}
+# file.baseline_corr <- baseline_corr(filename = filename,
+#                                       corr.type = "manual",
+#                                       window.size.mins = 1000,
+#                                       window.size.means = NULL,
+#                                       quantile.size = 0.05,
+#                                       y.scale = 0.5,
+#                                       res.reduction = 10,
+#                                       Hz = 100,
+#                                       plot.to.screen = TRUE,
+#                                       output.folder = "./baselinecorr",
+#                                       show.progress = TRUE)
+
+# file.baseline_corr
 }

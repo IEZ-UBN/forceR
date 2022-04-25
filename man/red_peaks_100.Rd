@@ -7,8 +7,8 @@
 red_peaks_100(
   df,
   plot.to.screen = FALSE,
-  write.pdfs = FALSE,
-  path.plots,
+  path.data = NULL,
+  path.plots = NULL,
   show.progress = FALSE
 )
 }
@@ -19,9 +19,11 @@ The columns \code{measurement} and \code{force.norm} must be present.}
 \item{plot.to.screen}{A logical value indicating if results should be
 plotted in the current R plot device. Default: \code{FALSE}.}
 
-\item{write.pdfs}{A logical value indicating if the results of the initial peak finding should be saved as PDFs. Default: \code{TRUE}}
+\item{path.data}{A string character defining where to save the results.
+If \code{NULL}, data will not be saved to disk. Default: \code{NULL}.}
 
-\item{path.plots}{A string character defining where to save the plots if \code{write.pdfs == TRUE}.}
+\item{path.plots}{A string character defining where to save result plots.
+If \code{NULL}, plots will not be saved to disk. Default: \code{NULL}.}
 
 \item{show.progress}{A logical value indicating if progress should be
 printed to the console. Default: \code{FALSE}.}
@@ -46,8 +48,9 @@ Reduces curves to 100 observations per peak.
 \examples{
 # Using the forceR::df.all.200.tax dataset:
 peaks.df.norm.100 <- red_peaks_100(df = forceR::peaks.df.norm,
-                                   plot.to.screen = FALSE,
-                                   write.pdfs = FALSE)
+                                   path.data = NULL,
+                                   path.plots = NULL,
+                                   show.progress = FALSE)
 
 peaks.df.norm.100
 

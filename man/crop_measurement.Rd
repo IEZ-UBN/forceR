@@ -4,18 +4,17 @@
 \alias{crop_measurement}
 \title{Crop Time Series}
 \usage{
-crop_measurement(file, write.files = TRUE)
+crop_measurement(file, path.data = NULL)
 }
 \arguments{
 \item{file}{File path to measurement.}
 
-\item{write.files}{A logical value indicating if results should be
-written as file. Default: \code{TRUE}.}
+\item{path.data}{A string character defining where to save the results. If \code{NULL},
+data is not stored in a file. Default: \code{NULL}.}
 }
 \value{
-Returns and, if \code{write.files == TRUE}, saves cropped data in
-CSV-format in new subfolder "./cropped". If this folder does not exist,
-it will be created. \cr
+Returns and, if \verb{path.data is not NULL}, saves data in
+csv-format in \code{path.data}. \cr
 \cr
 The tibble has the following format:\tabular{ccc}{
    \strong{\code{t}} \tab  \tab \strong{\code{y}} \cr
@@ -36,29 +35,10 @@ taken into account to allow the user to correct erroneous clicks.
 # get file path of forceR example file
 filename <- forceR_example(type = "raw")
 
-# plot measurement
-plot_measurement(filename)
+# # crop file without storing result as file - out-commented to pass package tests
+# file.cropped <- crop_measurement(file = filename,
+#                    path.data = NULL)
 
-# crop file - without storing result as file
-file.cropped <- crop_measurement(file,
-                  write.files = FALSE)
+# file.cropped
 
-file.cropped
-
-\donttest{
-# crop file - with result stored in "./cropped"
-crop_measurement(filename,
-                  write.files = TRUE)
-
-# plot results
-# define folder where cropped file wass stored:
-cropped.folder <- "./cropped"
-
-# plot the cropped file - this will only work if you used your own
-filename.cropped <- file.path(dirname(filename), "cropped",
-                                gsub("\\\\.csv", '_cropped.csv', basename(filename)))
-
-# plot the cropped file
-plot_measurement(filename.cropped)
-}
 }

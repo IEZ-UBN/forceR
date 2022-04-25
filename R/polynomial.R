@@ -72,6 +72,7 @@ find_best_fits <- function(df,
     # print(paste0("Saving plots at ", path.plots, "/", today(),"_mean_normalized_peaks_100_fits.pdf..."))
     pdf(file.path(path.plots, paste0("mean_normalized_peaks_100_fits_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
+    on.exit(invisible(dev.off()), add = TRUE)
   }
   par(mfrow=c(3,2))
   taxa <- unique(df$species)
@@ -186,6 +187,7 @@ find_best_fits <- function(df,
     pdf(file.path(path.plots,
                   paste0("normalized_peaks_100_coeff_histo_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
+    on.exit(invisible(dev.off()), add = TRUE)
   }
   if(plot.to.screen == TRUE){
     plot(table(all.coeffs),

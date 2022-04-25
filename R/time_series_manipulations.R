@@ -88,7 +88,7 @@ reduce_frq <- function (df,
   # sample.rate <- diff(df$t[1:2])
   t.red.factor = 1000/Hz # [Hz]
   if(is.null(measurement.col)){
-    print("You chose no \'measurement.col\', so the measurement should only contain a single time series.")
+    warning("You chose no \'measurement.col\', so the measurement should only contain a single time series.")
     df <- df[,c(1:2)]
     colnames(df) <- c("t", "y")
 
@@ -99,7 +99,7 @@ reduce_frq <- function (df,
       dplyr::rename(t = t.frq, y = y.frq)
 
   } else {
-    print(paste0("The column \'", measurement.col, "\' will be used to group the separate time series."))
+    # print(paste0("The column \'", measurement.col, "\' will be used to group the separate time series."))
     measurement.col.no <- which(colnames(df) == measurement.col)
 
     df <- df[,c(1:2, measurement.col.no)]
