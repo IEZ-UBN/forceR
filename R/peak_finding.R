@@ -53,9 +53,6 @@
 #'
 #' The column **`ends`** contains as many peak ends as `no.of.peaks`, separated by '`;`':\cr (`end.1; ...; end.no.of.peaks`).
 #'
-#' In addition, if `plot.to.pdf == TURE`, a graph indicating the `initial.threshold` as a green line, the peak starts as blue points, and the peak ends
-#'  as orange points is saved as one PDF per measurement at `path.plots`.
-#'
 #' @examples
 #' require(dplyr)
 #' # Using the forceR::df.all.200.tax dataset:
@@ -174,12 +171,12 @@ find_strongest_peaks <- function(df,
 
     # if(plot.to.pdf == TRUE){
     if(!is.null(path.plots)){
+      # on.exit(invisible(dev.off()), add = TRUE)
       dev.print(pdf,
                 file = file.path(path.plots,
                                  paste0("initial_starts_and_ends_", curr.specimen,
                                         "_", curr.measurement, "_", today(), ".pdf")),
                 paper = "a4r", width = 29, height = 21) # , height = 14
-      on.exit(invisible(dev.off()), add = TRUE)
     }
 
     # print(paste0("specimen: ", curr.specimen, "; measurement: ", curr.measurement, ". Found ", length(starts), " peak starts and ", length(starts), " peak ends."))

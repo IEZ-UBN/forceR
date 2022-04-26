@@ -27,12 +27,7 @@ Plots a time series.
 }
 }
 \examples{
-\dontrun{
-# Using a package example file from GitHub stored within
-# https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+filename = forceR_example(type = "raw")
+plot_measurement(filename)
 
-data.folder <- "./example_data"
-file = file.path(data.folder, "0982.csv")
-plot_measurement(file)
-}
 }

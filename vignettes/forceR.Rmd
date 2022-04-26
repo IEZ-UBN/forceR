@@ -438,7 +438,7 @@ head(df.summary.specimen)
 
 # boxplot of maximum force in specimens
 ggplot(data = df.summary.specimen, mapping = aes(x=specimen,y=max.F.measurement)) +
-  geom_jitter(aes(color='blue'),alpha=0.7) +
+  geom_jitter(aes(color='blue'),alpha=0.7, width = 0.2, height = 0.0) +
   geom_boxplot(fill="bisque",color="black",alpha=0.3) +
   # scale_y_log10() +
   labs(y="max(F)/specimen") +
@@ -468,7 +468,7 @@ df.summary.species
 
 # boxplot of maximum force in species
 ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
-  geom_jitter(aes(color='blue'),alpha=0.7) +
+  geom_jitter(aes(color='blue'),alpha=0.7, width = 0.2, height = 0.0) +
   geom_boxplot(fill="bisque",color="black",alpha=0.3) +
   # scale_y_log10() +
   labs(x='species', y="max(F)/specimen") +
@@ -481,7 +481,14 @@ ggplot(data = df.summary.species, mapping = aes(x=species,y=max.F.specimen)) +
 ### Identify bites
 Now we come to one of the core functions of `forceR`: `find_strongest_peaks()`. This function identifies the strongest peaks of each measurement. But first, we need to create some folders to store the data and plots that are produced in all subsequent analyses of this example:
 
-```{r eval=TRUE, warning=FALSE, message=FALSE}
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+path.data <- file.path(data.folder, "/data")
+path.plots <- file.path(data.folder, "/plots/")
+
+```
+
+```{r eval=FALSE, warning=FALSE, message=FALSE}
 # create folders to save df and results
 path.plots <- paste0(data.folder, "/plots/")
 ifelse(!dir.exists(path.plots), dir.create(path.plots), "./plots already exists")
@@ -566,7 +573,7 @@ The function overwrites the start and end values of the selected peak in the sel
 ### Normalize (rescale) peaks
 In the next step, we will use `rescale_peaks()` to rescale the time and force data so that they both range from 0 to 1.
 
-```{r, eval=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+```{r, eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
 # this prints too long to let it stay
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
                                df.data = df.all.200.tax,
@@ -576,7 +583,6 @@ peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
 ```
 
 ```{r, eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
-# this prints too long to let it stay
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
                                df.data = df.all.200.tax,
                                plot.to.screen = TRUE,
@@ -702,7 +708,14 @@ Given the fact that we only analyzed four species in this example, the histogram
 #### Convert curves to polynomial models
 In the last step of this vignette, we convert the average peak curve shape into polynomial models in which all have the same amount of coefficients (defined by the previously identified `best.fit.poly`):
 
-```{r eval=TRUE, warning=FALSE, message=FALSE, include=T}
+```{r eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
+models <- peak_to_poly(df = peaks.df.100.avg, 
+                       coeff = best.fit.poly,
+                       path.data = NULL,
+                       show.progress = FALSE)
+```
+
+```{r eval=FALSE, warning=FALSE, message=FALSE, include=TRUE}
 models <- peak_to_poly(df = peaks.df.100.avg, 
                        coeff = best.fit.poly,
                        path.data = path.data,
@@ -817,23 +830,23 @@ add_eading_zeros <- function(number, length){
 # /DEFINE SOME FUNCTIONS
 
 
-# create classifier and store as classifier_original for later
-classifier <- classifier_original <- tibble(bite.type = c(rep("sinosoidal", 5), rep("plateau", 3), rep("inter", 4)),
-                                            peak.position = c("early","early","center","late","late","center","center","center","center","center","early","late"),
-                                            species = NA,
-                                            specimen = NA,
-                                            measurement = NA,
-                                            body_mass = NA,
-                                            force_in = NA,
-                                            length.of.bite = 4000,
-                                            peak.pos = c(20, 25, 50, 65, 70, rep(NA, 7)),
-                                            slope.perc.starts = c(rep (NA, 5), 10,15,20,30,40,20,50),
-                                            slope.perc.ends = c(rep (NA, 5), 10,15,20,30,40,50,20),
-                                            type = c(rep("sin", 5), rep("plat", 7)),
-                                            no.of.bites = 7,
-                                            amp = 1,
-                                            lever.ratio = 1,
-                                            length.of.series = 35000)
+# create classifier
+classifier <- tibble(bite.type = c(rep("sinosoidal", 5), rep("plateau", 3), rep("inter", 4)),
+                     peak.position = c("early","early","center","late","late","center","center","center","center","center","early","late"),
+                     species = NA,
+                     specimen = NA,
+                     measurement = NA,
+                     body_mass = NA,
+                     force_in = NA,
+                     length.of.bite = 4000,
+                     peak.pos = c(20, 25, 50, 65, 70, rep(NA, 7)),
+                     slope.perc.starts = c(rep (NA, 5), 10,15,20,30,40,20,50),
+                     slope.perc.ends = c(rep (NA, 5), 10,15,20,30,40,50,20),
+                     type = c(rep("sin", 5), rep("plat", 7)),
+                     no.of.bites = 7,
+                     amp = 1,
+                     lever.ratio = 1,
+                     length.of.series = 35000)
 
 
 # amend classifier
@@ -871,8 +884,8 @@ for(i in 1:(nrow(classifier)/2)){
 }
 classifier$species <- species.names
 
-classifier$specimen <- paste0("s", add_eading_zeros(1:nrow(classifier), 3))
-classifier$measurement <- paste0("m", add_eading_zeros(1:nrow(classifier), 3))
+classifier$specimen <- paste0("s_", add_eading_zeros(1:nrow(classifier), 2))
+classifier$measurement <- paste0("m_", add_eading_zeros(1:nrow(classifier), 2))
 
 # assign body mass according to the maximum force
 classifier$body_mass[classifier$force_in == forces[1]] <- 1
@@ -908,8 +921,15 @@ jit = 0 # 0 1
 
 # create tibble with simulated time series with different
 # bite characteristics for each measurement, specimen and species
-path.plots <- "Z:/PAPERS/PTR_Bite force METHODS/R/package_tests/plots/"
-print(paste0("Saving plots at ", path.plots, "/", today(),"_bite_series.pdf..."))
+
+# Plots to PDFs are sometimes out-commented so that plots will appear on screen.
+# You may change this according to your own needs.
+# modify the following folders to fit your local system and make sure they exist:
+# plot output folder
+path.plots <- "C:/Users/pruehr.EVOLUTION/Desktop/plots/"
+# data output folder
+path.data <- "C:/Users/pruehr.EVOLUTION/Desktop/data/"
+# print(paste0("Saving plots at ", path.plots, "/", today(),"_bite_series.pdf..."))
 # pdf(paste0(path.plots, "/", today(),"_bite_series.pdf..."), onefile = TRUE, paper = "a4", height = 14)
 par(mfrow = c(3,2))
 df.all <- NULL
@@ -934,6 +954,7 @@ for(i in 1:nrow(classifier)){
   df.all <- rbind(df.all, df.curr)
 }
 # dev.off()
+par(mfrow = c(1,1))
 
 # remove columns from classifier that were only used during bite series simulation
 classifier <- classifier %>%
@@ -967,7 +988,7 @@ df.summary.specimen <- df.summary.specimen %>%
 
 # boxplot of maximum force of all specimens
 ggplot(data = df.summary.specimen, mapping = aes(x=specimen,y=max.F.measurement)) +
-  geom_jitter(color='blue',alpha=0.5, width = 0.2) +
+  geom_jitter(color='blue',alpha=0.5, width = 0.2, height = 0.0) +
   geom_boxplot(fill="blue",color="black",alpha=0.1) +
   # scale_y_log10() +
   labs(x='specimen', y="max(F)/specimen") +
@@ -999,7 +1020,7 @@ df.summary.species <- df.summary.specimen %>%
 
 # boxplot of maximum force in species
 ggplot(data = df.summary.species, mapping = aes(x=species,y=mean.F.species)) +
-  geom_jitter(color='blue',alpha=0.5, width = 0.2) +
+  geom_jitter(color='blue',alpha=0.5, width = 0.2, height = 0.0) +
   geom_boxplot(fill="blue",color="black",alpha=0.1) +
   # scale_y_log10() +
   labs(x='species', y="mean(F)/species") +
@@ -1062,24 +1083,30 @@ df.summary.species$BFQ.body_mass <- 100*(df.summary.species$mean.F.species/
 hist(df.summary.species$BFQ.body_mass, breaks = 25)
 
 # INDIVIDUAL BITE CURVE FINDING
-# we have set all plotting parameters so that they plot to the R plot device (write.PDFs = FALSE)
-# and not to PDFs (write.PDFs = TRUE) so that results can be observed in real time.
-# find five strongest peaks per species
-peaks.df <- find_strongest_peaks(df = df.all.200.tax,
-                                 no.of.peaks = 5,
+# plots will be shown in the current R plot device ('plot.to.screen = TRUE') and 
+#   will also be saved to PDF because path.plots defined.
+peaks.df <- find_strongest_peaks(df = df.all.200.tax, 
+                                 no.of.peaks = 5, 
+                                 plot.to.screen = TRUE,
+                                 path.data = path.data,
                                  path.plots = path.plots,
-                                 write.PDFs = FALSE) # TRUE
+                                 show.progress = TRUE)
 
 # save plots of every peak in a PDF
 plot_peaks(df.peaks = peaks.df,
            df.data = df.all.200.tax,
            additional.msecs = 2000,
+           plot.to.screen = TRUE,
            path.plots = path.plots,
-           write.PDFs = FALSE) # TRUE
+           show.progress = TRUE)
+
 
 # rescale bites
 peaks.df.norm <- rescale_peaks(df.peaks = peaks.df,
-                               df.data = df.all.200.tax)
+                               df.data = df.all.200.tax,
+                               plot.to.screen = TRUE,
+                               path.data = path.data,
+                               show.progress = TRUE)
 
 # check if rescaling worked: both following lines should print 1
 max(peaks.df.norm$t.norm)
@@ -1087,20 +1114,27 @@ max(peaks.df.norm$force.norm)
 
 # reduce to 100 observations per bite
 peaks.df.norm.100 <- red_peaks_100(df = peaks.df.norm,
+                                   plot.to.screen = TRUE,
+                                   path.data = path.data,
                                    path.plots = path.plots,
-                                   write.PDFs = FALSE) # TRUE
+                                   show.progress = TRUE)
 
 # get average bite curve per species
-peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100)
+peaks.df.100.avg <- avg_peaks(df = peaks.df.norm.100, 
+                              path.data = path.data)
 
 # find best polynomial degree to describe all average curves
 best.fit.poly <- find_best_fits(df = peaks.df.100.avg,
+                                plot.to.screen = FALSE,
+                                path.data = path.data,
                                 path.plots = path.plots,
-                                write.PDFs = FALSE) # TRUE
+                                show.progress = TRUE)
 
 # convert species-wise average curves to polynomial models
-models <- peak_to_poly(peaks.df.100.avg,
-                       best.fit.poly)
+models <- peak_to_poly(df = peaks.df.100.avg,
+                       coeff = best.fit.poly,
+                       path.data = path.data, 
+                       show.progress = TRUE)
 
 # convert models to PCA input data
 pca.data <- sapply(models, function(x){
@@ -1125,11 +1159,14 @@ PCA.res <- as_tibble(PCA.bite.shape$x[,1:3]) %>%
                 bite.type = bite.type)
 
 # plot PC1 against PC2
+# pdf(file = paste0(path.plots, today(), "_PCA_bite_shape_type.pdf"),
+#     paper = "a4r", width = 29, height = 21) # , height = 14
 ggplot(data = PCA.res, aes(x = PC1, y = PC2, col = bite.type)) +
   geom_point() +
   theme_minimal()
+# dev.off()
 
-# pdf(file = paste0(path.plots, today(), "_PCA_bite_shape.pdf"),
+# pdf(file = paste0(path.plots, today(), "_PCA_bite_shape_position.pdf"),
 #     paper = "a4r", width = 29, height = 21) # , height = 14
 ggplot(data = PCA.res, aes(x = PC1, y = PC2, col = peak.position)) +
   geom_point() +

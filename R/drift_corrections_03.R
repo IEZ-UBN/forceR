@@ -661,7 +661,6 @@ baseline_corr <- function(filename,
       # start PDF device
       pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_baselinecorr", ".pdf")),
           width = 20, height = 10)
-      on.exit(invisible(dev.off()), add = TRUE)
 
       # plot data
       plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type = "l",
@@ -674,9 +673,7 @@ baseline_corr <- function(filename,
       lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y.zerocor[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen", lwd = 1)
       lines(c(data$t[1], data$t[nrow(data)]), rep(0, 2), type="l", col = "red", lwd = 1)
 
-      if(write.PDFs == TRUE){
-        invisible(dev.off())
-      }
+      invisible(dev.off())
     }
 
     if(plot.to.screen == TRUE){
@@ -856,7 +853,6 @@ baseline_corr <- function(filename,
       # print("Writing to PDF...")
       pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_baselinecorr", ".pdf")),
           width = 20, height = 10)
-      on.exit(invisible(dev.off()), add = TRUE)
 
       plot(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)],
            main = paste0(curr.measurement), lwd = 4, type="l", col = "grey60",

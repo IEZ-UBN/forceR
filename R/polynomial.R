@@ -72,7 +72,6 @@ find_best_fits <- function(df,
     # print(paste0("Saving plots at ", path.plots, "/", today(),"_mean_normalized_peaks_100_fits.pdf..."))
     pdf(file.path(path.plots, paste0("mean_normalized_peaks_100_fits_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
-    on.exit(invisible(dev.off()), add = TRUE)
   }
   par(mfrow=c(3,2))
   taxa <- unique(df$species)
@@ -167,11 +166,11 @@ find_best_fits <- function(df,
       print_progress(b, length(taxa))
     }
   }
-  par(mfrow=c(1,1))
   # if(plot.to.pdf == TRUE){
   if(!is.null(path.plots)){
     invisible(dev.off())
   }
+  par(mfrow=c(1,1))
 
   if(!is.null(path.data)){
     # print(paste0("Saving coeffs.df at ", path.data, "/", today(), "_mean_normalized_peaks_100_coeffs.csv..."))
@@ -187,15 +186,13 @@ find_best_fits <- function(df,
     pdf(file.path(path.plots,
                   paste0("normalized_peaks_100_coeff_histo_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
-    on.exit(invisible(dev.off()), add = TRUE)
+
+    invisible(dev.off())
   }
+
   if(plot.to.screen == TRUE){
     plot(table(all.coeffs),
          main = paste0("best-fitting coeff = ", best.fit.coeff, "; n = ", length(all.coeffs)))
-  }
-  # if(plot.to.pdf == TRUE){
-  if(!is.null(path.plots)){
-    invisible(dev.off())
   }
   # print(paste0("Polynomial model with most best fits contains ", best.fit.coeff, " coefficients."))
   # print("Done!")

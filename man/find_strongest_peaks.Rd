@@ -60,9 +60,6 @@ The column \strong{\code{measurements}} contains as many measurements as \code{n
 The column \strong{\code{starts}} contains as many peak starts as \code{no.of.peaks}, separated by '\verb{;}':\cr (\verb{start.1; ...; start.no.of.peaks}).
 
 The column \strong{\code{ends}} contains as many peak ends as \code{no.of.peaks}, separated by '\verb{;}':\cr (\verb{end.1; ...; end.no.of.peaks}).
-
-In addition, if \code{plot.to.pdf == TURE}, a graph indicating the \code{initial.threshold} as a green line, the peak starts as blue points, and the peak ends
-as orange points is saved as one PDF per measurement at \code{path.plots}.
 }
 \description{
 Identifies peaks in a first iteration and optimizes the starts and ends of the strongest peaks per species in a second iteration.

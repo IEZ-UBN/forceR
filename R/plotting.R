@@ -15,14 +15,9 @@
 #' All other columns will be ignored. Default: `c(1,2)`.
 #' @return Creates a plot in the current plot device.
 #' @examples
-#' \dontrun{
-#' # Using a package example file from GitHub stored within
-#' # https://github.com/Peter-T-Ruehr/forceR-data/blob/main/example_data.zip
+#' filename = forceR_example(type = "raw")
+#' plot_measurement(filename)
 #'
-#' data.folder <- "./example_data"
-#' file = file.path(data.folder, "0982.csv")
-#' plot_measurement(file)
-#' }
 #' @export
 plot_measurement <- function (file,
                               columns = c(1:2)){
@@ -72,7 +67,6 @@ plot_measurement <- function (file,
 #' @param show.progress A logical value indicating if progress should be
 #' printed to the console. Default: `FALSE`.
 #'
-#' @details
 #' @details
 #' `df.peaks` at least needs to contain the following columns:
 #'
@@ -143,9 +137,9 @@ plot_peaks <- function(df.peaks,
   # if(plot.to.pdf == TRUE){
   if(!is.null(path.plots)){
     # print(paste0("plotting to ", path.plots, today(),"_all_peak_curves.pdf..."))
+    # on.exit(invisible(dev.off()), add = TRUE)
     pdf(file.path(path.plots, paste0("all_peak_curves_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
-    on.exit(invisible(dev.off()), add = TRUE)
   }
 
   oldpar <- par(no.readonly = TRUE)

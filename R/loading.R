@@ -22,7 +22,7 @@
 #'
 #'df.1 <- load_single(filename,
 #'                     columns = c(1:2))
-#'}
+#'
 #' @export
 load_single <- function (filename,
                          columns = c(1:2)){

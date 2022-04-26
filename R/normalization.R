@@ -249,9 +249,9 @@ red_peaks_100 <- function(df,
   if(!is.null(path.plots)){
     if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
     # print(paste0("Saving plots at ", path.plots, "/", today(),"_rescaled_peaks_100.pdf..."))
+    # on.exit(invisible(dev.off()), add = TRUE)
     pdf(file.path(path.plots, paste0("rescaled_peaks_100_", today(), ".pdf")),
         onefile = TRUE, paper = "a4", height = 14)
-    on.exit(invisible(dev.off()), add = TRUE)
   }
   par(mfrow=c(3,2))
   species <- unique(df$species)
@@ -303,12 +303,16 @@ red_peaks_100 <- function(df,
       print_progress(b, length(species))
     }
   }
-  par(mfrow=c(1,1))
+
+  # par(mfrow=c(1,1))
   if(!is.null(path.plots)){
     invisible(dev.off())
   }
 
-
+  if(!is.null(path.data)){
+    # if(write.data == TRUE){
+    write_csv(df.peaks.100, file.path(path.data, paste0("peaks_100_", today(), ".csv")))
+  }
   # print("Done!")
   return(df.peaks.100)
 }

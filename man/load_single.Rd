@@ -29,3 +29,11 @@ Loads a single measurement.
 
 All columns except the first two are removed.
 }
+\examples{
+# Store filename
+filename <- forceR_example(type="raw")
+
+df.1 <- load_single(filename,
+                    columns = c(1:2))
+
+}

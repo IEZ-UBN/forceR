@@ -1,5 +1,5 @@
-## -- R CMD check results ----------------------------------- forceR 1.0.11 ----
-Duration: 42.8s
+## -- R CMD check results ----------------------------------- forceR 1.0.12 ----
+Duration: 44s
 
 0 errors v | 0 warnings v | 0 notes v
 
@@ -7,9 +7,7 @@ R CMD check succeeded
 
 
 ## Misc
-This is the fourth submission (of a new release).
-
-Many many thanks for the careful checking of my package. I'll address the issues raised by Gregor Seyer one by one:
+Many many thanks for the careful checking of my package. I'll address the issues raised by Gregor Seyer and Uwe Ligges one by one:
 
 * Issue 1)
 Please always write package names, software names and API (application programming interface) names in single quotes in title and description. e.g: --> 'forceR'
@@ -61,9 +59,9 @@ oldpar <- par(no.readonly = TRUE)    # code line i
 on.exit(par(oldpar), add = TRUE)    # code line i + 1
 par(mfrow=c(3,2))                    # code line i + 2
 
-I also added 
-on.exit(invisible(dev.off()), add = TRUE)
-to all functions that write PDF files.
+
+* Issue 6)
+The vignette creation tried to save data locally - I have forgotten to set `eval=FALSE` in one of the code elements. I'm sorry for that.
 
 Kind regards,
 Peter

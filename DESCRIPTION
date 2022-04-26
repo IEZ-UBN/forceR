@@ -6,7 +6,7 @@ Description: For cleaning and analyses of animal closing force measurements.
     to load, plot and crop data, correct amplifier and baseline drifts, 
     identify individual peak shapes (bites), rescale (normalize) peak curves, 
     and find best polynomial fits to describe and analyze force curve shapes.
-Version: 1.0.11
+Version: 1.0.12
 Date: 2022-04-13
 License: MIT + file LICENSE
 URL: https://github.com/Peter-T-Ruehr/forceR
@@ -16,22 +16,22 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
     dplyr,
-	ggplot2,
-	graphics,
-	grDevices,
-	filesstrings,
-	knitr,
-	magrittr,
-	purrr,
+    graphics,
+    grDevices,
+    filesstrings,
+    magrittr,
+    purrr,
     readr,
-	rmarkdown,
     roll,
-	stats,
+    stats,
     stringr
 Depends: 
     R (>= 4.0)
 VignetteBuilder: knitr
 Suggests: 
+    ggplot2,
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Author: Peter T. Rühr <peter.ruehr@gmail.com>
