@@ -459,6 +459,9 @@ correct_peak <- function(df.peaks,
                          additional.msecs,
                          path.data = NULL){
 
+  oldpar <- par(no.readonly = TRUE)    # code line i
+  on.exit(par(oldpar))
+
   if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
     stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'")
   }

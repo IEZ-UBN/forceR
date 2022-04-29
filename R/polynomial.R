@@ -54,6 +54,9 @@ find_best_fits <- function(df,
   #                 path.plots = "./test_folder",
   #                 show.progress = TRUE)
 
+  oldpar <- par(no.readonly = TRUE)    # code line i
+  on.exit(par(oldpar))
+
   if(!is.null(path.data)){
     if(!dir.exists(path.data)) stop ("Folder to store plots does not exist: ", path.data, ".")
   }

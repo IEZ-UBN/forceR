@@ -230,6 +230,9 @@ red_peaks_100 <- function(df,
                           path.plots = NULL,
                           show.progress = FALSE){
 
+  oldpar <- par(no.readonly = TRUE)    # code line i
+  on.exit(par(oldpar))
+
   if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
     stop ("column names of 'df' must contain 'measurement','force.norm'.")
   }
