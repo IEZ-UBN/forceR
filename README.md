@@ -1,4 +1,4 @@
-# forceR
+# forceR <img src="man/figures/logo.png" align="right" height="139" />
 
 **A vignette, which guides you through all functions of the package, is is available [here](https://htmlpreview.github.io/?https://github.com/Peter-T-Ruehr/forceR/blob/main/vignettes/forceR.html)**.
 
@@ -33,4 +33,4 @@ devtools::install_github("https://github.com/Peter-T-Ruehr/forceR")
 ### Citation
 If you use this package, please cite the original publication (currently under review):
 
-Rühr, PT & Blanke, A (**in press**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution*.
+Rühr, PT & Blanke, A (**in press**): forceX and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution*.
