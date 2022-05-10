@@ -22,6 +22,7 @@ To install the development version of `forceR` from [GitHub](https://github.com/
 install.packages('forceR')
 ```
 
+#### Development version
 You can also install the development version of `forceR` from the current [GitHub repository](https://github.com/Peter-T-Ruehr/forceR):
 ```
 require(devtools)
