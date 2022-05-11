@@ -17,7 +17,7 @@ The package `forceR` has originally been written for insect bite force data prep
 ### Installation
 
 #### Official release
-To install the development version of `forceR` from [GitHub](https://github.com/Peter-T-Ruehr/forceR) use the following command (not yet valid):
+To install the stable version of `forceR` from [CRAN](https://cran.r-project.org/web/packages/forceR/index.html) use the following command:
 ```
 install.packages('forceR')
 ```
