@@ -1,3 +1,12 @@
+# `forceR` v1.0.15 (Release date: xxx)
+### Major changes
+  
+### Minor changes:
+  * Updated README.md
+  
+### Bug fixes
+  * Corrected input tests of y_to_force()
+
 # `forceR` v1.0.14 (Release date: 2022-05-10)
 ### Major changes
   * Added logo (v.1.0.14)
