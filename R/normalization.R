@@ -156,8 +156,6 @@ rescale_peaks <- function(df.peaks,
 
     curves_df_norm <-  rbind(curves_df_norm, curr.peak.window)
 
-    curves_df_norm <-  rbind(curves_df_norm, curr.peak.window)
-
     if(show.progress == TRUE){
       print_progress(i, nrow(df.peaks.1.per.row))
     }
