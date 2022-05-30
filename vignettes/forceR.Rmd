@@ -578,7 +578,7 @@ The function overwrites the start and end values of the selected peak in the sel
 *Note that the peak in the figures above looks differently from the one in your plots, but the principles are the same.*
 
 ### Normalize (rescale) peaks
-In the next step, we will use `rescale_peaks()` to rescale the time and force data so that they both range from 0 to 1.
+In the next step, we will use `rescale_peaks()` to rescale the time and force data so that they both range from 0 to 1. This function takes the data frame that contains the individual peak starts and ends, and the measurement data. Both data frames are linked by the 'measurement' column, so this column needs to be present in both data frames.
 
 ```{r, eval=TRUE, warning=FALSE, message=FALSE, include=FALSE}
 # this prints too long to let it stay

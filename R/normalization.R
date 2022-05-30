@@ -64,8 +64,8 @@ rescale_peaks <- function(df.peaks,
                           path.data = NULL,
                           show.progress = FALSE){
 
-  if(sum(colnames(df.peaks) %in% c("species","measurements","starts","ends")) != 4){
-    stop ("column names of 'df.peaks' must contain 'species','measurements','starts','ends'.")
+  if(sum(colnames(df.peaks) %in% c("measurements","starts","ends")) != 3){
+    stop ("column names of 'df.peaks' must contain 'measurements','starts','ends'.")
   }
 
   if(sum(colnames(df.data) %in% c("t","force","measurement")) != 3){
@@ -74,7 +74,9 @@ rescale_peaks <- function(df.peaks,
 
   if(!is.null(path.data)){
     if(!is.character(path.data)) stop ("'path.data' must be a character string.")
+    if(!file.exists(path.data)) stop ("Make sure that the folder ", path.data, " (defined by 'path.data') exists.")
   }
+
   # dplyr nulls
   species <- measurement <- peak <- specimen <- start <- end <- t.norm <- force.norm <- NULL
 
@@ -143,12 +145,19 @@ rescale_peaks <- function(df.peaks,
     curr.peak.window <- df.data.red.for.looping %>%
       ungroup() %>%
       filter(measurement == curr.measurement,
-             t >= curr.peak.start & t <= curr.peak.end) %>%
+             t >= curr.peak.start & t <= curr.peak.end)
+
+    # check if there is data for this combination
+    if(nrow(curr.peak.window) == 0) stop("No data found for peak ", peak,
+                                         " of measurement ", measurement, ".")
+    curr.peak.window <- curr.peak.window  %>%
       mutate(t.peak = t - first(t)) %>%
       mutate(t.norm =  round(seq(0, 1, length.out = n()),6),
              force.norm = round(rescale_to_range(force, from = 0, to = 1),6),
              peak = curr.peak) %>%
       select(measurement, peak, t.norm, force.norm) # t, force,
+
+    curves_df_norm <-  rbind(curves_df_norm, curr.peak.window)
 
     curves_df_norm <-  rbind(curves_df_norm, curr.peak.window)
 
@@ -239,10 +248,12 @@ red_peaks_100 <- function(df,
 
   if(!is.null(path.data)){
     if(!is.character(path.data)) stop ("'path.data' must be a character string.")
+    if(!file.exists(path.data)) stop ("Make sure that the folder ", path.data, " (defined by 'path.data') exists.")
   }
 
   if(!is.null(path.plots)){
     if(!is.character(path.plots)) stop ("'path.plots' must be a character string.")
+    if(!file.exists(path.plots)) stop ("Make sure that the folder ", path.plots, " (defined by 'path.plots') exists.")
   }
 
   peak <- force.norm <- measurement <- specimen <- NULL
@@ -359,7 +370,9 @@ avg_peaks <- function(df,
 
   if(!is.null(path.data)){
     if(!is.character(path.data)) stop ("'path.data' must be a character string.")
+    if(!file.exists(path.data)) stop ("Make sure that the folder ", path.data, " (defined by 'path.data') exists.")
   }
+
 
   species <- index <- force.norm.100 <- NULL
 
