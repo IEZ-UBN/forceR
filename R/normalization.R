@@ -83,17 +83,15 @@ rescale_peaks <- function(df.peaks,
   #### linear mapping: normalization of x and y ####
   # create tibble with 1 peak per row with start and end
   # print("Converting table to one peak per row...")
-  df.peaks.1.per.row <- as_tibble(setNames(data.frame(matrix(nrow = 1, ncol = length(c("species", "measurement", "peak", "start", "end")))),
-                                           c("species", "measurement", "peak", "start", "end")))
+  df.peaks.1.per.row <- as_tibble(setNames(data.frame(matrix(nrow = 1, ncol = length(c("measurement", "peak", "start", "end")))),
+                                           c("measurement", "peak", "start", "end")))
   # change col types and delete first row
   df.peaks.1.per.row <- df.peaks.1.per.row %>%
-    mutate(species = as.character(species),
-           measurement = as.character(measurement),
+    mutate(measurement = as.character(measurement),
            peak = as.integer(peak)) %>%
     slice(0)
 
   for(b in 1:nrow(df.peaks)){ # nrow(df.peaks)
-    curr.species <-df.peaks$species[b]
     curr.peak.starts <- str_split(df.peaks$starts[b], pattern = "; ")[[1]]
     curr.peak.ends <- str_split(df.peaks$ends[b], pattern = "; ")[[1]]
     curr.measurements <- str_split(df.peaks$measurements[b], pattern = "; ")[[1]]
@@ -103,8 +101,7 @@ rescale_peaks <- function(df.peaks,
       curr.peak.start <- as.numeric(curr.peak.starts[c])
       curr.peak.end <- as.numeric(curr.peak.ends[c])
       df.peaks.1.per.row <- bind_rows(df.peaks.1.per.row,
-                                      tibble(species=curr.species,
-                                             measurement=curr.measurement,
+                                      tibble(measurement=curr.measurement,
                                              peak=c,
                                              start=curr.peak.start,
                                              end=curr.peak.end))
@@ -121,7 +118,7 @@ rescale_peaks <- function(df.peaks,
                                     # select(-t) %>%
                                     distinct(measurement, specimen),
                                   by="measurement") %>%
-    select(species, specimen, measurement, peak, start, end)
+    select(specimen, measurement, peak, start, end)
 
   if(!is.null(path.data)){
     # if(write.data == TRUE){
