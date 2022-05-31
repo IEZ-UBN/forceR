@@ -145,8 +145,9 @@ rescale_peaks <- function(df.peaks,
              t >= curr.peak.start & t <= curr.peak.end)
 
     # check if there is data for this combination
-    if(nrow(curr.peak.window) == 0) stop("No data found for peak ", peak,
-                                         " of measurement ", measurement, ".")
+    if(nrow(curr.peak.window) == 0) stop("No data found for peak ", curr.peak,
+                                         " of measurement ", curr.measurement, ".")
+
     curr.peak.window <- curr.peak.window  %>%
       mutate(t.peak = t - first(t)) %>%
       mutate(t.norm =  round(seq(0, 1, length.out = n()),6),

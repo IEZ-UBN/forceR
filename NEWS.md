@@ -1,10 +1,11 @@
 # `forceR` v1.0.15 (Release date: xxx)
 ### Major changes
+  * Optimized peak finding by adding/subtracting one time step from bite start/end, respectively, and by making sure that numbers are numeric within the 'find_strongest_peaks()' function
   
 ### Minor changes:
   * Added checks of output folder existence to `rescale_peaks()`, `red_peaks_100()`, and `avg_peaks()`
   * Removed the necessity of having the species name in df.peaks of `rescale_peaks()`
-  * Added some internal data checks with meaningful error messages to `rescale_peaks()`
+  * Added some internal data checks with meaningful error messages to `rescale_peaks()` and `correct_peak()`
   * Disentangled in `plot.to.screen` and `path.plots` `find_best_fits()`
   * Updated vignette
   * Updated README.md
