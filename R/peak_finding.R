@@ -471,8 +471,8 @@ correct_peak <- function(df.peaks,
   oldpar <- par(no.readonly = TRUE)    # code line i
   on.exit(par(oldpar))
 
-  if(sum(colnames(df.peaks) %in% c("species", "starts", "ends", "measurements")) != 4){
-    stop ("column names of 'df.peaks' must contain 'species', 'starts', 'ends', 'measurements'")
+  if(sum(colnames(df.peaks) %in% c("starts", "ends", "measurements")) != 3){
+    stop ("column names of 'df.peaks' must contain 3'starts', 'ends', 'measurements'")
   }
 
   par(mar=c(5,4,4,2)+0.1, mfrow=c(1,1))
