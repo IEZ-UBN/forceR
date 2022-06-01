@@ -640,9 +640,10 @@ peak_duration_max_force <- function(df.peaks,
       curr.peak.end <- as.numeric(curr.peak.ends[c])
 
       # get max_bf of that peak
-      curr_max_bf <- df.data %>%
-        filter(measurement == curr.measurement,
-               t > curr.peak.start,
+      curr_df.data <- df.data %>%
+        filter(measurement == curr.measurement)
+      curr_max_bf <- curr_df.data %>%
+        filter(t > curr.peak.start,
                t < curr.peak.end) %>%
         summarise(max_bf = max(force)) %>%
         pull()
