@@ -33,7 +33,7 @@
 #' printed to the console. Default: `FALSE`.
 #'
 #' @details
-#' The input data frame or tibble needs to contain the following columns:
+#' The input data frame `df` needs to contain the following columns:
 #'
 #' | **`t`** | **`force`** |  **`measurement`** |
 #' | :----: | :----: |:----: |
@@ -441,7 +441,7 @@ find_strongest_peaks <- function(df,
 #' @param path.data A string character defining where to save the results. If `NULL` (default),
 #' data is not stored in a file.
 #' @details
-#' # `df` needs to contain the following columns:
+#' # `df.data` needs to contain the following columns:
 #'
 #' | **`t`** | **`force`** |  **`measurement`** |
 #' | :----: | :----: |:----: |
@@ -472,7 +472,7 @@ correct_peak <- function(df.peaks,
   on.exit(par(oldpar))
 
   if(sum(colnames(df.peaks) %in% c("starts", "ends", "measurements")) != 3){
-    stop ("column names of 'df.peaks' must contain 3'starts', 'ends', 'measurements'")
+    stop ("column names of 'df.peaks' must contain 'starts', 'ends', 'measurements'")
   }
 
   par(mar=c(5,4,4,2)+0.1, mfrow=c(1,1))
@@ -559,5 +559,113 @@ correct_peak <- function(df.peaks,
   } else {
     message("Terminated by user.")
   }
+
   return(df.peaks)
+}
+
+
+
+
+
+
+
+
+
+#' Peak Duration and Maximum Force
+#'
+#' Calculate duration and maximum force for each individual peak.
+#'
+#' @param df.peaks The resulting tibble of the function `find_peaks()`. See `?find_peaks` for more details.
+#' @param df.data A data frame or tibble in the below format. The columns `t` (time), `force`, `measurement`, and `specimen`.
+#'   (measurement ID) must be present. This will usually be the same table that was used before in `find_peaks()`.
+#' @param path.data A string character defining where to save the results. If `NULL` (default),
+#' data is not stored in a file.
+#' @param show.progress A logical value indicating if progress should be
+#' printed to the console. Default: `FALSE`.
+#' @details
+#' # `df.data` needs to contain the following columns:
+#'
+#' | **`t`** | **`force`** |  **`measurement`** |
+#' | :----: | :----: |:----: |
+#' | `t.1` |  `force.1` | `measurement.1` |
+#' | `...` |  `...` |  `...` |
+#' | `t.n` |  `force.n` | `measurement.m` |
+#'
+#' @return Changes values within `df.peaks` and returns the changed tibble.
+#' @examples
+#' # Using the forceR::df.all.200.tax dataset:
+#' \donttest{
+#' # This function needs user input.
+#'peaks.df <- correct_peak(df.peaks = forceR::peaks.df,
+#'                         df.data = forceR::df.all.200.tax,
+#'                         measurement = "m_01",
+#'                         peak = 1,
+#'                         additional.msecs = 5)
+#' }
+#' @export
+peak_duration_max_force <- function(df.peaks,
+                                    df.data,
+                                    path.data = NULL,
+                                    show.progress = FALSE){
+
+  if(sum(colnames(df.peaks) %in% c("starts", "ends", "measurements")) != 3){
+    stop ("column names of 'df.peaks' must contain 'starts', 'ends', 'measurements'")
+  }
+  if(sum(colnames(df.data) %in% c("t", "force", "measurement")) != 3){
+    stop ("column names of 'df.peaks' must contain 't', 'force', 'measurement'")
+  }
+
+  if(!is.null(path.data)){
+    # create log folder if existing not already
+    path.data.manual.peak.start.end.logs <- paste0(path.data, "/manual.peak.start.end.logs/")
+    ifelse(!dir.exists(path.data.manual.peak.start.end.logs), dir.create(path.data.manual.peak.start.end.logs), "./manual.peak.start.end.logs already exists")
+  }
+
+  peaks_1_per_row <- as_tibble(setNames(data.frame(matrix(nrow = 1, ncol = length(c("measurement", "peak", "start", "end", "max_bf")))),
+                                        c("measurement", "peak", "start", "end", "max_bf")))
+  # change col types and delete first row
+  peaks_1_per_row <- peaks_1_per_row %>%
+    mutate(measurement = as.character(measurement),
+           peak = as.integer(peak)) %>%
+    slice(0)
+
+  for(b in 1:nrow(df.peaks)){ # nrow(df.peaks)
+    curr.measurements <- str_split(df.peaks$measurements[b], pattern = "; ")[[1]]
+    curr.peak.starts <- str_split(df.peaks$starts[b], pattern = "; ")[[1]]
+    curr.peak.ends <- str_split(df.peaks$ends[b], pattern = "; ")[[1]]
+
+    for(c in 1:length(curr.peak.starts)){
+      curr.measurement <- curr.measurements[c]
+      curr.peak.start <- as.numeric(curr.peak.starts[c])
+      curr.peak.end <- as.numeric(curr.peak.ends[c])
+
+      # get max_bf of that peak
+      curr_max_bf <- df.data %>%
+        filter(measurement == curr.measurement,
+               t > curr.peak.start,
+               t < curr.peak.end) %>%
+        summarise(max_bf = max(force)) %>%
+        pull()
+
+      peaks_1_per_row <- bind_rows(peaks_1_per_row,
+                                   tibble(measurement=curr.measurement,
+                                          peak=c,
+                                          start=curr.peak.start,
+                                          end=curr.peak.end,
+                                          max_bf = curr_max_bf))
+    }
+    if(show.progress == TRUE){
+      forceR::print_progress(b, nrow(df.peaks))
+    }
+  }
+
+  peaks_1_per_row <- peaks_1_per_row %>%
+    mutate(duration = end-start)
+
+  if(!is.null(path.data)){
+    # save data
+    write_csv(peaks_1_per_row,
+              file.path(path.data, paste0("peak_duration_max_force_", today(), ".csv")))
+  }
+  return(peaks_1_per_row)
 }
