@@ -1,6 +1,6 @@
 # forceR <img src="man/figures/logo.png" align="right" height="139" />
 
-**A vignette, which guides you through all functions of the package, is available [here](https://htmlpreview.github.io/?https://github.com/Peter-T-Ruehr/forceR/blob/main/vignettes/forceR.html)**.
+**A vignette, which guides you through all functions of the package is available [here](https://htmlpreview.github.io/?https://github.com/Peter-T-Ruehr/forceR/blob/main/vignettes/forceR.html)**.
 
 ### Functionality
 The package `forceR` has originally been written for insect bite force data preparation and analysis, but it can be used for any kind of time series measurements. Functions include 
