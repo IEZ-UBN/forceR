@@ -1,4 +1,4 @@
-# `forceR` v1.0.15 (Release date: xxx)
+# `forceR` v1.0.15 (Release date: 2022-06-07)
 ### Major changes
   * Optimized peak finding by adding/subtracting one time step from bite start/end, respectively, and by making sure that numbers are numeric within the 'find_strongest_peaks()' function
   * Added `peak_duration_max_force()` to calculate duration and maximum force per peak and store it in a tibble with one peak per row

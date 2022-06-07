@@ -621,6 +621,9 @@ peak_duration_max_force <- function(df.peaks,
     ifelse(!dir.exists(path.data.manual.peak.start.end.logs), dir.create(path.data.manual.peak.start.end.logs), "./manual.peak.start.end.logs already exists")
   }
 
+  # dplyr NULLs
+  start <- end <- measurement <- peak <- NULL
+
   peaks_1_per_row <- as_tibble(setNames(data.frame(matrix(nrow = 1, ncol = length(c("measurement", "peak", "start", "end", "max_bf")))),
                                         c("measurement", "peak", "start", "end", "max_bf")))
   # change col types and delete first row
