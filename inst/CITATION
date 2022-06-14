@@ -10,10 +10,11 @@ citEntry(entry = "Article",
   number       = "x",
   pages        = "x--x",
   url          = "https://doi.org/10.1111/2041-210X.13909",
+  doi          = "10.1111/2041-210X.13909"
 
   textVersion  =
-  paste("Peter T. Rühr, Alexander Blanke (in press).",
+  paste("Peter T. Rühr, Alexander Blanke (2022):",
         "forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces.",
         "Methods in Ecology and Evolution, x(x), x-x.",
-        "URL https://doi.org/10.1111/2041-210X.13909")
+        "doi: 10.1111/2041-210X.13909")
 )
