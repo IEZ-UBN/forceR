@@ -5,7 +5,7 @@
   * made `convert_measurement()` more reliable regarding input column types
   
 ### Bug fixes
-  * Corrected input tests of `y_to_force()`
+
 
 # `forceR` v1.0.15 (Release date: 2022-06-07)
 ### Major changes
