@@ -53,12 +53,15 @@ convert_measurement <- function (file,
   #   decimal, e.g. "," if it is not.
   decimal <- gsub("[[:digit:]]+", "", data[2, 1])
 
-  if (decimal != "") {
+  if (decimal != '.') {
     # print(paste0("Converting \'", decimal, "\' to \'.\'..."))
     data$Time <- as.numeric(gsub(decimal, ".", gsub("\\.",
                                                     "", data$Time))) * 1000
     data$y0 <- as.numeric(gsub(decimal, ".", gsub("\\.",
                                                   "", data$y0)))
+  } else {
+    data$Time <- as.numeric(data$Time) * 1000
+    data$y0 <- as.numeric(data$y0)
   }
   data <- data %>% as_tibble() %>% select(Time, y0) %>% rename(t = Time,
                                                                y = y0)
