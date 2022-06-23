@@ -267,15 +267,22 @@ red_peaks_100 <- function(df,
   species <- unique(df$species)
   df.peaks.100 <- NULL
   for(b in 1:length(species)){ # length(species)
+    # b <- which(species == "Pseudochorthippus_parallelus")
     curr.species <- species[b]
 
     curr.species.norm.df <- df %>%
       filter(species == curr.species)
+    if(!is.null(path.plots)){
+      plot(curr.species.norm.df %>%
+             select(t.norm, force.norm),
+           type  ="l")
+    }
 
     peaks <- unique(curr.species.norm.df %>%
                       pull(peak))
 
     for(c in peaks){
+      # c <- 1
       curr.peak.F <- curr.species.norm.df %>%
         filter(peak == c) %>%
         pull(force.norm)

@@ -435,7 +435,7 @@ find_strongest_peaks <- function(df,
 #'   respective measurement ID within `df.peaks` and `df`.
 #' @param peak A numerical value defining the peak to be corrected.
 #' @param additional.msecs A numerical value defining the time before and after the originally defined window of the peak to be corrected. Higher
-#'   values allow defining start and end points further away from the original start and end points.
+#'   values allow defining start and end points further away from the original start and end points. Default: `500`.
 #'   @param path.data A string character defining where to save the result and log file. If `NULL` (default),
 #' data is not stored in files. Log files cannot be retrieved in this case.
 #' @param path.data A string character defining where to save the results. If `NULL` (default),
@@ -465,7 +465,7 @@ correct_peak <- function(df.peaks,
                          df.data,
                          measurement,
                          peak,
-                         additional.msecs,
+                         additional.msecs = 500,
                          path.data = NULL){
 
   oldpar <- par(no.readonly = TRUE)    # code line i

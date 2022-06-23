@@ -1,3 +1,12 @@
+# `forceR` v1.0.16 (Release date: xxx)
+### Major changes
+
+### Minor changes:
+  * made `convert_measurement()` more reliable regarding input column types
+  
+### Bug fixes
+  * Corrected input tests of `y_to_force()`
+
 # `forceR` v1.0.15 (Release date: 2022-06-07)
 ### Major changes
   * Optimized peak finding by adding/subtracting one time step from bite start/end, respectively, and by making sure that numbers are numeric within the 'find_strongest_peaks()' function
