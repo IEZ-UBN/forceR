@@ -1,13 +1,19 @@
-# `forceR` v1.0.16 (Release date: xxx)
-### Major changes
+# `forceR` v1.0.16 (Release date: 2022-11-07)
+### Major changes:
 
 ### Minor changes:
-  * made `convert_measurement()` more reliable regarding input column types
+  * `amp_drift_corr()` now accepts any time step size - through it is expected that time steps are either constant or varying only to a neglectable degree.
   
 ### Bug fixes
 
 
-# `forceR` v1.0.15 (Release date: 2022-06-07)
+# `forceR` v1.0.16 (Release date: 2022-06-23)
+### Minor changes:
+  * made `convert_measurement()` more reliable regarding input column types
+
+
+
+# `forceR` v1.0.15 (Release date: 2022-06-07 - currently on CRAN)
 ### Major changes
   * Optimized peak finding by adding/subtracting one time step from bite start/end, respectively, and by making sure that numbers are numeric within the 'find_strongest_peaks()' function
   * Added `peak_duration_max_force()` to calculate duration and maximum force per peak and store it in a tibble with one peak per row

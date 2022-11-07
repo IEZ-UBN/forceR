@@ -242,41 +242,42 @@ amp_drift_corr <- function(filename,
   lin.cor.line.y <- c(0,data$y[nrow(data)]) # nrow(data)
   # lines(lin.cor.line.x, lin.cor.line.y, type="l", col = "orange")
 
-  baseline.sp <- spline(x=lin.cor.line.x, y=lin.cor.line.y, n = nrow(data)*2.1)
+  baseline.sp <- spline(x=lin.cor.line.x, y=lin.cor.line.y, n = nrow(data))
   baseline.sp <- bind_cols(x = baseline.sp$x, y = baseline.sp$y)
-  # lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
+  baseline.sp$x <- data$t
+  lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
 
-  # set round factor: -1 = 10; 0 = same
-  if(t.step == 1 | t.step == 2){
-    round.factor <- 0
-  } else if(t.step == 10){
-    round.factor <- -1
-  } else if(t.step == 0.5){
-    round.factor <- "defined later"
-  }
+  # # set round factor: -1 = 10; 0 = same
+  # if(t.step == 1 | t.step == 2){
+  #   round.factor <- 0
+  # } else if(t.step == 10){
+  #   round.factor <- -1
+  # } else if(t.step == 0.5){
+  #   round.factor <- "defined later"
+  # }
 
   # filter points that lie within measured area
-  if(t.step == 1 | t.step == 2 | t.step == 10){
-    baseline.sp.filtered <- baseline.sp %>%
-      mutate(x = round(x,round.factor)) %>%
-      group_by(x) %>%
-      summarize(mean.V = mean(y)) %>%
-      filter(x>=0 & x<= max(data$t))
-    if(t.step == 2){
-      baseline.sp.filtered <- baseline.sp.filtered %>%
-        filter(x %% t.step == 0)
-    }
-  } else if(t.step == 0.5){
-    baseline.sp.filtered <- baseline.sp %>%
-      mutate(x = ceiling(x*2) / 2) %>%
-      group_by(x) %>%
-      summarize(mean.V = mean(y)) %>%
-      filter(x>=0 & x<= max(data$t))
-  }
+  # if(t.step == 1 | t.step == 2 | t.step == 10){
+    # baseline.sp.filtered <- baseline.sp %>%
+    #   mutate(x = round(x,round.factor)) %>%
+    #   group_by(x) %>%
+    #   summarize(mean.V = mean(y)) %>%
+    #   filter(x>=0 & x<= max(data$t))
+    # if(t.step == 2){
+    #   baseline.sp.filtered <- baseline.sp.filtered %>%
+    #     filter(x %% t.step == 0)
+    # }
+  # } else if(t.step == 0.5){
+  #   baseline.sp.filtered <- baseline.sp %>%
+  #     mutate(x = ceiling(x*2) / 2) %>%
+  #     group_by(x) %>%
+  #     summarize(mean.V = mean(y)) %>%
+  #     filter(x>=0 & x<= max(data$t))
+  # }
 
   # subtract new baseline from rawdata
-  data$y <- round(data$y-baseline.sp.filtered$mean.V,6)
-  # lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
+  data$y <- round(data$y-baseline.sp$y,6)
+  lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
 
   if(write.PDFs == TRUE){
     pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_ampdriftcorr", ".pdf")),
