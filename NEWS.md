@@ -1,4 +1,4 @@
-# `forceR` v1.0.16 (Release date: 2022-11-07)
+# `forceR` v1.0.17 (Release date: 2022-11-07)
 ### Major changes:
 
 ### Minor changes:

@@ -245,7 +245,7 @@ amp_drift_corr <- function(filename,
   baseline.sp <- spline(x=lin.cor.line.x, y=lin.cor.line.y, n = nrow(data))
   baseline.sp <- bind_cols(x = baseline.sp$x, y = baseline.sp$y)
   baseline.sp$x <- data$t
-  lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
+  # lines(baseline.sp$x, baseline.sp$y, type="l", col = "orange", lwd=1)
 
   # # set round factor: -1 = 10; 0 = same
   # if(t.step == 1 | t.step == 2){
@@ -277,7 +277,7 @@ amp_drift_corr <- function(filename,
 
   # subtract new baseline from rawdata
   data$y <- round(data$y-baseline.sp$y,6)
-  lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
+  # lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
 
   if(write.PDFs == TRUE){
     pdf(file.path(output.folder.pdfs, paste0(curr.measurement, "_ampdriftcorr", ".pdf")),
