@@ -7,7 +7,7 @@
 #'   often which coefficients were good fits is plotted as well. The function returns the numerical value of the coefficient that fulfilled the criterion of a good fit
 #'   in most curves.
 #'
-#' @param df The resulting tibble of the function `avg_peaks()`. See `?avg_peaks` for more details.
+#' @param df The resulting tibble of the function `avg_peaks()`. See below for more details.
 #'
 #' @param degrees Numerical vector of polynomial degrees to test. Cannot be infinitely high - if two high, throws error: `'degree' must be less than number of unique points`.
 #' Default: `1:20`.
@@ -28,6 +28,10 @@
 #'
 #' @param show.progress A logical value indicating if progress should be
 #' printed to the console. Default: `FALSE`.
+#'
+#' @details #' This function expects a tibble made of three columns as `df`: `species` containing the species names,
+#' `index` numerical column, e.g. time (but can be arbitrary continuous unit), for each species,
+#' and `force.norm.100` containing the averaged and rescaled curve of each species.
 #'
 #' @return Returns the a numerical value representing the number of coefficient that was most often under the first 4 models that were followed by an
 #'   AIC-change `<= 5%` by the next model. Additionally, plots showing the model fits and a histogram of the coefficients that met the 5%-criterion can be
