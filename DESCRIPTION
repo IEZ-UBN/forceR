@@ -1,6 +1,7 @@
 Package: forceR
 Title: Force Measurement Analyses
-Description: For cleaning and analyses of animal closing force measurements. 
+Description: For cleaning and analysis of graphs, such as animal closing force 
+    measurements. 
     'forceR' was initially written and optimized to deal with insect bite force 
     measurements, but can be used for any time series. Includes a full workflow 
     to load, plot and crop data, correct amplifier and baseline drifts, 
