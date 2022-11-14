@@ -35,7 +35,14 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Authors@R: 
-    person("Peter", "Rühr", , "peter.ruehr@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-2776-6172"))
+    c(person(given = "Peter", 
+              family = "Rühr", 
+              email = "peter.ruehr@gmail.com",
+              role = c("aut", "cre"),
+              comment = c(ORCID = "0000-0003-2776-6172")),
+           person(given = "Alexander", 
+              family = "Blanke", 
+              role = c("ctb"),
+              comment = c(ORCID = "0000-0003-4385-6039")))
 Maintainer: Peter T. Rühr <peter.ruehr@gmail.com>
 LazyData: true
