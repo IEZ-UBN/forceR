@@ -1,8 +1,10 @@
 # `forceR` v1.0.17 (Release date: 2022-11-07)
 ### Major changes:
+  * add parameters `degrees`, `threshold`, and `zero_threshold` to `find_best_fit()`.
 
 ### Minor changes:
-  * `amp_drift_corr()` now accepts any time step size - through it is expected that time steps are either constant or varying only to a neglectable degree.
+  * `amp_drift_corr()` now accepts any time step size - though it is still expected that time steps are either constant or varying only to a neglectable degree.
+  * results of `amp_drift_corr()` are not rounded anymore.
   
 ### Bug fixes
 
