@@ -7,6 +7,12 @@
 #' @param path.data A string character defining where to save the results. If `NULL`,
 #' data is not stored in a file. Default: `NULL`.
 #'
+#' @param collect_garbage Logical. If `TRUE`, then the `gc()` command will be
+#' run silently to try to clean up memory. This may help when running
+#' `convert_measurement` in a loop, even though memory cluttering cannot be
+#' fully prevented. If such a loop crashes, the loop should be split into
+#' several separate loops to convert all files. Default: `FALSE`.
+#'
 #' @return Returns and, if `path.data is not NULL`, saves data in
 #' csv-format in `path.data`. \cr
 #' \cr
@@ -26,16 +32,18 @@
 #'
 #' @export
 convert_measurement <- function (file,
-                                 path.data = NULL){
+                                 path.data = NULL,
+                                 collect_garbage = FALSE){
   # # testing
   # convert_measurement (file = forceR_example(type = "LJStream"),
   #                                  path.data = NULL)
   # convert_measurement (file = forceR_example(type = "LJStream"),
   #                                  path.data = "./test_folder")
 
+  Time <- y0 <- NULL
+
   if (!is.character(file))
     stop("'file' must be a character string.")
-  Time <- y0 <- NULL
   if (!file.exists(file))
     stop(paste0("File ", file, " does not exist!"))
   if (!is.null(path.data)) {
@@ -43,11 +51,13 @@ convert_measurement <- function (file,
       stop("Folder to store plots does not exist: ", path.data,
            ".")
   }
-  res.reduction <- 10
 
   file.name <- basename(file)
 
-  data <- read_delim(file, delim = "\t", skip = 6, col_types = "ccc", show_col_types = FALSE)
+  data <- read_delim(file, delim = "\t",
+                     skip = 6,
+                     col_types = "ccc",
+                     show_col_types = FALSE)
 
   # Check what the decimal is. Returns "" when it is a full stop, and the
   #   decimal, e.g. "," if it is not.
@@ -69,6 +79,14 @@ convert_measurement <- function (file,
     write_csv(data, file.path(path.data, paste0(gsub("\\.dat$",
                                                      "_converted\\.csv", basename(file)))), quote = "none")
   }
+
+  if(collect_garbage == TRUE){
+    print("cleaning memory")
+    rm(file.name)
+    rm(decimal)
+    invisible(gc(verbose = FALSE))
+  }
+
   return(data)
 }
 

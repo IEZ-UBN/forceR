@@ -1,3 +1,9 @@
+## `forceR` v1.0.18 (Release date: 2022-11-07)
+
+### Minor changes:
+
+-   added `collect_garbage = FALSE` to `convert_measurement()` after the [issue](https://github.com/Peter-T-Ruehr/forceR/issues/1) raised by [Sam](https://github.com/sginot) to possibly prevent the errors he describes.
+
 ## `forceR` v1.0.17 (Release date: 2022-11-07)
 
 ### Major changes:
@@ -8,8 +14,6 @@
 
 -   `amp_drift_corr()` now accepts any time step size - though it is still expected that time steps are either constant or varying only to a neglectable degree.
 -   results of `amp_drift_corr()` are not rounded anymore.
-
-### Bug fixes
 
 ## `forceR` v1.0.16 (Release date: 2022-06-23)
 

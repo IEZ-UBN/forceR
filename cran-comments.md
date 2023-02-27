@@ -1,2 +1,1 @@
-  * added MEE publication DOI to vignette
-  * made `amp_drift_corr()` flexible regarding input data time step size
+-   added `collect_garbage = FALSE` to `convert_measurement()` after the [issue](https://github.com/Peter-T-Ruehr/forceR/issues/1) raised by [Sam](https://github.com/sginot) to possibly prevent the errors he describes.

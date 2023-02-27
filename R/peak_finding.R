@@ -102,7 +102,7 @@ find_strongest_peaks <- function(df,
     if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
   }
 
-  specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in funciton?
+  specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in function?
 
   # print("Initial rough threshold search for peaks...")
   measurements.all <- sort(unique(df$measurement))
@@ -127,7 +127,7 @@ find_strongest_peaks <- function(df,
     # plot(curr.plot.window$t, curr.plot.window$force, type="l")
 
     curr.specimen <- curr.plot.window %>%
-      slice(n=1) %>%
+      slice(1) %>%
       pull(specimen)
 
     threshold <- initial.threshold * max(curr.plot.window$force)

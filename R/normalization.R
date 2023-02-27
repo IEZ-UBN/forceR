@@ -191,8 +191,9 @@ rescale_peaks <- function(df.peaks,
 #'
 #' Reduces curves to 100 observations per peak.
 #'
-#' @param df The resulting tibble of the function `rescale_peaks()`. See `?rescale_peaks` for more details.
-#'   The columns `measurement` and `force.norm` must be present.
+#' @param df The resulting tibble of the function `rescale_peaks()`. The columns `species`, `specimen`, `measurement`, `peak`, and `force.norm` must be present.
+#' See `?rescale_peaks` for more details.
+#'
 #'
 #' @param plot.to.screen A logical value indicating if results should be
 #' plotted in the current R plot device. Default: `FALSE`.
@@ -238,8 +239,8 @@ red_peaks_100 <- function(df,
   oldpar <- par(no.readonly = TRUE)    # code line i
   on.exit(par(oldpar))
 
-  if(sum(colnames(df) %in% c("measurement","force.norm")) != 2){
-    stop ("column names of 'df' must contain 'measurement','force.norm'.")
+  if(sum(colnames(df) %in% c("species", "specimen", "measurement", "peak", "force.norm")) != 5){
+    stop ("column names of 'df' must contain 'species`, `specimen`,` 'measurement', 'force.norm'.")
   }
 
   if(!is.null(path.data)){
@@ -252,7 +253,7 @@ red_peaks_100 <- function(df,
     if(!file.exists(path.plots)) stop ("Make sure that the folder ", path.plots, " (defined by 'path.plots') exists.")
   }
 
-  peak <- force.norm <- measurement <- specimen <- NULL
+  peak <- force.norm <- measurement <- t.norm <- specimen <- NULL
 
   # reduce all peaks to 100 observations and plot
   # if(write.pdfs == TRUE){
