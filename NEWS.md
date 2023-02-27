@@ -3,6 +3,7 @@
 ### Minor changes:
 
 -   added `collect_garbage = FALSE` to `convert_measurement()` after the [issue](https://github.com/Peter-T-Ruehr/forceR/issues/1) raised by [Sam](https://github.com/sginot) to possibly prevent the errors he describes.
+-   changed CITATION file to meet new bibtext format criteria of CRAN.
 
 ### Bug fixes:
 -   changed `slice(n=1)` to `slice(1)` in `path.plots()` after Error flags in CRAN Package Check Results.
