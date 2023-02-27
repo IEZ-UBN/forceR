@@ -1,19 +1,15 @@
-citHeader("To cite forceR in publications use:")
-
-citEntry(entry = "Article",
-  title        = "`forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces",
-  author       = personList(as.person("Peter T. Rühr"),
-                   as.person("Alexander Blanke")),
-  journal      = "Methods in Ecology and Evolution",
-  year         = "2022",
+bibentry(
+  bibtype = "Article",
+  textVersion = "Peter T. Rühr, Alexander Blanke (2022): forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces. Methods in Ecology and Evolution, 13(9), 1938-1948. doi: 10.1111/2041-210X.13909",
+  header = "To cite forceR in publications, please use",
+  author = c(person("Peter T.", "Rühr", role = "aut"),
+    person("Alexander","Blanke", role = "aut")),
+  title = "{forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces",
+  journal = "Methods in Ecology and Evolution}",
+  year = "2021",
   volume       = "13",
   number       = "9",
   pages        = "1938--1948",
-  url          = "https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13909",
   doi          = "10.1111/2041-210X.13909",
-  textVersion  = paste0("Peter T. Rühr, Alexander Blanke (2022):",
-        "forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces.",
-        "Methods in Ecology and Evolution, 13(9), 1938-1948.",
-        "doi: 10.1111/2041-210X.13909",
-        "https://CRAN.R-project.org/package=forceR")
+  url          = "https://www.doi.org/10.1111/2041-210X.13909",
 )
