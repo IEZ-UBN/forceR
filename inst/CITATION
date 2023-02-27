@@ -4,7 +4,7 @@ bibentry(
   header = "To cite forceR in publications, please use",
   author = c(person("Peter T.", "Rühr", role = "aut"),
     person("Alexander","Blanke", role = "aut")),
-  title = "{forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces",
+  title = "forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces",
   journal = "Methods in Ecology and Evolution}",
   year = "2021",
   volume       = "13",
