@@ -14,3 +14,4 @@ Duration: 1m 57.5s
 
 -   changed `slice(n=1)` to `slice(1)` in `path.plots()` after Error flags in CRAN Package Check Results.
 -   changed citation to `bibentry` style
+-   The note is as follows: Found the following files/directories: 'lastMiKTeXException'
