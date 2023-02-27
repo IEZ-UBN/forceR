@@ -1,5 +1,3 @@
-#' Convert LJStream *.dat file to standard time series
-#'
 #' Converts LJStream *.dat file to standard time series.
 #'
 #' @param file File path to raw measurement (*.dat file).

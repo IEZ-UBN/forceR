@@ -2,7 +2,7 @@
 % Please edit documentation in R/cropping.R
 \name{convert_measurement}
 \alias{convert_measurement}
-\title{Convert LJStream *.dat file to standard time series}
+\title{Converts LJStream *.dat file to standard time series.}
 \usage{
 convert_measurement(file, path.data = NULL, collect_garbage = FALSE)
 }
