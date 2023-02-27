@@ -2,11 +2,13 @@
 
 ──────────── forceR 1.0.18 ────
 
-Duration: 58.2s
+Duration: 1m 57.5s
 
-❯ checking for detritus in the temp directory ... NOTE Found the following files/directories: 'lastMiKTeXException'
+❯ checking for detritus in the temp directory ... NOTE
+  Found the following files/directories:
+    'lastMiKTeXException'
 
-0 errors ✔ \| 0 warnings ✔ \| 1 note ✖
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
 
 ##### additional notes:
 
