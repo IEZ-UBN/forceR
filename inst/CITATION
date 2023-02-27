@@ -10,11 +10,10 @@ citEntry(entry = "Article",
   number       = "9",
   pages        = "1938--1948",
   url          = "https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13909",
-  doi          = "10.1111/2041-210X.13909"
-
-  textVersion  =
-  paste("Peter T. Rühr, Alexander Blanke (2022):",
+  doi          = "10.1111/2041-210X.13909",
+  textVersion  = paste0("Peter T. Rühr, Alexander Blanke (2022):",
         "forceX and forceR: a mobile setup and R package to measure and analyze a wide range of animal closing forces.",
         "Methods in Ecology and Evolution, 13(9), 1938-1948.",
-        "doi: 10.1111/2041-210X.13909")
+        "doi: 10.1111/2041-210X.13909",
+        "https://CRAN.R-project.org/package=forceR")
 )
