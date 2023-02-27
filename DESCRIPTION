@@ -36,7 +36,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Authors@R: 
-    c(person(given = "Peter", 
+    c(person(given = "Peter T.", 
               family = "Rühr", 
               email = "peter.ruehr@gmail.com",
               role = c("aut", "cre"),
