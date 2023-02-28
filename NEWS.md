@@ -1,11 +1,9 @@
-## `forceR` v1.0.20 (Release date: 2023-02-28)
+## `forceR` v1.0.19 (Release date: 2023-02-28)
 
 ### Minor changes:
 
 -   reduced time for example calculations of `find_strongest_peaks()` and `plot_peaks()` to meet CRAN calculation times.
 -   updated citation in README from 'under review' to published.
-
-## `forceR` v1.0.19 (skipped...)
 
 ## `forceR` v1.0.18 (Release date: 2023-02-27)
 
