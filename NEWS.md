@@ -1,3 +1,6 @@
+## `forceR` v1.0.20 (Release date: 2023-02-28)
+-   release of v1.0.19 to CRAN.
+
 ## `forceR` v1.0.19 (Release date: 2023-02-28)
 
 ### Minor changes:
