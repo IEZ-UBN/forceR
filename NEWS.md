@@ -1,5 +1,13 @@
+## `forceR` v1.0.21 (Release date: xxx)
+
+### Minor changes:
+
+-   reduces df.peaks when plot_peaks() now to save time for plotting fewer measurements.
+
 ## `forceR` v1.0.20 (Release date: 2023-02-28)
--   release of v1.0.19 to CRAN.
+
+-   no changes
+    -   release of v1.0.19 to CRAN.
 
 ## `forceR` v1.0.19 (Release date: 2023-02-28)
 
