@@ -41,7 +41,7 @@ At the end of this vignette you will find a self-sufficient workflow example tha
 
 Please cite the following publication when using the `forceR` package:
 
-Rühr, PT & Blanke, A (**2022**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution* **XXX**: pp.XX-XX. doi: [10.1111/2041-210X.13909](https://doi.org/10.1111/2041-210X.13909)
+Rühr, PT & Blanke, A (**2022**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution* **13**(9): pp. 1938-1948. doi: [10.1111/2041-210X.13909](https://doi.org/10.1111/2041-210X.13909)
 
 ## Installation
 ### Official release
