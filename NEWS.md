@@ -1,4 +1,8 @@
-## `forceR` v1.0.21 (Release date: xxx)
+## `forceR` v1.0.21 (Release date: 2024-03-22 - *in line to be submitted to CRAN*)
+
+### Major changes:
+
+-   removed the necessity for the classifier to contain `specimen` and `species` columns, since the only importand columns is the `measurement` columns. This happened as a response GitHub issue #3 (<https://github.com/Peter-T-Ruehr/forceR/issues/3>).
 
 ### Minor changes:
 
