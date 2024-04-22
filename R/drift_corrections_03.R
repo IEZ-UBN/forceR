@@ -181,11 +181,24 @@ amp_drift_corr <- function(filename,
   # correction constant
   # print(t.step)
 
-  # reference y
-  V0 <- 1
-
   # calculate change for t.step
-  corr.const <- V0*exp(-(t.step/tau))
+  # define function to round to significant digits
+  sign_digits <- function(x,d){
+    s <- format(x,digits=d)
+    if(grepl("\\.", s) && ! grepl("e", s)) {
+      n_sign_digits <- nchar(s) -
+        max( grepl("\\.", s), attr(regexpr("(^[-0.]*)", s), "match.length") )
+      n_zeros <- max(0, d - n_sign_digits)
+      s <- paste(s, paste(rep("0", n_zeros), collapse=""), sep="")
+    }
+    return(as.numeric(s))
+  }
+
+  # round to decimal with 16 significant digits
+  corr.const <- sign_digits(1*exp(-(t.step/tau)), 16)
+  if(show.progress == TRUE){
+    print(as.character(corr.const))
+  }
 
   # get first y value to make it V.0
   V.0 <- data$y[1]
@@ -276,7 +289,7 @@ amp_drift_corr <- function(filename,
   # }
 
   # subtract new baseline from rawdata
-  data$y <- round(data$y-baseline.sp$y,6)
+  data$y <- data$y-baseline.sp$y
   # lines(data$t[seq(1,nrow(data),res.reduction/t.step)], data$y[seq(1,nrow(data),res.reduction/t.step)], type="l", col = "darkgreen")
 
   if(write.PDFs == TRUE){

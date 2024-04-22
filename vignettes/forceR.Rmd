@@ -41,7 +41,7 @@ At the end of this vignette you will find a self-sufficient workflow example tha
 
 Please cite the following publication when using the `forceR` package:
 
-Rühr, PT & Blanke, A (**2022**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution* **XXX**: pp.XX-XX. doi: [10.1111/2041-210X.13909](https://doi.org/10.1111/2041-210X.13909)
+Rühr, PT & Blanke, A (**2022**): `forceX` and `forceR`: a mobile setup and R package to measure and analyze a wide range of animal closing forces. *Methods in Ecology and Evolution* **13**(9): pp. 1938-1948. doi: [10.1111/2041-210X.13909](https://doi.org/10.1111/2041-210X.13909)
 
 ## Installation
 ### Official release
@@ -420,7 +420,7 @@ head(classifier)
 ### Convert measurement to force
 To convert a voltage measurement to a force measurement [Newton], we need an amplification value and, depending on the measurement setup, the lever ratio of the lever forwarding the force from the force plate to the sensor. 
 
-Now we can convert the y-values of `df.all.200` to force data and add the `specimen` and `species` info from the `classifier` using the `y_to_force()` function:
+Now we can convert the y-values of `df.all.200` to force data using the amplification and lever ratio info from the `classifier` with the `y_to_force()` function:
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE}
 df.all.200.tax <- y_to_force(df = df.all.200, 
@@ -436,10 +436,10 @@ Finally, we can start with the actual analysis of the data. First, we want to ca
 From the previous steps, df.all.200.tax already contains the columns `measurement`, `specimen` and `species`. Now, we can use the function `summarize_measurements()` to create a summary tibble by adding the column names for which we want a summary in `var1` and `var2`. `var1` must name the column that stores the unique measurement IDs, e.g. measurement number, to calculate minimal and maximal force values per measurement. As `var2` we will use 'specimen' to calculate the summary data per specimen from the min. and max. values of the measurements of that specimen. Thus, the resulting tibble will contain summaries of all measurements that were performed with the same specimen.
 
 ```{r eval=TRUE, warning=FALSE, message=FALSE, fig.width = 7, fig.height=6}
-# add species to df.all.200.tax
+# add species and specimen info to df.all.200.tax
 df.all.200.tax <- df.all.200.tax %>% 
   left_join(classifier %>% 
-              select(species, measurement))
+              select(species, specimen, measurement))
 
 var1 = "measurement"
 var2 = "specimen"

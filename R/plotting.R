@@ -94,10 +94,10 @@ plot_measurement <- function (file,
 #' Plots one graph per peak curve and, if `plot.to.pdf == TURE`, saves all peak curves as one PDF at `path.plots`.
 #'
 #' @examples
-#' # Using the forceR::peaks.df and forceR::df.all.200.tax datasets:
+#' # Using the first row of forceR::peaks.df and the forceR::df.all.200.tax dataset:
 #'
 #' # plot peaks
-#' plot_peaks(df.peaks = forceR::peaks.df,
+#' plot_peaks(df.peaks = forceR::peaks.df[1, ],
 #'            df.data = forceR::df.all.200.tax,
 #'            additional.msecs = 20) # instead of the default (2000) because of
 #'                                   # the highly downsampled example dataset.
@@ -118,6 +118,14 @@ plot_peaks <- function(df.peaks,
   #             path.plots = "./test_folder",
   #             show.progress = TRUE)
 
+  # # or:
+  # df.peaks = bite_starts_ends_title
+  # df.data = BF_measurements_plot_titles
+  # additional.msecs = 2000
+  # plot.to.screen = FALSE
+  # path.plots = peak_folder
+  # show.progress = TRUE
+
   if(sum(colnames(df.peaks) %in% c("starts", "ends", "measurements")) != 3){
     stop ("column names of 'df.peaks' must contain 'starts', 'ends', 'measurements'.")
   }
@@ -131,6 +139,24 @@ plot_peaks <- function(df.peaks,
   }
 
   # if(!is.logical(plot.to.pdf)) stop ("'plot.to.pdf' must be logical.")
+
+  # reduce df.peaks according to measurement occurences in df.data
+  # df.peaks
+  # df.data
+  all_measurements <- unique(df.data$measurement)
+  rows_to_remove <- c()
+  for(f in 1:nrow(df.peaks)){
+    curr_measurements <- unique(str_split(df.peaks$measurements[f], pattern = "; ")[[1]])
+    for(o in 1:length(curr_measurements)){
+      if(curr_measurements[o] %in% all_measurements == FALSE){
+        rows_to_remove <- c(rows_to_remove, f)
+      }
+    }
+  }
+
+  if(length(rows_to_remove) > 0){
+    df.peaks <- df.peaks[-unique(rows_to_remove), ]
+  }
 
   measurement <- NULL
 

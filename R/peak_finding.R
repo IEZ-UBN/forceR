@@ -54,18 +54,18 @@
 #' require(dplyr)
 #' # Using the forceR::df.all.200.tax dataset:
 #'
-#' # reduce dataset
-#' df.all.200.tax_filtered <- forceR::df.all.200.tax %>%
+#' # reduce dataset (only rows 40 to 95 of species A (containing data of
+#'   # measurement 1 and 2 (m_01 and m_02)))
+#' df.all.200.tax_filtered <- forceR::df.all.200.tax[40:95, ] %>%
 #'   filter(species == "species_A")
 #'
-#' # find strongest peaks
+#' # find the 4 strongest peaks
 #' peaks.df <- find_strongest_peaks(df = df.all.200.tax_filtered,
-#'                                  no.of.peaks = 5)
+#'                                  no.of.peaks = 4)
 #'
-#' # use plot results:
-#'
+#' # plot results (three peaks in measurement 1, 1 peak in measurement 2):
 #' # plot_peaks(df.peaks = peaks.df,
-#' #            df.data = df.all,
+#' #            df.data = df.all.200.tax_filtered,
 #' #            additional.msecs = 20)
 #'
 #' @export
@@ -102,7 +102,7 @@ find_strongest_peaks <- function(df,
     if(!is.character(path.plots)) stop ("'path.plots' must be a character string")
   }
 
-  specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in funciton?
+  specimen <- species <- slope <- measurement <- NULL # here! classifier is needed below for species info adding - should be parsed in function?
 
   # print("Initial rough threshold search for peaks...")
   measurements.all <- sort(unique(df$measurement))
@@ -127,7 +127,7 @@ find_strongest_peaks <- function(df,
     # plot(curr.plot.window$t, curr.plot.window$force, type="l")
 
     curr.specimen <- curr.plot.window %>%
-      slice(n=1) %>%
+      slice(1) %>%
       pull(specimen)
 
     threshold <- initial.threshold * max(curr.plot.window$force)

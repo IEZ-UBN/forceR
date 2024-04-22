@@ -124,17 +124,16 @@ reduce_frq <- function (df,
 #'   according to an amplification value and, depending on the measurement setup, the lever ratio of the
 #'   rocker forwarding the force from the point the force acts on to the sensor.
 #'
-#'  These values should be stored in a `classifier` (s. below). At the same, it adds `specimen` and `species`
-#'  info from the respective columns of the `classifier`.
+#'  These values should be stored in a `classifier` (s. below).
 #'
 #' @details
-#' The `classifier` should have the following format:
+#' The `classifier` should have at leaste the following columns:
 #'
-#' | **`species`** | **`specimen`** | **`measurement`** | **`amp`** | **`lever.ratio`** |
-#' | :----: | :----: | :----: |:----: | :----: |
-#' | `species.1` | `specimen.1` | `measurement.1` | `amp.1` | `lever.ratio.1` |
+#' | **`measurement`** | **`amp`** | **`lever.ratio`** |
+#' | :----: |:----: | :----: |
+#' | `measurement.1` | `amp.1` | `lever.ratio.1` |
 #' | `...` | `...` | `...` | `...` | `...`  |
-#' | `species.n` | `specimen.n` | `measurement.n` | `amp.n` | `lever.ratio.n` |
+#' | `measurement.n` | `amp.n` | `lever.ratio.n` |
 #'
 #' It must contain one row per unique measurement number that is present in the
 #' df.
@@ -187,7 +186,7 @@ y_to_force <- function (df,
   if(sum(colnames(df) %in% c("t", "y")) != 2){
     stop ("column names of 'df' must contain 't', 'y'.")
   }
-  if(sum(colnames(classifier) %in% c("specimen", "amp", "lever.ratio")) != 3){
+  if(sum(colnames(classifier) %in% c("amp", "lever.ratio")) != 2){
     stop ("column names of 'classifier' must contain 'specimen', 'amp', 'lever.ratio'.")
   }
   if(!is.character(measurement.col) & !is.null(measurement.col)){
@@ -219,7 +218,7 @@ y_to_force <- function (df,
                   unique(classifier %>%
                            pull(measurement.col))))
   }
-  amp <- lever.ratio <- y <- species <- specimen <- NULL
+  amp <- lever.ratio <- y <- specimen <- NULL
 
   # df <- df.all.200
   if(!("lever.ratio" %in% colnames(classifier))){
@@ -230,9 +229,9 @@ y_to_force <- function (df,
   }
   df <- df %>%
     left_join(classifier %>%
-                select(all_of(measurement.col), species, specimen, amp, lever.ratio),
+                select(all_of(measurement.col), amp, lever.ratio),
               by=measurement.col) %>%
     mutate(force = y * lever.ratio / amp) %>%
-    select(all_of(measurement.col), specimen, t, force)
+    select(all_of(measurement.col), t, force)
   return(df)
 }

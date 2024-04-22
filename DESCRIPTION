@@ -1,19 +1,20 @@
 Package: forceR
 Title: Force Measurement Analyses
-Description: For cleaning and analyses of animal closing force measurements. 
+Description: For cleaning and analysis of graphs, such as animal closing force 
+    measurements. 
     'forceR' was initially written and optimized to deal with insect bite force 
     measurements, but can be used for any time series. Includes a full workflow 
     to load, plot and crop data, correct amplifier and baseline drifts, 
     identify individual peak shapes (bites), rescale (normalize) peak curves, 
     and find best polynomial fits to describe and analyze force curve shapes.
-Version: 1.0.17
-Date: 2022-11-11
+Version: 1.0.21
+Date: 2024-03-22
 License: MIT + file LICENSE
 URL: https://github.com/Peter-T-Ruehr/forceR
 BugReports: https://github.com/Peter-T-Ruehr/forceR/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
 Imports: 
     dplyr,
     graphics,
@@ -26,7 +27,7 @@ Imports:
     stats,
     stringr
 Depends: 
-    R (>= 4.0)
+    R (>= 4.2)
 VignetteBuilder: knitr
 Suggests: 
     ggplot2,
@@ -35,7 +36,14 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Authors@R: 
-    person("Peter", "Rühr", , "peter.ruehr@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-2776-6172"))
+    c(person(given = "Peter T.", 
+              family = "Rühr", 
+              email = "peter.ruehr@gmail.com",
+              role = c("aut", "cre"),
+              comment = c(ORCID = "0000-0003-2776-6172")),
+           person(given = "Alexander", 
+              family = "Blanke", 
+              role = c("ctb"),
+              comment = c(ORCID = "0000-0003-4385-6039")))
 Maintainer: Peter T. Rühr <peter.ruehr@gmail.com>
 LazyData: true

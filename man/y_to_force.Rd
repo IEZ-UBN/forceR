@@ -26,14 +26,13 @@ according to an amplification value and, depending on the measurement setup, the
 rocker forwarding the force from the point the force acts on to the sensor.
 }
 \details{
-These values should be stored in a \code{classifier} (s. below). At the same, it adds \code{specimen} and \code{species}
-info from the respective columns of the \code{classifier}.
+These values should be stored in a \code{classifier} (s. below).
 
-The \code{classifier} should have the following format:\tabular{ccccc}{
-   \strong{\code{species}} \tab \strong{\code{specimen}} \tab \strong{\code{measurement}} \tab \strong{\code{amp}} \tab \strong{\code{lever.ratio}} \cr
-   \code{species.1} \tab \code{specimen.1} \tab \code{measurement.1} \tab \code{amp.1} \tab \code{lever.ratio.1} \cr
-   \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \tab \code{...} \cr
-   \code{species.n} \tab \code{specimen.n} \tab \code{measurement.n} \tab \code{amp.n} \tab \code{lever.ratio.n} \cr
+The \code{classifier} should have at leaste the following columns:\tabular{ccc}{
+   \strong{\code{measurement}} \tab \strong{\code{amp}} \tab \strong{\code{lever.ratio}} \cr
+   \code{measurement.1} \tab \code{amp.1} \tab \code{lever.ratio.1} \cr
+   \code{...} \tab \code{...} \tab \code{...} \cr
+   \code{measurement.n} \tab \code{amp.n} \tab \code{lever.ratio.n} \cr
 }
 
 
